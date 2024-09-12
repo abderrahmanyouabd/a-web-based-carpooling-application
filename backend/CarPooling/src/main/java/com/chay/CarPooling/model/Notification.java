@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Data
 @Table(schema = "notification")
@@ -13,8 +15,12 @@ import lombok.NoArgsConstructor;
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
-    private String title;
-    private String content;
+    private String message;
+    private LocalDateTime sentAt;
+
+    @ManyToOne
+    private User recipient;
+
 }
