@@ -16,10 +16,10 @@ public class Trip {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long tripId;
-
+    private Long availableSeats;
+    private Double pricePerSeat;
     private Long vehicleId;
     private Long stationId;
-    private int numberOfPeople;
     private String destination;
     private LocalDateTime departureTime;
 }

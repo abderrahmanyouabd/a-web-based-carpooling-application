@@ -20,13 +20,14 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String fullName;
 
     @Email(message = "Email is not valid")
     private String email;
+    private String fullName;
     private String password;
+    private String nationality;
     private String phone;
-    private String dateOfBirth;
     private String gender;
-    private String country;
+    private String dateOfBirth;
+
 }
