@@ -8,16 +8,19 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Data
-@Table(schema = "vehicle")
+@Table(name = "vehicle")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Vehicle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long vehicleId;
+    private Long id;
 
-    private String vehicleName;
     private String model;
     private String color;
-    private int numberOfSeats;
+    private String licensePlateNumber;
+    private String brand;
+
+    @OneToOne
+    private User user;
 }

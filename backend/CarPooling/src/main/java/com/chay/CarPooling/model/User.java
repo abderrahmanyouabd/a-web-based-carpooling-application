@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
  */
 @Entity
 @Data
-@Table(schema = "userr")
+@Table(name = "userr")
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -29,5 +29,6 @@ public class User {
     private String phone;
     private String gender;
     private String dateOfBirth;
-
+    private String gender;
+    private String country;
 }

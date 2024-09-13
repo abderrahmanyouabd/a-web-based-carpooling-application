@@ -5,21 +5,23 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
-@Table(schema = "trip")
+@Table(name = "trip")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Trip {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long tripId;
-    private Long availableSeats;
-    private Double pricePerSeat;
+
     private Long vehicleId;
     private Long stationId;
+    private int numberOfPeople;
     private String destination;
     private LocalDateTime departureTime;
 }

@@ -7,22 +7,17 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Entity
+
 @Data
-@Table(schema = "station")
 @NoArgsConstructor
 @AllArgsConstructor
+@Embeddable
 public class Station {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long stationId;
 
-    private Long carId;
-    private Long userId;
-    private String stationName;
-    private LocalDateTime departureTime;
-    private int numberOfPeople;
+    private String name;
     private String location;
     private String longitude;
     private String latitude;
+    private String departTime;
+    private String arriveTime;
 }
