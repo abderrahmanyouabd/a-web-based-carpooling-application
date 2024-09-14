@@ -1,9 +1,10 @@
 import React from "react";
+import Home from "./components/Home";
 
 const App = () => {
   return (
     <div className="text-5xl font-bold">
-      Hello World
+        <Home />
     </div>
   );
 }
