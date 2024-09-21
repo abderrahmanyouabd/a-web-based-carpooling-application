@@ -8,6 +8,6 @@ import lombok.Data;
  */
 @Data
 public class AuthResponse {
-    private String jwtToken;
     private String message;
+    private String jwt;
 }

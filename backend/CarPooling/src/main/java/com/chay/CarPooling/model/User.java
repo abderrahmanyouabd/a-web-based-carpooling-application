@@ -1,10 +1,9 @@
 package com.chay.CarPooling.model;
 
+import com.chay.CarPooling.domain.UserRole;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * @author: Abderrahman Youabd aka: A1ST
@@ -12,23 +11,26 @@ import lombok.NoArgsConstructor;
  */
 @Entity
 @Data
-@Table(name = "userr")
-@NoArgsConstructor
-@AllArgsConstructor
+@Table(name = "\"user\"")
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Email(message = "Email is not valid")
-    private String email;
     private String fullName;
+    private String email;
+
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
-    private String nationality;
-    private String phone;
-    private String gender;
+    private String mobile;
+    private String bio;
+    private String profilePicture;
     private String dateOfBirth;
-    private String gender;
-    private String country;
+
+    private String status;
+
+    @Enumerated(EnumType.STRING)
+    private UserRole role = UserRole.USER_ROLE;
+
 }
