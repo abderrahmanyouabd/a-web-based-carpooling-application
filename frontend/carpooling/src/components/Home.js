@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import MenuBar from "./MenuBar";
-
 
 
 const Home = () => {
@@ -23,7 +21,6 @@ const Home = () => {
 
     return (
         <div>
-           <MenuBar />
            
            <div className="flex justify-center items-center mt-10">
                 <div className="flex bg-white p-4 rounded-lg shadow-lg">

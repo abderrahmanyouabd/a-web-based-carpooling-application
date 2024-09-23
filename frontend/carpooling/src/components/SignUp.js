@@ -1,44 +1,104 @@
 import React, { useState } from "react";
-import MenuBar from "./MenuBar";
+import { useNavigate } from "react-router-dom";
 
-const SignUp = () => {
+
+const SignUp = ({ setUser }) => {
     const [step, setStep] = useState(1);
     const [params, setParams] = useState({
         email: '',
         firstName: '',
         lastName: '',
         dateOfBirth: '',
-        gender: '',
+        //gender: '',
         password: ''
     });
+    const [errorMessage, setErrorMessage] = useState("");
+    const navigate = useNavigate();
 
     const handleParamChange = (e) => {
         const { name, value } = e.target;
         setParams({ ...params, [name]: value });
     };
 
-    const handleContinue = () => {
-        if (step === 1 && params.email) {
-            setStep(2);
+    const isValidEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    const calculateAge = (dateOfBirth) => {
+        const birthDate = new Date(dateOfBirth);
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDifference = today.getMonth() - birthDate.getMonth();
+
+        if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
         }
 
-        if(step === 2 && params.firstName && params.lastName) {
-            setStep(3);
-        }
+        return age;
+    }
+
+    const handleContinue = () => {
+        if (step === 1){
+            if (!params.email || !isValidEmail(params.email)){
+                setErrorMessage('Please enter a valid email address.');
+                return;
+            }
+            setErrorMessage("");
+            setStep(2);
+        }    
+
+        if(step === 2 && params.firstName && params.lastName) setStep(3);
 
         if(step === 3 && params.dateOfBirth) {
-            setStep(4);
-        }
+            const age = calculateAge(params.dateOfBirth);
+            if (age < 18){
+                setErrorMessage('You must be at least 18 years old to sign up.');
+                return;
+            }
+            setErrorMessage("");
+            setStep(4)
+        };
 
-        if(step === 5 && params.password) {
-            console.log("User's input values: ", params);
+        if(step === 4 && params.password) {
+            setStep(5)
+            handleSignUp();
         }
 
     };
 
+    const handleSignUp = async () => {
+        const fullName = `${params.firstName} ${params.lastName}`;
+
+        const userData = {...params, fullName};
+
+        try {
+            const response = await fetch('http://localhost:8080/auth/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData),
+            });
+
+            const data = await response.json();
+
+            if (response.ok){
+                console.log("User's input values: ", userData);
+                console.log("JWT Token: ", data.jwt);
+                setUser({ fullName: fullName });
+                localStorage.setItem('jwtToken', data.jwt);
+                navigate('/');
+            } else {
+                setErrorMessage(data.message || 'Sign up failed email address already used :(');
+            }
+        } catch (error) {
+            setErrorMessage('An error occurred while signing up. Please try again later.');
+        }
+    };
+
     return (
         <div>
-            <MenuBar />
             <div className="flex flex-col items-center mt-10">
 
                 {step === 1 && (
@@ -130,7 +190,7 @@ const SignUp = () => {
 
                 )}
 
-                {step === 4 && (
+                {/* {step === 4 && (
 
                     <>
                         <h1 className="text-3xl font-extrabold text-gray-700">How would you like to be addressed?</h1>
@@ -170,9 +230,9 @@ const SignUp = () => {
                             </div>
                         </div>
                     </>
-                )}
+                )} */}
 
-                {step === 5 && (
+                {step === 4 && (
 
                     <>
                         <h1 className="text-3xl font-extrabold text-gray-700 mb-10">Define your password</h1>
@@ -199,7 +259,13 @@ const SignUp = () => {
                     </>
 
                 )}
+
                 
+                {errorMessage && (
+                    <div className="text-red-600 mt-5">
+                        {errorMessage}
+                    </div>
+                )}
             </div>
         </div>  
     );
