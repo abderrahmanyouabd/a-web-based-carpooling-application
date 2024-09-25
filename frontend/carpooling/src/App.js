@@ -6,6 +6,7 @@ import SignIn from "./components/SignIn";
 import SignUp from "./components/SignUp";
 import MenuBar from "./components/MenuBar";
 import Profile from "./components/Profile";
+import Rides from "./components/Rides";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -16,6 +17,7 @@ const App = () => {
           <MenuBar user={user} />
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/rides" element={<Rides />} />
             <Route path="/signin" element={<SignIn setUser={setUser} />} />
             <Route path="/signup" element={<SignUp setUser={setUser} />} />
             <Route path="/profile" element={<Profile setUser={setUser}/>} />
