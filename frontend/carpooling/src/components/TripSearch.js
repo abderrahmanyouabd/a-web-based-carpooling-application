@@ -60,7 +60,7 @@ const TripSearch = () => {
     }
 
     return (
-        <div className="flex justify-center items-center mt-10">
+        <div className="flex justify-center items-center mt-3">
                 <div className="flex bg-white p-4 rounded-lg shadow-lg relative">
                     <div className="relative">
                         <input 
