@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 /**
  * @author: Abderrahman Youabd aka: A1ST
  * @version: 1.0

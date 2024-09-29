@@ -59,6 +59,7 @@ public class AuthController {
         String email = user.getEmail();
         String password = user.getPassword();
         String fullName = user.getFullName();
+        String dateOfBirth = user.getDateOfBirth().toString();
 
 
         User isEmailExist = userRepository.findByEmail(email);
@@ -74,6 +75,7 @@ public class AuthController {
 
         // Create new user
         User createdUser = new User();
+        createdUser.setDateOfBirth(dateOfBirth); // Ling: added this to put DOB in database
         createdUser.setEmail(email);
         createdUser.setFullName(fullName);
         createdUser.setPassword(passwordEncoder.encode(password));
