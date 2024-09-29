@@ -7,7 +7,7 @@ const Sidebar = ({ setSoryBy }) => {
     };
 
     return (
-        <div className="w-1/5 p-4">
+        <div className="w-1/4 p-6">
             <h2 className="font-bold text-lg mb-4">Sort by</h2>
             <div className="flex flex-col space-y-2 p-2">
                 <label>

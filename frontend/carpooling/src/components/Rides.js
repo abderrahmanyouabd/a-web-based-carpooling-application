@@ -175,14 +175,14 @@ const Rides = () => {
 
     return (
         <div>
-            <div className="bg-white shadow-md p-4">
+            <div className="container mx-auto px-4 py-8">
                 <TripSearch />
             </div>
             
             <div className="flex bg-gray-100">
                 <Sidebar setSoryBy={setSoryBy} />
 
-                <div className="w-4/5 p-4">
+                <div className="w-3/4 p-4">
                     
                     <div className="flex justify-between items-center p-4 mb-6">
                         <div>
