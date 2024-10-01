@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const TripSearch = () => {
+const TripSearch = ({ initialParams = {} }) => {
 
     const [params, setParams] = useState({
-        leavingFrom: '',
-        goingTo: '',
-        date: 'Today',
-        passengers: 1
+        leavingFrom: initialParams.leavingFrom || '',
+        goingTo: initialParams.goingTo ||'',
+        date: initialParams.date || 'Today',
+        passengers: initialParams.passengers || 1
     });
 
     const [suggestions, setSuggestions] = useState([]);
@@ -26,15 +26,21 @@ const TripSearch = () => {
             if (query.length > 2){ // Start suggesting after 2 characters
                 try {
                     const response = await axios.get(
-                        'https://wft-geo-db.p.rapidapi.com/v1/geo/cities', {
-                            params: { namePrefix: query },
-                            headers: {
-                                'x-rapidapi-host': 'wft-geo-db.p.rapidapi.com',
-                                'x-rapidapi-key': '4779843e96msh40fc95a3dcbef6cp17159bjsn01979ec25fa7'
+                        'https://api.openrouteservice.org/geocode/autocomplete', {
+                            params: { 
+                                api_key: '5b3ce3597851110001cf6248e4896a13b7cd44c988adeba2a1f425b4',
+                                text: query,
+                                layers: 'address,locality,country,region,county'
                             }
                         }
                     );
-                    setSuggestions(response.data.data);
+
+                    const citySuggestions = response.data.features.map(feature => ({
+                        id: feature.properties.id,
+                        name: feature.properties.name
+                    }));
+
+                    setSuggestions(citySuggestions);
                 } catch (error) {
                     console.error("Error fetching suggestions: ", error);
                 }

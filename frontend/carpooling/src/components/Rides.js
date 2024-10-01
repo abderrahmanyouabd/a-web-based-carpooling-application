@@ -17,6 +17,9 @@ const fakeRides = [
         to: "Manchester", 
         price: "£21.79", 
         walking: "10 mins", 
+        departureDistance: 10,  
+        arrivalDistance: 10,  
+        pickUpTimeWindow: "12:01 - 18:00",
         profileImage: "https://randomuser.me/api/portraits/men/32.jpg", 
         profileName: "Muhammad",
         instantBooking: true
@@ -30,6 +33,9 @@ const fakeRides = [
         to: "Birmingham", 
         price: "£18.50", 
         walking: "5 mins", 
+        departureDistance: 5,
+        arrivalDistance: 5,
+        pickUpTimeWindow: "12:01 - 18:00",
         profileImage: "https://randomuser.me/api/portraits/women/45.jpg", 
         profileName: "Aisha",
         instantBooking: false
@@ -43,6 +49,9 @@ const fakeRides = [
         to: "Liverpool", 
         price: "£25.00", 
         walking: "8 mins", 
+        departureDistance: 8,
+        arrivalDistance: 8,
+        pickUpTimeWindow: "12:01 - 18:00",
         profileImage: "https://randomuser.me/api/portraits/men/65.jpg", 
         profileName: "Oliver",
         instantBooking: true
@@ -56,6 +65,9 @@ const fakeRides = [
         to: "Glasgow", 
         price: "£12.99", 
         walking: "15 mins", 
+        departureDistance: 15,
+        arrivalDistance: 15,
+        pickUpTimeWindow: "06:00 - 12:00",
         profileImage: "https://randomuser.me/api/portraits/women/21.jpg", 
         profileName: "Emily",
         instantBooking: false
@@ -69,6 +81,9 @@ const fakeRides = [
         to: "Bath", 
         price: "£9.50", 
         walking: "12 mins", 
+        departureDistance: 12,
+        arrivalDistance: 12,
+        pickUpTimeWindow: "12:01 - 18:00",
         profileImage: "https://randomuser.me/api/portraits/men/18.jpg", 
         profileName: "James",
         instantBooking: true
@@ -82,6 +97,9 @@ const fakeRides = [
         to: "York", 
         price: "£20.70", 
         walking: "7 mins", 
+        departureDistance: 7,
+        arrivalDistance: 7,
+        pickUpTimeWindow: "06:01 - 12:00",
         profileImage: "https://randomuser.me/api/portraits/women/34.jpg", 
         profileName: "Sophie",
         instantBooking: true
@@ -95,6 +113,9 @@ const fakeRides = [
         to: "Cambridge", 
         price: "£15.90", 
         walking: "3 mins", 
+        departureDistance: 3,
+        arrivalDistance: 3,
+        pickUpTimeWindow: "06:00 - 12:00",
         profileImage: "https://randomuser.me/api/portraits/men/50.jpg", 
         profileName: "Liam",
         instantBooking: false
@@ -108,6 +129,9 @@ const fakeRides = [
         to: "Swansea", 
         price: "£17.30", 
         walking: "9 mins", 
+        departureDistance: 9,
+        arrivalDistance: 9,
+        pickUpTimeWindow: "06:01 - 12:00",
         profileImage: "https://randomuser.me/api/portraits/women/61.jpg", 
         profileName: "Isabella",
         instantBooking: true
@@ -120,7 +144,10 @@ const fakeRides = [
         from: "Brighton", 
         to: "Southampton", 
         price: "£19.60", 
-        walking: "6 mins", 
+        walking: "6 mins",
+        departureDistance: 6,
+        arrivalDistance: 6,
+        pickUpTimeWindow: "18:01 - 23:59",
         profileImage: "https://randomuser.me/api/portraits/men/7.jpg", 
         profileName: "Ethan",
         instantBooking: false
@@ -134,6 +161,9 @@ const fakeRides = [
         to: "Stirling", 
         price: "£14.99", 
         walking: "11 mins", 
+        departureDistance: 11,
+        arrivalDistance: 11,
+        pickUpTimeWindow: "12:01 - 18:00",
         profileImage: "https://randomuser.me/api/portraits/women/27.jpg", 
         profileName: "Charlotte",
         instantBooking: true
@@ -143,9 +173,18 @@ const fakeRides = [
 const Rides = () => {
     const location = useLocation();
     const { leavingFrom, goingTo, date, passengers } = location.state;
-    const [sortBy, setSoryBy] = useState("departure");
+    const [sortBy, setSoryBy] = useState("");
+    const [pickUpFilter, setPickUpFilter] = useState("");
+
+    const pickUpTimeRanges = {
+        "before6": ["00:00", "06:00"],
+        "6to12": ["06:00", "12:00"],
+        "12to18": ["12:01", "18:00"],
+        "after18": ["18:01", "23:59"]
+    };
     
     const sortRides = (rides) => {
+        console.log("Sorting rides with sortBy:", sortBy, "and pickUpFilter:", pickUpFilter); // Add this line
         switch (sortBy) {
             case "price":
                 return rides.sort((a, b) => parseFloat(a.price.slice(1)) - parseFloat(b.price.slice(1)));
@@ -165,6 +204,25 @@ const Rides = () => {
                 
             case "duration":
                 return rides.sort((a, b) => parseInt(a.duration) - parseInt(b.duration));
+            case "departurePoint":
+                return rides.sort((a, b) => a.departureDistance - b.departureDistance);
+            case "arrivalPoint":
+                return rides.sort((a, b) => a.arrivalDistance - b.arrivalDistance);
+            case "pickUpTime":
+
+                console.log("pickUpFilter: " + pickUpFilter);
+                if (pickUpFilter && pickUpTimeRanges[pickUpFilter]) {
+                    const [start, end] = pickUpTimeRanges[pickUpFilter];
+
+                    console.log("Start: " + start + ", End: " + end);
+                    return rides.filter((ride) => {
+                        const [rideHours, rideMinutes] = ride.departureTime.split(":").map(Number);
+                        const rideTime = `${rideHours.toString().padStart(2, '0')}:${rideMinutes.toString().padStart(2, '0')}`;
+                        return rideTime >= start && rideTime <= end;
+                    });
+                }
+                return rides;
+
             default:
                 return rides;
         }
@@ -176,11 +234,11 @@ const Rides = () => {
     return (
         <div>
             <div className="container mx-auto px-4 py-8">
-                <TripSearch />
+                <TripSearch initialParams={{ leavingFrom, goingTo, date, passengers }}/>
             </div>
             
             <div className="flex bg-gray-100">
-                <Sidebar setSoryBy={setSoryBy} />
+                <Sidebar setSoryBy={setSoryBy} setPickUpFilter={setPickUpFilter} />
 
                 <div className="w-3/4 p-4">
                     

@@ -8,14 +8,14 @@ const Home = () => {
     return (
         <div className="font-sans">
 
-            <div className="relative text-white text-center">
+            <div className="relative text-center">
                 <img 
                     src={CarPoolCommercial}
                     alt="Commerical Car"
                     className="w-full h-72 object-cover brightness-75"
                 />
                 <div className="absolute inset-0 flex flex-col justify-center items-center">
-                    <h1 className="text-4xl font-bold">
+                    <h1 className="text-4xl font-bold text-white">
                         Carpool to thousands of destinations at low prices
                     </h1>
                     <TripSearch />
