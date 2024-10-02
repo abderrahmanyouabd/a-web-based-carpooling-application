@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const SignIn = ({ setUser }) => {
     const [params, setParams] = useState({
@@ -70,15 +70,21 @@ const SignIn = ({ setUser }) => {
                     className="font-bold mt-10 py-2 px-5 w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline-2 focus:ring-indigo-100 focus:border-indigo-200 sm:text-sm"
                 />
 
-                <input 
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={params.password}
-                    onChange={handleParamChange}
-                    placeholder="Password"
-                    className="font-bold mt-5 py-2 px-5 w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                /> 
+                <div className="flex flex-col w-[32rem] mt-5">
+                    <input 
+                        type="password"
+                        id="password"
+                        name="password"
+                        value={params.password}
+                        onChange={handleParamChange}
+                        placeholder="Password"
+                        className="font-bold py-2 px-5 h-12 bg-gray-200 rounded-xl shadow-sm focus:outline-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
+
+                    <div className="flex justify-end mt-2">
+                        <Link to="/signin/forgot-password" className="text-blue-500 underline">Forgot Password</Link>
+                    </div>
+                </div>
 
                 <button 
                     onClick={handleLogin}
