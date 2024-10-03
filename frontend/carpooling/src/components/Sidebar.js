@@ -9,15 +9,13 @@ const Sidebar = ({ setSoryBy, setPickUpFilter}) => {
 
     const handleSortChange = (event) => {
         const { value } = event.target;
-        console.log("Selected Sort By: " + value)
         setSelectedSort(value);
         setSoryBy(value);
     };
 
     const handlePickUpTimeChange = (event) => {
         const { value } = event.target;
-        console.log("Selected Sort By: " + value)
-        setSoryBy(value);
+        
         setSelectedPickUpTime(value);
         setPickUpFilter(value);
     };

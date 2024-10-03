@@ -6,6 +6,7 @@ import { MdAttachMoney } from 'react-icons/md';
 import { FaCar } from "react-icons/fa";
 import TripSearch from "./TripSearch";
 import Sidebar from "./Sidebar";
+import { useNavigate } from "react-router-dom";
 
 const fakeRides = [
     { 
@@ -175,6 +176,7 @@ const Rides = () => {
     const { leavingFrom, goingTo, date, passengers } = location.state;
     const [sortBy, setSoryBy] = useState("");
     const [pickUpFilter, setPickUpFilter] = useState("");
+    const navigate = useNavigate();
 
     const pickUpTimeRanges = {
         "before6": ["00:00", "06:00"],
@@ -184,7 +186,17 @@ const Rides = () => {
     };
     
     const sortRides = (rides) => {
-        console.log("Sorting rides with sortBy:", sortBy, "and pickUpFilter:", pickUpFilter); // Add this line
+
+        if (pickUpFilter && pickUpTimeRanges[pickUpFilter]) {
+            const [start, end] = pickUpTimeRanges[pickUpFilter];
+
+            return rides.filter((ride) => {
+                const [rideHours, rideMinutes] = ride.departureTime.split(":").map(Number);
+                const rideTime = `${rideHours.toString().padStart(2, '0')}:${rideMinutes.toString().padStart(2, '0')}`;
+                return rideTime >= start && rideTime <= end;
+            });
+        }
+
         switch (sortBy) {
             case "price":
                 return rides.sort((a, b) => parseFloat(a.price.slice(1)) - parseFloat(b.price.slice(1)));
@@ -208,25 +220,15 @@ const Rides = () => {
                 return rides.sort((a, b) => a.departureDistance - b.departureDistance);
             case "arrivalPoint":
                 return rides.sort((a, b) => a.arrivalDistance - b.arrivalDistance);
-            case "pickUpTime":
-
-                console.log("pickUpFilter: " + pickUpFilter);
-                if (pickUpFilter && pickUpTimeRanges[pickUpFilter]) {
-                    const [start, end] = pickUpTimeRanges[pickUpFilter];
-
-                    console.log("Start: " + start + ", End: " + end);
-                    return rides.filter((ride) => {
-                        const [rideHours, rideMinutes] = ride.departureTime.split(":").map(Number);
-                        const rideTime = `${rideHours.toString().padStart(2, '0')}:${rideMinutes.toString().padStart(2, '0')}`;
-                        return rideTime >= start && rideTime <= end;
-                    });
-                }
-                return rides;
 
             default:
                 return rides;
         }
     };
+
+    const handleRideClick = (ride) => {
+        navigate("/ride-detail", {state: {ride} });
+    }
 
     const sortedRides = sortRides([...fakeRides]);
        
@@ -257,6 +259,7 @@ const Rides = () => {
                         {sortedRides.map((ride) => (
                             <div
                                 key={ride.id}
+                                onClick={() => handleRideClick(ride)}
                                 className="bg-white border rounded-lg p-4 mb-4 shadow-lg flex flex-col space-y-4 hover:shadow-2xl transition-shadow duration-200"
                             >   
 
