@@ -14,12 +14,14 @@ const Home = () => {
                     alt="Commerical Car"
                     className="w-full h-72 object-cover brightness-75"
                 />
-                <div className="absolute inset-0 flex flex-col justify-center items-center">
-                    <h1 className="text-4xl font-bold text-white">
-                        Carpool to thousands of destinations at low prices
-                    </h1>
-                    <TripSearch />
-                </div>
+                <h1 className="absolute inset-0 md:text-4xl text-2xl font-bold text-white mt-10 md:mt-20">
+                    Carpool to thousands of destinations <br/> at low prices
+                </h1>
+               
+            </div>
+            
+            <div className="relative inset-0 justify-center items-center bg-gray-100">
+                <TripSearch />
             </div>
 
             <div className="bg-gray-100 py-12">
