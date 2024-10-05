@@ -54,11 +54,11 @@ const MenuBar = ({ user }) => {
                             <div className="flex flex-col space-y-4 bg-blue-500 rounded-lg">
                                 {!user ? (
                                     <>
-                                        <Link to="/signin" className="text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-700 hover:shadow-md transition-all duration-200 ease-in-out">Sign In</Link>
-                                        <Link to="/signup" className="text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-700 hover:shadow-md transition-all duration-200 ease-in-out">Sign Up</Link>
+                                        <Link to="/signin" onClick={toggleMenu} className="text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-700 hover:shadow-md transition-all duration-200 ease-in-out">Sign In</Link>
+                                        <Link to="/signup" onClick={toggleMenu} className="text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-700 hover:shadow-md transition-all duration-200 ease-in-out">Sign Up</Link>
                                     </>
                                 ) : (
-                                    <Link to="/profile" className="text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-700 hover:shadow-md transition-all duration-200 ease-in-out">
+                                    <Link to="/profile" onClick={toggleMenu} className="text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-700 hover:shadow-md transition-all duration-200 ease-in-out">
                                         Profile ({user.fullName})
                                     </Link>
                                 )}

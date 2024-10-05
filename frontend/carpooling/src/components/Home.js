@@ -88,13 +88,13 @@ const Home = () => {
 
             </div>
 
-            <footer className="bg-gray-100 py-6">
+            <footer className="bg-gray-100 p-6">
                 <div className="container mx-auto flex justify-between items-center">
                     <div className="flex items-center">
                         <a href="#" className="text-gray-600 hover:text-gray-900">
                             Terms and Conditions
                         </a>
-                        <span className="mx-2 text-gray-600">|</span>
+                        <span className="mx-2 p-4 text-gray-600">|</span>
                         <a href="#" className="text-gray-600 hover:text-gray-900">
                             Privacy Policy
                         </a>

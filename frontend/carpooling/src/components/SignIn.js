@@ -59,7 +59,7 @@ const SignIn = ({ setUser }) => {
     return (
         <div>
             <div className="flex flex-col items-center mt-10">
-                <h1 className="text-3xl font-extrabold text-gray-700">What's your email and password?</h1>
+                <h1 className="text-xl md:text-3xl font-extrabold text-gray-700">What's your email and password?</h1>
                 <input 
                     type="text"
                     id="email"
@@ -67,10 +67,10 @@ const SignIn = ({ setUser }) => {
                     value={params.email}
                     onChange={handleParamChange}
                     placeholder="Email"
-                    className="font-bold mt-10 py-2 px-5 w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline-2 focus:ring-indigo-100 focus:border-indigo-200 sm:text-sm"
+                    className="font-bold mt-10 py-2 px-5 w-[20rem] md:w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline-2 focus:ring-indigo-100 focus:border-indigo-200 sm:text-sm"
                 />
 
-                <div className="flex flex-col w-[32rem] mt-5">
+                <div className="flex flex-col w-[20rem] md:w-[32rem] mt-5">
                     <input 
                         type="password"
                         id="password"

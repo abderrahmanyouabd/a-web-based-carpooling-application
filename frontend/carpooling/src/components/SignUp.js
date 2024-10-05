@@ -104,7 +104,7 @@ const SignUp = ({ setUser }) => {
                 {step === 1 && (
 
                     <>
-                        <h1 className="text-3xl font-extrabold text-gray-700">What's your email address?</h1>
+                        <h1 className="text-xl md:text-3xl font-extrabold text-gray-700">What's your email address?</h1>
                 
                         <input 
                             type="text"
@@ -113,7 +113,7 @@ const SignUp = ({ setUser }) => {
                             value={params.email}
                             onChange={handleParamChange}
                             placeholder="Email"
-                            className="font-bold mt-10 py-2 px-5 w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="font-bold mt-10 py-2 px-5 w-[20rem] md:w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
 
                         <button 
@@ -128,7 +128,7 @@ const SignUp = ({ setUser }) => {
 
                 {step === 2 && (
                     <>
-                        <h1 className="text-3xl font-extrabold text-gray-700">What's your name?</h1>
+                        <h1 className="text-xl md:text-3xl font-extrabold text-gray-700">What's your name?</h1>
                 
                         <input 
                             type="text"
@@ -137,7 +137,7 @@ const SignUp = ({ setUser }) => {
                             value={params.firstName}
                             onChange={handleParamChange}
                             placeholder="First Name"
-                            className="font-bold mt-10 py-2 px-5 w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="font-bold mt-10 py-2 px-5 w-[20rem] md:w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
 
                         <input          
@@ -147,7 +147,7 @@ const SignUp = ({ setUser }) => {
                             value={params.lastName}
                             onChange={handleParamChange}
                             placeholder="Last Name"
-                            className="font-bold mt-10 py-2 px-5 w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="font-bold mt-10 py-2 px-5 w-[20rem] md:w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
 
                         {(params.firstName && params.lastName) && (
@@ -165,7 +165,7 @@ const SignUp = ({ setUser }) => {
                 {step === 3 && (
 
                     <>
-                        <h1 className="text-3xl font-extrabold text-gray-700">What's your date of birth?</h1>
+                        <h1 className="text-xl md:text-3xl font-extrabold text-gray-700">What's your date of birth?</h1>
 
                         <input 
                             type="date"
@@ -174,7 +174,7 @@ const SignUp = ({ setUser }) => {
                             value={params.dateOfBirth}
                             onChange={handleParamChange}
                             placeholder="DD/MM/YY"
-                            className="font-bold mt-10 py-2 px-5 w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="font-bold mt-10 py-2 px-5 w-[20rem] md:w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
 
                         {params.dateOfBirth && (
@@ -235,9 +235,9 @@ const SignUp = ({ setUser }) => {
                 {step === 4 && (
 
                     <>
-                        <h1 className="text-3xl font-extrabold text-gray-700 mb-10">Define your password</h1>
+                        <h1 className="text-xl md:text-3xl font-extrabold text-gray-700 mb-10">Define your password</h1>
 
-                        <p className="text-gray-500">It must have at least 8 characters, 1 letter, 1 number and 1 special character.</p>
+                        <p className="p-8 text-gray-500">It must have at least 8 characters, 1 letter, 1 number and 1 special character.</p>
                         <input 
                             type="password"
                             id="password"
@@ -245,7 +245,7 @@ const SignUp = ({ setUser }) => {
                             value={params.password}
                             onChange={handleParamChange}
                             placeholder="Password"
-                            className="font-bold mt-5 py-2 px-5 w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="font-bold mt-5 py-2 px-5 w-[20rem] md:w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         />
 
                         {params.password && (
