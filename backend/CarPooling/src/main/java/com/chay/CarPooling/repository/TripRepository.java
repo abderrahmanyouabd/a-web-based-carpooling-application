@@ -14,9 +14,10 @@ import java.util.List;
  * @version: 1.0
  */
 public interface TripRepository extends JpaRepository<Trip, Long> {
+
     @Query("SELECT t FROM Trip t " +
-            "WHERE (:goingTo IS NULL OR t.goingTo.name LIKE %:goingTo%) " +
-            "AND (:leavingFrom IS NULL OR t.leavingFrom.name LIKE %:leavingFrom%) " +
+            "WHERE (:goingTo IS NULL OR t.goingTo.name = :goingTo) " +
+            "AND (:leavingFrom IS NULL OR t.leavingFrom.name = :leavingFrom) " +
             "AND (:date IS NULL OR t.date = :date) " +
             "AND (:availableSeats IS NULL OR t.availableSeats >= :availableSeats)")
     List<Trip> searchTrips(@Param("goingTo") String goingTo,

@@ -13,6 +13,7 @@ import com.chay.CarPooling.service.Impl.CustomeUserServiceImplementation;
 import com.chay.CarPooling.service.PasswordResetTokenService;
 import com.chay.CarPooling.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ExpressionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -169,23 +170,23 @@ public class AuthController {
 
         return ResponseEntity.ok(apiResponse);
     }
-
-
-    @PostMapping("reset-password-request")
-    public ResponseEntity<ApiResponse> resetPassword(@RequestParam("email") String email) throws Exception {
-        User user = userService.findUserByEmail(email);
-
-        if(user == null){
-            throw new ExpressionException("User not found");
-        }
-
-        userService.sendPasswordResetEmail(user);
-
-        ApiResponse apiResponse = new ApiResponse();
-        apiResponse.setMessage("Password Reset email set successfully");
-        apiResponse.setStatus(true);
-        return ResponseEntity.ok(apiResponse);
-    }
+//
+//
+//    @PostMapping("reset-password-request")
+//    public ResponseEntity<ApiResponse> resetPassword(@RequestParam("email") String email) throws Exception {
+//        User user = userService.findUserByEmail(email);
+//
+//        if(user == null){
+//            throw new ExpressionException("User not found");
+//        }
+//
+//        userService.sendPasswordResetEmail(user);
+//
+//        ApiResponse apiResponse = new ApiResponse();
+//        apiResponse.setMessage("Password Reset email set successfully");
+//        apiResponse.setStatus(true);
+//        return ResponseEntity.ok(apiResponse);
+//    }
 
 
 

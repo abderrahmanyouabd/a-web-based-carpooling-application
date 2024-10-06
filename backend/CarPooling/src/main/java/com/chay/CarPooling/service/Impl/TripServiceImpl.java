@@ -39,7 +39,7 @@ public class TripServiceImpl implements TripService {
         trip.setDriver(user);
 
 
-        // todo: uncomment once I figure out which apis for fare calc I should use.
+//        // todo: uncomment once I figure out which apis for fare calc I should use.
 //        double suggestedFare = fareCalculationService.calculateFare(trip);
 //        trip.setFarePerSeat(suggestedFare);
 
@@ -54,6 +54,9 @@ public class TripServiceImpl implements TripService {
 
     @Override
     public List<Trip> searchTrips(String goingTo, String leavingFrom, LocalDate date, Integer availableSeat) {
+//        if (date == null) {
+//            date = LocalDate.now();
+//        }
         // Implement search logic based on depart, arrival and date
         // maybe query db with appropriate filters
         return tripRepository.searchTrips(goingTo, leavingFrom, date, availableSeat);
@@ -73,6 +76,7 @@ public class TripServiceImpl implements TripService {
         }
     }
 
+    // todo: get this shit working, it's not yet.
     @Override
     public String searchPlaces(String query) throws Exception {
 

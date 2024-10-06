@@ -28,7 +28,7 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.ACCEPTED);
     }
 
-    // todo: method for updating the profile.
+
     @PatchMapping()
     public ResponseEntity<User> UpdateUserProfileHandler(
             @RequestBody UpdateUserDto dto,
