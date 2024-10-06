@@ -18,6 +18,6 @@ public class Station {
     private String location;
     private String longitude;
     private String latitude;
-    private String departTime;
-    private String arriveTime;
+    private LocalDateTime departureTime;
+    private LocalDateTime arrivalTime;
 }
