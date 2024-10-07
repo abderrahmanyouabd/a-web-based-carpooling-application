@@ -1,6 +1,8 @@
 package com.chay.CarPooling.controller;
 
+import com.chay.CarPooling.exception.UserException;
 import com.chay.CarPooling.model.User;
+import com.chay.CarPooling.request.UpdateUserDto;
 import com.chay.CarPooling.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -26,5 +28,15 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.ACCEPTED);
     }
 
-    // todo: method for updating the profile.
+
+    @PatchMapping()
+    public ResponseEntity<User> UpdateUserProfileHandler(
+            @RequestBody UpdateUserDto dto,
+            @RequestHeader("Authorization") String jwt) throws UserException {
+
+        User user = userService.findUserProfileByJwt(jwt);
+        User updatedUser = userService.updateUser(dto,user);
+
+        return new ResponseEntity<>(updatedUser, HttpStatus.ACCEPTED);
+    }
 }

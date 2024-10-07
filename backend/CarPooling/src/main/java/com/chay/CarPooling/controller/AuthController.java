@@ -2,12 +2,19 @@ package com.chay.CarPooling.controller;
 
 import com.chay.CarPooling.config.JwtProvider;
 import com.chay.CarPooling.domain.UserRole;
+import com.chay.CarPooling.model.PasswordResetToken;
 import com.chay.CarPooling.model.User;
 import com.chay.CarPooling.repository.UserRepository;
 import com.chay.CarPooling.request.LoginRequest;
+import com.chay.CarPooling.request.ResetPasswordRequest;
+import com.chay.CarPooling.response.ApiResponse;
 import com.chay.CarPooling.response.AuthResponse;
 import com.chay.CarPooling.service.Impl.CustomeUserServiceImplementation;
+import com.chay.CarPooling.service.PasswordResetTokenService;
+import com.chay.CarPooling.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.expression.ExpressionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -18,10 +25,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -40,18 +44,9 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final CustomeUserServiceImplementation customUserDetails;
+    private final UserService userService;
+    private final PasswordResetTokenService  passwordResetTokenService;
 
-//    public AuthController(UserRepository userRepository,
-//                          PasswordEncoder passwordEncoder,
-//                          JwtProvider jwtProvider,
-//                          CustomeUserServiceImplementation customUserDetails,
-//    ) {
-//        this.userRepository = userRepository;
-//        this.passwordEncoder = passwordEncoder;
-//        this.jwtProvider = jwtProvider;
-//        this.customUserDetails = customUserDetails;
-//
-//    }
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> createUserHandler(@RequestBody User user){
@@ -59,7 +54,6 @@ public class AuthController {
         String email = user.getEmail();
         String password = user.getPassword();
         String fullName = user.getFullName();
-        String dateOfBirth = user.getDateOfBirth().toString();
 
 
         User isEmailExist = userRepository.findByEmail(email);
@@ -75,7 +69,6 @@ public class AuthController {
 
         // Create new user
         User createdUser = new User();
-        createdUser.setDateOfBirth(dateOfBirth); // Ling: added this to put DOB in database
         createdUser.setEmail(email);
         createdUser.setFullName(fullName);
         createdUser.setPassword(passwordEncoder.encode(password));
@@ -150,6 +143,51 @@ public class AuthController {
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
+
+
+    // todo RequestParam instead of RequestBody
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse> resetPassword(@RequestBody ResetPasswordRequest req) throws Exception {
+        PasswordResetToken resetToken = passwordResetTokenService.findByToken(req.getToken());
+        if (resetToken == null) {
+            throw new ExpressionException("token is required");
+        }
+        if(resetToken.isExpired()){
+            passwordResetTokenService.delete(resetToken);
+            throw new ExpressionException("token got expired");
+        }
+
+
+        User user = resetToken.getUser();
+        userService.updatePassword(user, req.getPassword());
+
+        // todo: delete token
+        passwordResetTokenService.delete(resetToken);
+
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setMessage("Password Reset Success");
+        apiResponse.setStatus(true);
+
+        return ResponseEntity.ok(apiResponse);
+    }
+//
+//
+//    @PostMapping("reset-password-request")
+//    public ResponseEntity<ApiResponse> resetPassword(@RequestParam("email") String email) throws Exception {
+//        User user = userService.findUserByEmail(email);
+//
+//        if(user == null){
+//            throw new ExpressionException("User not found");
+//        }
+//
+//        userService.sendPasswordResetEmail(user);
+//
+//        ApiResponse apiResponse = new ApiResponse();
+//        apiResponse.setMessage("Password Reset email set successfully");
+//        apiResponse.setStatus(true);
+//        return ResponseEntity.ok(apiResponse);
+//    }
+
 
 
 }

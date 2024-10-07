@@ -2,6 +2,7 @@ package com.chay.CarPooling.service;
 
 import com.chay.CarPooling.domain.UserRole;
 import com.chay.CarPooling.model.User;
+import com.chay.CarPooling.request.UpdateUserDto;
 
 import java.util.List;
 
@@ -19,5 +20,8 @@ public interface UserService {
     public List<User> findAllUsers();
 
     public UserRole getUserRole(User user);
+    void updatePassword(User user, String newPassword);
+    void sendPasswordResetEmail(User user);
+    User updateUser(UpdateUserDto dto, User user);
 
 }

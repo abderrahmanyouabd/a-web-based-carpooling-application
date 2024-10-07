@@ -1,11 +1,9 @@
 package com.chay.CarPooling.model;
 
-import com.chay.CarPooling.domain.UserRole;
+import com.chay.CarPooling.domain.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
-
-import java.time.LocalDate;
 
 /**
  * @author: Abderrahman Youabd aka: A1ST
@@ -34,5 +32,17 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private UserRole role = UserRole.USER_ROLE;
+
+    @Enumerated(EnumType.STRING)
+    private ChatPreference chatPreference=ChatPreference.IM_THE_QUIET_TYPE;
+
+    @Enumerated(EnumType.STRING)
+    private PlaylistPreference playlistPreference;
+
+    @Enumerated(EnumType.STRING)
+    private SmokingPreference smokingPreference;
+
+    @Enumerated(EnumType.STRING)
+    private PetPreference petPreference;
 
 }

@@ -1,17 +1,21 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const ResetPassword = () => {
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [loading, setLoading] = useState(false);
+
     const navigate = useNavigate();
+    const location = useLocation();
+
 
 
     const handlePasswordChange = (e) => {
         setPassword(e.target.value);
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         console.log("User's Input: " + password);
 
@@ -20,9 +24,45 @@ const ResetPassword = () => {
             return;
         }
 
-        navigate("/signin")
+        const params = new URLSearchParams(location.search);
+        const token = params.get('token');
+        if (!token) {
+            setErrorMessage("Invalid token. Please try again.");
+            return;
+        }
 
-        // Send a PUT request to the server with the new password
+        console.log("Token: " + token);
+
+        try {
+            setLoading(true);
+
+            const response = await fetch('http://localhost:8080/auth/reset-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    password: password,
+                    token: token
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log("Password reset successfully: ", data.message);
+                navigate("/signin");
+            } else {
+                console.error("Error: ", data.error);
+                setErrorMessage(data.error);
+            }
+        } catch (error) {
+            console.error("Network error: ", error);
+            setErrorMessage("Network error. Please try again later.");
+        } finally {
+            setLoading(false);
+        }
+
     }
 
     return (
@@ -42,8 +82,8 @@ const ResetPassword = () => {
                     className="font-bold py-2 px-5 h-12 w-[32rem] bg-gray-200 rounded-xl shadow-sm focus:outline-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 />
 
-                {errorMessage && (
-                    <div className="mt-2 text-red-500">{errorMessage}</div>
+                {errorMessage && !loading && (
+                    <p className="text-red-600 mt-2">{errorMessage}</p>
                 )}
 
                 <button 
