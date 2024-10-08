@@ -1,9 +1,13 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import TripSearch from "./TripSearch";
 import CarPoolCommercial from "../CarPoolingPictures/carpool_commercial2.png"
 import BigCarSharing from "../CarPoolingPictures/big_carsharing.png";
 
 const Home = () => {
+
+
+    const navigate = useNavigate();
 
     return (
         <div className="font-sans">
@@ -78,7 +82,7 @@ const Home = () => {
                             save costs and travel with some company. Our community of carpoolers is the most trustworthy 
                             in the world.
                         </p>
-                        <button className="bg-blue-500 text-white text-lg px-8 py-3 rounded-full hover:bg-blue-600 transition duration-300">
+                        <button onClick={() => navigate("/create-ride")}className="bg-blue-500 text-white text-lg px-8 py-3 rounded-full hover:bg-blue-600 transition duration-300">
                             Offer your ride
                         </button>
 

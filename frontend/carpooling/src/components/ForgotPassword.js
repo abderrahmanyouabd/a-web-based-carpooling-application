@@ -1,13 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners"; 
+import { IconButton, Button, Snackbar} from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(false);
+    const [open, setOpen] = useState(false);
 
     const navigate = useNavigate();
+
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpen(false);
+    };
+
+    const action = (
+        <Fragment>
+            <Button color="secondary" size="small" onClick={handleClose}>
+                UNDO
+            </Button>
+            <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleClose}
+            >
+                <CloseIcon fontSize="small" />
+            </IconButton>
+        </Fragment>
+    );
+        
 
     const handleEmailChange = (e) => {
         setEmail(e.target.value);
@@ -29,7 +56,11 @@ const ForgotPassword = () => {
 
             if (response.ok) {
                 console.log("Email sent successfully: ", data);
-                navigate("/signin");
+                setOpen(true);
+                setTimeout(() =>{
+                    navigate("/signin");
+                }, 3000);
+                
             } else {
                 console.error("Error: ", data.error);
                 setErrorMessage("Email is not found in our database.");
@@ -62,6 +93,23 @@ const ForgotPassword = () => {
                 <h1 className="text-3xl font-extrabold text-gray-700">What’s the email associated with your account?</h1>
                 <h1 className="text-3xl font-extrabold text-gray-700">We’ll email you a link to reset your password.</h1>
 
+                <Snackbar
+                    open={open}
+                    autoHideDuration={6000}
+                    onClose={handleClose}
+                    message="Reset password email has sent successfully"
+                    action={action}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                    ContentProps={{
+                        sx: {
+                            fontSize: '1.2rem',
+                            padding: '20px',
+                            width: '500px',
+                            height: '150px',
+                        },
+                    }}
+                />
+
                 {errorMessage && (
                     <p className="text-red-600 mt-6">{errorMessage}</p>
                 )}
@@ -69,7 +117,7 @@ const ForgotPassword = () => {
                 { loading ? ( 
                     <div className="flex flex-col justify-center items-center mt-5 ">
                         <ClipLoader color="#3b82f6" loading={loading} size={100} />
-                        <p className="text-xl font-extrabold">Sending email...</p>
+                        <p className="text-xl font-extrabold mt-3">Sending email...</p>
                     </div>
                 ) : (
 
@@ -90,6 +138,8 @@ const ForgotPassword = () => {
                         >
                             Send a reset link
                         </button>
+
+                        
                     </>
                 )}
             </div>

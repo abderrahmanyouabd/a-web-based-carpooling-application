@@ -1,21 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, Fragment } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { IconButton, Button, Snackbar} from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
+
 
 const ResetPassword = () => {
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(false);
+    const [open, setOpen] = useState(false);
 
     const navigate = useNavigate();
     const location = useLocation();
 
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpen(false);
+    };
 
+    const action = (
+        <Fragment>
+            <Button color="secondary" size="small" onClick={handleClose}>
+                UNDO
+            </Button>
+            <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleClose}
+            >
+                <CloseIcon fontSize="small" />
+            </IconButton>
+        </Fragment>
+    );
 
     const handlePasswordChange = (e) => {
         setPassword(e.target.value);
     }
 
     const handleSubmit = async (e) => {
+        setErrorMessage("");
         e.preventDefault();
         console.log("User's Input: " + password);
 
@@ -51,7 +77,11 @@ const ResetPassword = () => {
 
             if (response.ok) {
                 console.log("Password reset successfully: ", data.message);
-                navigate("/signin");
+                setOpen(true);
+                setTimeout(() => {
+                    navigate("/signin");
+                }, 2000);
+                
             } else {
                 console.error("Error: ", data.error);
                 setErrorMessage(data.error);
@@ -71,6 +101,23 @@ const ResetPassword = () => {
                 <h1 className="font-extrabold text-3xl text-gray-700 mb-10">Chose a new Password</h1>
 
                 <p className="text-gray-500 mb-4">It must have at least 8 characters, 1 letter, 1 number and 1 special character.</p>
+
+                <Snackbar
+                    open={open}
+                    autoHideDuration={6000}
+                    onClose={handleClose}
+                    message="New Password has been successfully changed"
+                    action={action}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                    ContentProps={{
+                        sx: {
+                            fontSize: '1.2rem',
+                            padding: '20px',
+                            width: '500px',
+                            height: '150px',
+                        },
+                    }}
+                />
 
                 <input 
                     type="password"
