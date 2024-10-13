@@ -3,12 +3,14 @@ package com.chay.CarPooling.controller;
 import com.chay.CarPooling.config.JwtProvider;
 import com.chay.CarPooling.domain.UserRole;
 import com.chay.CarPooling.model.PasswordResetToken;
+import com.chay.CarPooling.model.Trip;
 import com.chay.CarPooling.model.User;
 import com.chay.CarPooling.repository.UserRepository;
 import com.chay.CarPooling.request.LoginRequest;
 import com.chay.CarPooling.request.ResetPasswordRequest;
 import com.chay.CarPooling.response.ApiResponse;
 import com.chay.CarPooling.response.AuthResponse;
+import com.chay.CarPooling.service.FareCalculationService;
 import com.chay.CarPooling.service.Impl.CustomeUserServiceImplementation;
 import com.chay.CarPooling.service.PasswordResetTokenService;
 import com.chay.CarPooling.service.UserService;
@@ -46,6 +48,7 @@ public class AuthController {
     private final CustomeUserServiceImplementation customUserDetails;
     private final UserService userService;
     private final PasswordResetTokenService passwordResetTokenService;
+    private final FareCalculationService fareCalculationService;
 
 
     @PostMapping("/signup")
@@ -170,6 +173,13 @@ public class AuthController {
 
         return ResponseEntity.ok(apiResponse);
     }
+
+
+
+//    @PostMapping("/calculate")
+//    public ResponseEntity<Double> calculateFare(@RequestBody Trip trip) {
+//        return  new ResponseEntity<>(fareCalculationService.calculateFare(trip), HttpStatus.OK);
+//    }
 //
 //
 //    @PostMapping("reset-password-request")

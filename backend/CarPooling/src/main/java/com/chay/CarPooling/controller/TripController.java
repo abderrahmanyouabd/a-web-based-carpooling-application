@@ -22,7 +22,7 @@ import java.util.List;
  */
 
 @RestController
-@RequestMapping("trips")
+@RequestMapping("/api/trips")
 @RequiredArgsConstructor
 public class TripController {
 

@@ -1,6 +1,7 @@
 package com.chay.CarPooling.service;
 
 import com.chay.CarPooling.model.Trip;
+import org.springframework.http.ResponseEntity;
 
 /**
  * @author: Abderrahman Youabd aka: A1ST
@@ -9,8 +10,7 @@ import com.chay.CarPooling.model.Trip;
 
 public interface FareCalculationService {
     double calculateFare(Trip trip);
-    double getDistanceFromAPI(String startLocation, String endLocation);
-    double getDurationFromAPI(String startLocation, String endLocation);
-    String getWeatherConditions(String latitude, String longitude);
+    double[] getDistanceAndDurationFromAPI(String startLatitude, String startLongitude, String endLatitude, String endLongitude);
+//    String getWeatherConditions(String latitude, String longitude);
 
 }

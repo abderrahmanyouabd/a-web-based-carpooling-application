@@ -38,11 +38,13 @@ public class TripServiceImpl implements TripService {
         // I should add logic for validation, authentication, etc ...
         trip.setDriver(user);
 
+        // need to save before setting fare since the api will need access to coordinates
+//        tripRepository.save(trip);
 
-//        // todo: uncomment once I figure out which apis for fare calc I should use.
-//        double suggestedFare = fareCalculationService.calculateFare(trip);
-//        trip.setFarePerSeat(suggestedFare);
+        double suggestedFare = fareCalculationService.calculateFare(trip);
+        trip.setFarePerSeat(suggestedFare);
 
+        // retun the updated stuff
         return tripRepository.save(trip);
 
     }
