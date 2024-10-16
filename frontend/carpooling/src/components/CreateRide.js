@@ -1,8 +1,12 @@
 import React, { useState } from "react";
+import axios from "axios";
 
 const CreateRide = () => {
 
     const [step, setStep] = useState(1);
+    const [suggestions, setSuggestions] = useState([]);
+    const [activeField, setActiveField] = useState('');
+    const [selectedCoordinate, setSelectedCoordinate] = useState(null);
     const [params, setParams] = useState({
         pickUp: '',
         dropOff: '',
@@ -20,10 +24,52 @@ const CreateRide = () => {
 
     }
 
-    const handleParamChange = (e) => {
+
+    const handleParamChange = async (e) => {
         const { name, value } = e.target;
-        setParams({ ...params, [name]: value });
+        setParams({...params, [name]: value });
+
+        if (name === 'pickUp' || name === 'dropOff') {
+            setActiveField(name);
+            const query = value;
+            if (query.length > 2){ // Start suggesting after 2 characters
+                try {
+                    const response = await axios.get(
+                        'https://api.openrouteservice.org/geocode/autocomplete', {
+                            params: { 
+                                api_key: '5b3ce3597851110001cf6248e4896a13b7cd44c988adeba2a1f425b4',
+                                text: query,
+                                layers: 'address,locality,country,region,county'
+                            }
+                        }
+                    );
+
+                    const citySuggestions = response.data.features.map(feature => ({
+                        id: feature.properties.id,
+                        label: feature.properties.label,
+                        coordinates: feature.geometry.coordinates
+                    }));
+
+                    setSuggestions(citySuggestions);
+                } catch (error) {
+                    console.error("Error fetching suggestions: ", error);
+                }
+            } else {
+                setSuggestions([]);
+            }
+        }
     };
+
+    const handleSuggestionClick = (cityName, coordinate) => {
+        if (activeField === 'pickUp'){
+            setParams({...params, pickUp: cityName });
+        }else if (activeField === 'dropOff'){
+            setParams({...params, dropOff: cityName });
+        }
+        console.log("Coordinates: " + coordinate);
+        setSelectedCoordinate(coordinate);
+        setSuggestions([]);
+    }
 
     const handlePriceIncrease = () => {
         setParams(prevParams => ({
@@ -73,15 +119,31 @@ const CreateRide = () => {
                         value={params.pickUp}
                         onChange={handleParamChange}
                         placeholder="Enter the full address"
-                        className="font-bold mt-10 py-2 px-5 w-[20rem] md:w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        className="font-bold mt-10 mb-5 py-2 px-5 w-[20rem] md:w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
+                    <div className="relative">
+                        {activeField === 'pickUp' && suggestions.length > 0 && (
+                            <ul className="absolute z-10 bg-white border border-gray-300 rounded-md w-full md:w-48 max-h-48 overflow-auto mt-1">
+                                {suggestions.map(city => (
+                                    <li
+                                        key={city.id}
+                                        onClick={() => handleSuggestionClick(city.label, city.coordinates)}
+                                        className="p-2 hover:bg-gray-200 cursor-pointer"
+                                    >
+                                        {city.label}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
 
-                    <button 
-                        onClick={handleContinue}
-                        className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
-                    >
-                        Continue
-                    </button>
+                        <button 
+                            onClick={handleContinue}
+                            className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600 z-0"
+                        >
+                            Continue
+                        </button>
+                    </div>
+
                 </>
             )}
 
@@ -98,13 +160,29 @@ const CreateRide = () => {
                         placeholder="Enter the full address"
                         className="font-bold mt-10 py-2 px-5 w-[20rem] md:w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
+                    <div className="relative">
+                        {activeField === 'dropOff' && suggestions.length > 0 && (
+                            <ul className="absolute z-10 bg-white border border-gray-300 rounded-md w-full md:w-48 max-h-48 overflow-auto mt-1">
+                                {suggestions.map(city => (
+                                    <li 
+                                        key={city.id}
+                                        onClick={() => handleSuggestionClick(city.label, city.coordinates)}
+                                        className="p-2 hover:bg-gray-200 cursor-pointer"
+                                    >
+                                        {city.label}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
 
-                    <button 
-                        onClick={handleContinue}
-                        className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
-                    >
-                        Continue
-                    </button>
+                        <button 
+                            onClick={handleContinue}
+                            className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
+                        >
+                            Continue
+                        </button>
+                    </div>
+                    
                 </>
             )}
 
