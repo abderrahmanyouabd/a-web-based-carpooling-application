@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
+import MapRouteDrawing from "./MapRouteDrawing";
 
 const CreateRide = () => {
 
     const [step, setStep] = useState(1);
     const [suggestions, setSuggestions] = useState([]);
     const [activeField, setActiveField] = useState('');
-    const [selectedCoordinate, setSelectedCoordinate] = useState(null);
+    const [startCoordinates, setStartCoordinates] = useState([]);
+    const [endCoordinates, setEndCoordinates] = useState([]);
     const [params, setParams] = useState({
         pickUp: '',
         dropOff: '',
@@ -18,10 +20,10 @@ const CreateRide = () => {
     const handleContinue = () => {
         if (step === 1 && params.pickUp) setStep(2);
         if (step === 2 && params.dropOff) setStep(3);
-        if (step === 3 && params.startTime) setStep(4);
-        if (step === 4 && params.passengers) setStep(5);
-        if (step === 5 && params.price) console.log("User's input: ", params);
-
+        if (step === 3 && startCoordinates && endCoordinates) setStep(4);
+        if (step === 4 && params.startTime) setStep(5);
+        if (step === 5 && params.passengers) setStep(6);
+        if (step === 6 && params.price) console.log("User's input: ", params);
     }
 
 
@@ -63,11 +65,13 @@ const CreateRide = () => {
     const handleSuggestionClick = (cityName, coordinate) => {
         if (activeField === 'pickUp'){
             setParams({...params, pickUp: cityName });
+            setStartCoordinates(coordinate);
         }else if (activeField === 'dropOff'){
             setParams({...params, dropOff: cityName });
+            setEndCoordinates(coordinate);
         }
+
         console.log("Coordinates: " + coordinate);
-        setSelectedCoordinate(coordinate);
         setSuggestions([]);
     }
 
@@ -135,7 +139,7 @@ const CreateRide = () => {
                                 ))}
                             </ul>
                         )}
-
+                        
                         <button 
                             onClick={handleContinue}
                             className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600 z-0"
@@ -186,7 +190,25 @@ const CreateRide = () => {
                 </>
             )}
 
-            {step === 3 && (
+            {step === 3 && startCoordinates && endCoordinates && (
+
+                <>
+                    <div className="w-full max-w-3xl">
+                        <MapRouteDrawing startCoordinates={startCoordinates} endCoordinates={endCoordinates} />
+                    </div>
+
+                    <button 
+                        onClick={handleContinue}
+                        className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600 items-center"
+                    >
+                        Continue
+                    </button>
+                </>
+                
+                
+            )}
+
+            {step === 4 && (
                 <>
                     <h1 className="text-xl md:text-3xl font-extrabold text-gray-700">When are you going?</h1>
 
@@ -199,16 +221,11 @@ const CreateRide = () => {
                         className="font-bold mt-10 py-2 px-5 w-[20rem] md:w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
 
-                    <button 
-                        onClick={handleContinue}
-                        className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
-                    >
-                        Continue
-                    </button>
+                    
                 </>
             )}
 
-            {step === 4 && (
+            {step === 5 && (
                 <>
                     <h1 className="text-xl md:text-3xl font-extrabold text-gray-700 ml-12">How many passengers would you like to take?</h1>
 
@@ -241,7 +258,7 @@ const CreateRide = () => {
                 </>
             )}
 
-            {step === 5 && (
+            {step === 6 && (
                 <>
                     <h1 className="text-xl md:text-3xl font-extrabold text-gray-700">Set your price per seat</h1>
 
