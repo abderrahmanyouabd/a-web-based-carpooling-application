@@ -221,6 +221,12 @@ const CreateRide = () => {
                         className="font-bold mt-10 py-2 px-5 w-[20rem] md:w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
 
+                    <button 
+                        onClick={handleContinue}
+                        className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600 items-center"
+                    >
+                        Continue
+                    </button>
                     
                 </>
             )}

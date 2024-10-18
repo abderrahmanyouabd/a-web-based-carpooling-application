@@ -15,11 +15,25 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates }) => {
   const [map, setMap] = useState(null);
   const [baseLayer, setBaseLayer] = useState('esri');
   const initializedRef = useRef(false);
-  const baseLayerRef = useRef(); // To store the current base layer
-  const vectorLayerRef = useRef(); // To store the vector layer for markers
-  const routeLayerRef = useRef(); // To store the route layer separately
+  const baseLayerRef = useRef(); 
+  const vectorLayerRef = useRef(); 
+  const routeLayerRef = useRef(); 
 
-  // Fetch route between start and end coordinates
+  const getBaseLayer = () => {
+    const esriLayer = new TileLayer({
+      source: new XYZ({
+        url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        attributions: 'Tiles © Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+      }),
+    });
+
+    const osmLayer = new TileLayer({
+      source: new OSM(),
+    });
+
+    return baseLayer === 'esri' ? esriLayer : osmLayer;
+  };
+
   const fetchRoute = async () => {
     console.log('Fetching route with coordinates:', startCoordinates, endCoordinates);
 
@@ -48,6 +62,8 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates }) => {
   };
 
   const addMarkers = (vectorSource) => {
+    vectorSource.clear();
+
     const startMarker = new Feature({
       geometry: new Point(fromLonLat(startCoordinates)),
     });
@@ -75,21 +91,14 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates }) => {
     const initializeMap = () => {
       if (!mapRef.current) return;
 
-      const esriLayer = new TileLayer({
-        source: new XYZ({
-          url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-          attributions: 'Tiles © Esri — Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-        }),
-      });
-
-      const vectorSource = new VectorSource(); // For markers
+      const vectorSource = new VectorSource();
       const vectorLayer = new VectorLayer({
         source: vectorSource,
       });
 
       const mapInstance = new OLMap({
         target: mapRef.current,
-        layers: [esriLayer, vectorLayer], 
+        layers: [getBaseLayer(), vectorLayer], 
         view: new View({
           center: fromLonLat(startCoordinates),
           zoom: 15,
@@ -99,9 +108,8 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates }) => {
       });
 
       setMap(mapInstance);
-      baseLayerRef.current = esriLayer;
+      baseLayerRef.current = getBaseLayer();
       vectorLayerRef.current = vectorLayer;
-
 
       addMarkers(vectorSource);
 
@@ -152,58 +160,12 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates }) => {
   useEffect(() => {
     if (!map) return;
 
+    const newLayer = getBaseLayer();
 
-    const esriLayer = new TileLayer({
-      source: new XYZ({
-        url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        attributions: 'Tiles © Esri',
-      }),
-    });
-
-    const osmLayer = new TileLayer({
-      source: new OSM(),
-    });
-
-    const newLayer = baseLayer === 'esri' ? esriLayer : osmLayer;
-    map.addLayer(newLayer);
+    map.getLayers().setAt(0, newLayer);
     baseLayerRef.current = newLayer;
-
- 
-    if (vectorLayerRef.current) {
-      const vectorSource = vectorLayerRef.current.getSource();
-      console.log("VectorSource: " + vectorSource);
-      addMarkers(vectorSource);
-    }
-
-
-    fetchRoute().then((routeData) => {
-      if (routeData) {
-        const format = new GeoJSON();
-        const routeFeatures = format.readFeatures(routeData, {
-          featureProjection: 'EPSG:3857',
-        });
-
-        const routeSource = new VectorSource({
-          features: routeFeatures,
-        });
-
-        const routeLayer = new VectorLayer({
-          source: routeSource,
-          style: new Style({
-            stroke: new Stroke({
-              color: '#0000FF',
-              width: 4,
-            }),
-          }),
-        });
-
-        routeLayerRef.current = routeLayer;
-        map.addLayer(routeLayer); 
-      } else {
-        console.error('No route data returned.');
-      }
-    });
-  }, [baseLayer, map, startCoordinates, endCoordinates]);
+    
+  }, [baseLayer, map]);
 
   const handleLayerChange = (event) => {
     setBaseLayer(event.target.value);
