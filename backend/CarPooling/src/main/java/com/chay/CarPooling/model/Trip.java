@@ -65,6 +65,9 @@ public class Trip {
     @ManyToOne
     private User driver;
 
+    @OneToOne
+    private Vehicle vehicle; // The vehicle being used for the trip
+
     @ManyToMany
     private Set<User> passengers = new HashSet<>();
 

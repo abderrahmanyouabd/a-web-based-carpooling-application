@@ -1,7 +1,9 @@
 package com.chay.CarPooling.service.Impl;
 
 import com.chay.CarPooling.model.Trip;
+import com.chay.CarPooling.model.Vehicle;
 import com.chay.CarPooling.service.FareCalculationService;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -9,6 +11,10 @@ import org.springframework.web.reactive.function.client.WebClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import reactor.core.publisher.Mono;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.net.http.HttpResponse;
 
 /**
  * @author: Abderrahman Youabd aka: A1ST
@@ -26,6 +32,9 @@ public class FareCalculationServiceImpl implements FareCalculationService {
 
     @Value("${openweathermap.api.key}")
     private String openWeatherApiKey;
+
+    @Value("${gasprice.api.key}")
+    private String gasPriceApiKey;
 
     public FareCalculationServiceImpl(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.build();
@@ -99,6 +108,35 @@ public class FareCalculationServiceImpl implements FareCalculationService {
         return parseDistanceAndDuration(response);
     }
 
+    @Override
+    public Double getGasPrice(String latitude, String longitude, String gasolineOrDiesel) {
+        String apiUrl = String.format("https://api.collectapi.com/gasPrice/fromCoordinates?lng=%s&lat=%s", longitude, latitude);
+        String response = webClient.post()
+                .uri(apiUrl)
+                .header("authorization", gasPriceApiKey)
+                .header("Content-Type", "application/json; charset=utf-8")
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        // Parse the response using Jackson
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            JsonNode jsonResponse = objectMapper.readTree(response);
+            JsonNode result = jsonResponse.get("result");
+
+            if ("gasoline".equalsIgnoreCase(gasolineOrDiesel)) {
+                return result.get("gasoline").asDouble();
+            } else if ("diesel".equalsIgnoreCase(gasolineOrDiesel)) {
+                return result.get("diesel").asDouble();
+            } else {
+                throw new IllegalArgumentException("Invalid fuel type. Please provide either 'gasoline' or 'diesel'.");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error parsing the gas price response: " + e.getMessage(), e);
+        }
+    }
+
 
 
     private double[] parseDistanceAndDuration(String apiResponse) {
@@ -139,4 +177,68 @@ public class FareCalculationServiceImpl implements FareCalculationService {
 //
 //        return response.contains("rain") ? "Rain" : "Clear";
 //    }
+
+
+    private BigDecimal calculateFare2(Trip trip) {
+        String startLatitude = trip.getLeavingFrom().getLatitude();
+        String startLongitude = trip.getLeavingFrom().getLongitude();
+        String endLatitude = trip.getGoingTo().getLatitude();
+        String endLongitude = trip.getGoingTo().getLongitude();
+
+        double[] distanceAndDuration = getDistanceAndDurationFromAPI(startLatitude, startLongitude, endLatitude, endLongitude);
+
+        BigDecimal distance = BigDecimal.valueOf(distanceAndDuration[0])
+                .divide(BigDecimal.valueOf(1000), 2, RoundingMode.HALF_UP);
+        BigDecimal duration = BigDecimal.valueOf(distanceAndDuration[1])
+                .divide(BigDecimal.valueOf(3600), 2, RoundingMode.HALF_UP);
+
+
+        BigDecimal passengerCount = BigDecimal.valueOf(trip.getPassengers().size());
+
+        Vehicle vehicle = trip.getVehicle();
+        if (vehicle == null || vehicle.getGasType() == null) {
+            throw new IllegalArgumentException("No vehicle or gas type found for the driver");
+        }
+        // Get gas price for the location using the vehicle type
+        BigDecimal gasPrice = BigDecimal.valueOf(getGasPrice(startLatitude, endLongitude, trip.getVehicle().getGasType().name()));
+        // Fuel efficiency (liters per 100 km)
+        BigDecimal fuelEfficiency = new BigDecimal("8.0"); // Assume 8 liters per 100 km
+
+        // Fetch weather data from the Weather API and adjust weather impact based on rain or clear weather
+        String weatherCondition = getWeatherConditions(startLatitude, startLongitude);
+        BigDecimal weatherImpact = weatherCondition.equalsIgnoreCase("rain")
+                ? new BigDecimal("1.10")  // Increase fare by 10% for rainy weather
+                : new BigDecimal("1.00"); // No additional cost for clear weather
+
+        // Maintenance rate (cost per kilometer)
+        BigDecimal maintenanceRate = new BigDecimal("0.05"); // $0.05 per kilometer for maintenance costs
+
+        // Profit margin
+        BigDecimal profitMargin = new BigDecimal("0.10"); // 10% profit margin
+
+        // Step 1: Calculate fuel consumption
+        BigDecimal fuelConsumption = distance.divide(new BigDecimal("100"), RoundingMode.HALF_UP)
+                .multiply(fuelEfficiency);
+
+        // Step 2: Calculate fuel cost
+        BigDecimal fuelCost = fuelConsumption.multiply(gasPrice);
+
+        // Step 3: Adjust for weather impact
+        BigDecimal adjustedFuelCost = fuelCost.multiply(weatherImpact);
+
+        // Step 4: Calculate maintenance cost
+        BigDecimal maintenanceCost = distance.multiply(maintenanceRate);
+
+        // Step 5: Calculate total cost
+        BigDecimal totalCost = adjustedFuelCost.add(maintenanceCost);
+
+        // Step 6: Calculate price per fare
+        BigDecimal pricePerFare = totalCost.divide(passengerCount, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.ONE.add(profitMargin));
+
+        // Return the fare rounded to 2 decimal places
+        return pricePerFare.setScale(2, RoundingMode.HALF_UP);
+    }
+
+
 }
