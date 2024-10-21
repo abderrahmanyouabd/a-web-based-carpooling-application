@@ -111,10 +111,7 @@ const ResetPassword = () => {
                     anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                     ContentProps={{
                         sx: {
-                            fontSize: '1.2rem',
-                            padding: '20px',
-                            width: '500px',
-                            height: '150px',
+                            fontSize: '0.8rem'
                         },
                     }}
                 />
