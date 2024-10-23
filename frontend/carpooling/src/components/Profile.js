@@ -63,6 +63,12 @@ const Profile = ({ setUser }) => {
                     </div>
 
                     <button
+                        className="mt-6 mx-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 ease-in-out"
+                    >
+                        Update Profile
+                    </button>
+
+                    <button
                         onClick={handleLogout}
                         className="mt-6 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-700 transition-all duration-200 ease-in-out"
                     >

@@ -191,7 +191,7 @@ const Rides = () => {
             const [start, end] = pickUpTimeRanges[pickUpFilter];
 
             return rides.filter((ride) => {
-                const [rideHours, rideMinutes] = ride.departureTime.split(":").map(Number);
+                const [rideHours, rideMinutes] = ride.time.split(":").slice(0, 2).map(Number);
                 const rideTime = `${rideHours.toString().padStart(2, '0')}:${rideMinutes.toString().padStart(2, '0')}`;
                 return rideTime >= start && rideTime <= end;
             });
@@ -199,11 +199,11 @@ const Rides = () => {
 
         switch (sortBy) {
             case "price":
-                return rides.sort((a, b) => parseFloat(a.price.slice(1)) - parseFloat(b.price.slice(1)));
+                return rides.sort((a, b) => a.farePerSeat.price - b.farePerSeat.price);
             case "departure":
                 return rides.sort((a, b) => {
-                    const [hoursA, minutesA] = a.departureTime.split(":").map(Number);
-                    const [hoursB, minutesB] = b.departureTime.split(":").map(Number);
+                    const [hoursA, minutesA] = a.time.split(":").slice(0, 2).map(Number);
+                    const [hoursB, minutesB] = b.time.split(":").slice(0, 2).map(Number);
 
                     const dateA = new Date();
                     dateA.setHours(hoursA, minutesA);

@@ -39,7 +39,7 @@ const TripSearch = ({ initialParams = {} }) => {
 
                     const citySuggestions = response.data.features.map(feature => ({
                         id: feature.properties.id,
-                        name: feature.properties.name
+                        label: feature.properties.label
                     }));
 
                     setSuggestions(citySuggestions);
@@ -124,10 +124,10 @@ const TripSearch = ({ initialParams = {} }) => {
                                 {suggestions.map(city => (
                                     <li 
                                         key={city.id}
-                                        onClick={() => handleSuggestionClick(city.name)}
+                                        onClick={() => handleSuggestionClick(city.label)}
                                         className="p-2 hover:bg-gray-200 cursor-pointer"
                                     >
-                                        {city.name}
+                                        {city.label}
                                     </li>
                                 ))}
                             </ul>
@@ -150,10 +150,10 @@ const TripSearch = ({ initialParams = {} }) => {
                                 {suggestions.map(city => (
                                     <li 
                                         key={city.id}
-                                        onClick={() => handleSuggestionClick(city.name)}
+                                        onClick={() => handleSuggestionClick(city.label)}
                                         className="p-2 hover:bg-gray-200 cursor-pointer"
                                     >
-                                        {city.name}
+                                        {city.label}
                                     </li>
                                 ))}
                             </ul>
