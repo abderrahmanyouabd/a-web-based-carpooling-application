@@ -173,7 +173,7 @@ const fakeRides = [
 
 const Rides = () => {
     const location = useLocation();
-    const { leavingFrom, goingTo, date, passengers } = location.state;
+    const { leavingFrom, goingTo, date, passengers, searchResults } = location.state;
     const [sortBy, setSoryBy] = useState("");
     const [pickUpFilter, setPickUpFilter] = useState("");
     const navigate = useNavigate();
@@ -230,7 +230,7 @@ const Rides = () => {
         navigate("/ride-detail", {state: {ride} });
     }
 
-    const sortedRides = sortRides([...fakeRides]);
+    const sortedRides = sortRides(searchResults);
        
 
     return (
@@ -248,7 +248,7 @@ const Rides = () => {
                         <div>
                             <h2 className="text-lg font-semibold">{date}</h2>
                             <p className="text-gray-600">{leavingFrom} → {goingTo}</p>
-                            <div className="text-gray-800">{fakeRides.length} rides available with {passengers} passengers</div>
+                            <div className="text-gray-800">{searchResults.length} rides available with {passengers} passengers</div>
                         </div>
                         
                     </div>
@@ -266,11 +266,11 @@ const Rides = () => {
                                 <div className="flex justify-between items-center">
                                     <div className="flex items-center">  
                                         <div>
-                                            <p className="text-lg font-semibold">{ride.departureTime}</p>
+                                            <p className="text-lg font-semibold">{ride.time}</p>
                                         </div>
                                         <AiOutlineArrowRight className="text-xl mx-4" />
                                         <div>
-                                            <p className="text-lg font-semibold">{ride.arrivalTime}</p>
+                                            <p className="text-lg font-semibold">{ride.goingTo.arrivalTime || 'N/A'}</p>
                                         </div>
                                     </div>
 
@@ -294,8 +294,8 @@ const Rides = () => {
 
 
                                     <div className="text-right">
-                                        <p className="text-lg font-semibold">{ride.from}</p>
-                                        <p className="text-lg font-semibold">{ride.to}</p>
+                                        <p className="text-lg font-semibold">{ride.leavingFrom.name}</p>
+                                        <p className="text-lg font-semibold">{ride.goingTo.name}</p>
                                     </div>
                                 </div>
 
@@ -307,7 +307,7 @@ const Rides = () => {
 
                                     <div className="flex items-center">
                                         <MdAttachMoney className="text-xl text-green-500" />
-                                        <p className="text-2xl font-bold">{ride.price}</p>
+                                        <p className="text-2xl font-bold">{ride.farePerSeat}</p>
                                     </div>
                                 </div>
 
@@ -320,7 +320,7 @@ const Rides = () => {
                                             alt="profile" 
                                             className="w-10 h-10 rounded-full border"
                                         />
-                                        <span className="font-semibold">{ride.profileName}</span>
+                                        <span className="font-semibold">{ride.driver.fullName}</span>
                                     </div>
                                     {ride.instantBooking && (
                                         <div className="text-sm text-gray-500 flex items-center">

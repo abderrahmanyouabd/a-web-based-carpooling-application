@@ -14,14 +14,14 @@ const RideDetail = ( ) => {
             <h1 className="text-3xl font-bold">Ride Details</h1>
             
             <div className="bg-white border rounded-lg p-6 mt-6 shadow-lg">
-                <p><strong>From:</strong> {ride.from}</p>
-                <p><strong>To:</strong> {ride.to}</p>
-                <p><strong>Departure Time:</strong> {ride.departureTime}</p>
+                <p><strong>From:</strong> {ride.leavingFrom.name}</p>
+                <p><strong>To:</strong> {ride.goingTo.name}</p>
+                <p><strong>Departure Time:</strong> {ride.leavingFrom.departureTime}</p>
                 <p><strong>Arrival Time:</strong> {ride.arrivalTime}</p>
                 <p><strong>Duration:</strong> {ride.duration}</p>
-                <p><strong>Price:</strong> {ride.price}</p>
+                <p><strong>Price:</strong> {ride.farePerSeat}</p>
                 <p><strong>Walking:</strong> {ride.walking}</p>
-                <p><strong>Profile Name:</strong> {ride.profileName}</p>
+                <p><strong>Profile Name:</strong> {ride.driver.fullName}</p>
                 <p><strong>Instant Booking:</strong> {ride.instantBooking ? 'Available' : 'Not Available'}</p>
 
                 <div className="flex items-center mt-4">

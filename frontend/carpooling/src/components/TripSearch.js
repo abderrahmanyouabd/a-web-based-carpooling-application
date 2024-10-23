@@ -7,12 +7,14 @@ const TripSearch = ({ initialParams = {} }) => {
     const [params, setParams] = useState({
         leavingFrom: initialParams.leavingFrom || '',
         goingTo: initialParams.goingTo ||'',
-        date: initialParams.date || 'Today',
-        passengers: initialParams.passengers || 1
+        date: initialParams.date || '',
+        passengers: initialParams.passengers,
     });
 
     const [suggestions, setSuggestions] = useState([]);
     const [activeField, setActiveField] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [errorMessage, setErrorMessage] = useState("");
 
     const navigate = useNavigate();
 
@@ -60,9 +62,48 @@ const TripSearch = ({ initialParams = {} }) => {
         setSuggestions([]);
     }
 
-    const handleSearch = () => {
+    const handleSearch = async () => {
         console.log("User input values: ", params);
-        navigate("/rides", { state: { ...params }});
+        try {
+            const requestParams = {};
+            if (params.leavingFrom) requestParams.leavingFrom = params.leavingFrom;
+            if (params.goingTo) requestParams.goingTo = params.goingTo;
+            if (params.date) requestParams.date = params.date;
+            if (params.passengers) requestParams.passengers = params.passengers;
+            
+            let url = 'http://localhost:8080/trips/search?';
+            if(requestParams.leavingFrom){
+                url += `leavingFrom=${requestParams.leavingFrom.replace(/,\s+/g, ',+')}&`;
+            }
+            if(requestParams.goingTo){
+                url += `goingTo=${requestParams.goingTo.replace(/,\s+/g, ',+')}&`;
+            }
+            
+            console.log("Request URL: ", url);
+
+            const response = await axios.get(url);
+
+            setSearchResults(response.data);
+            setErrorMessage("");
+            console.log("Result: ", response.data);
+
+            navigate("/rides", {
+                state: {
+                    leavingFrom: params.leavingFrom,
+                    goingTo: params.goingTo,
+                    date: params.date,
+                    passengers: params.passengers,
+                    searchResults: response.data
+                }
+            });
+        } catch (error) {
+            console.error("Error searching trips: ", error);
+            setErrorMessage("Error searching trips. Please try again later.");
+        }
+
+
+        console.log("Error Message: ", errorMessage);
+        
     }
 
     return (

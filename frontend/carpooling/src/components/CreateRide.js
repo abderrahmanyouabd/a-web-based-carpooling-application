@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, Fragment } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import MapRouteDrawing from "./MapRouteDrawing";
+import { IconButton, Button, Snackbar} from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 
 const CreateRide = () => {
 
@@ -16,15 +19,77 @@ const CreateRide = () => {
         passengers: 1,
         price: 20,
     });
+    const [open, setOpen] = useState(false);
+    const navigate = useNavigate();
 
-    const handleContinue = () => {
+    const handleContinue = async () => {
         if (step === 1 && params.pickUp) setStep(2);
         if (step === 2 && params.dropOff) setStep(3);
         if (step === 3 && startCoordinates && endCoordinates) setStep(4);
         if (step === 4 && params.startTime) setStep(5);
         if (step === 5 && params.passengers) setStep(6);
-        if (step === 6 && params.price) console.log("User's input: ", params);
+        if (step === 6 && params.price) {
+            console.log("User's input: ", params);
+
+            const tripData = {
+                leavingFrom: {
+                    name: params.pickUp,
+                    location: params.pickUp,
+                    longitude: startCoordinates[0].toString(),
+                    latitude: startCoordinates[1].toString(),
+                    departureTime: params.startTime,
+                    arrivalTime: ""
+                },
+                goingTo: {
+                    name: params.dropOff,
+                    location: params.dropOff,
+                    longitude: endCoordinates[0].toString(),
+                    latitude: endCoordinates[1].toString(),
+                    departureTime: "",
+                    arrivalTime: "",
+                },
+                date: params.startTime.split("T")[0],
+                time: params.startTime.split("T")[1],
+                availableSeats: params.passengers,
+                farePerSeat: params.price,
+                comment: "",
+                stations: []
+            };
+
+            const token = localStorage.getItem('jwtToken');
+
+            console.log("Token: " + token);
+
+            try {
+                const response = await axios.post('http://localhost:8080/trips/create', tripData, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                console.log("Trip created successfully: ", response.data);
+                setOpen(true);
+                setTimeout(() =>{
+                    navigate("/");
+                }, 3000);
+            } catch (error) {
+                console.error("Error creating trip: ", error);
+            }
+        };
     }
+
+    const action = (
+        <Fragment>
+            <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={() => setOpen(false)}
+            >
+                <CloseIcon fontSize="small" />
+            </IconButton>
+        </Fragment>
+    )
 
 
     const handleParamChange = async (e) => {
@@ -297,11 +362,22 @@ const CreateRide = () => {
                 </>
             )}
 
-
-            
-            
+            <Snackbar
+                open={open}
+                autoHideDuration={3000}
+                onClose={() => setOpen(false)}
+                message="Ride has been created successfully"
+                action={action}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center'}}
+                ContentProps={{
+                    sx: {
+                        fontSize: '1rem'
+                    },
+                }}
+            />
+   
         </div>
-    )
-}
+    );
+};
 
 export default CreateRide;
