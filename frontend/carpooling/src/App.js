@@ -21,7 +21,7 @@ const App = () => {
           <MenuBar user={user} />
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/create-ride" element={<CreateRide />} />
+            <Route path="/create-ride" element={<CreateRide user={user}/>} />
             <Route path="/rides" element={<Rides />} />
             <Route path="ride-detail" element={<RideDetail />} />
             <Route path="/signin" element={<SignIn setUser={setUser} />} />

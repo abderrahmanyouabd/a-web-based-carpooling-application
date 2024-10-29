@@ -242,7 +242,7 @@ const Profile = ({ setUser }) => {
                                     <div className="mb-4 w-full">
                                         <p onClick={toggleFullNamePopup} className="mb-10 text-blue-500 hover:bg-gray-200 rounded-lg p-4"><span className="font-bold text-gray-500">Full Name <br/></span>{profileData.fullName}</p>
                                         <p onClick={toggleDateOfBirthPopup} className="mb-10 text-blue-500 hover:bg-gray-200 rounded-lg p-4"><span className="font-bold text-gray-500">Date Of Birth <br/></span>{profileData.dateOfBirth}</p>
-                                        <p onClick={toggleEmailPopup} className="mb-10 text-blue-500 hover:bg-gray-200 rounded-lg p-4"><span className="font-bold text-gray-500">Email Address <br/></span>{profileData.email}</p>
+                                        <p className="mb-10 text-gray-500 hover:bg-gray-200 rounded-lg p-4 cursor-not-allowed"><span className="font-bold text-gray-500">Email Address <br/></span>{profileData.email}</p>
                                     </div>
                                     <div className="mt-4">
                                         {profileData.mobile ? (

@@ -1,13 +1,13 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import MapRouteDrawing from "./MapRouteDrawing";
-import { IconButton, Button, Snackbar} from "@mui/material";
+import { IconButton, Snackbar} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 
-const CreateRide = () => {
+const CreateRide = ({ user }) => {
 
-    const [step, setStep] = useState(1);
+    const [step, setStep] = useState(0);
     const [suggestions, setSuggestions] = useState([]);
     const [activeField, setActiveField] = useState('');
     const [startCoordinates, setStartCoordinates] = useState([]);
@@ -22,7 +22,18 @@ const CreateRide = () => {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
 
+    useEffect(() => {
+        if (!user) {
+            console.log("No user")
+            setStep(0);
+        } else {
+            console.log("Yes user")
+            setStep(1);
+        }
+    }, [])
+
     const handleContinue = async () => {
+        
         if (step === 1 && params.pickUp) setStep(2);
         if (step === 2 && params.dropOff) setStep(3);
         if (step === 3 && startCoordinates && endCoordinates) setStep(4);
@@ -70,12 +81,18 @@ const CreateRide = () => {
                 console.log("Trip created successfully: ", response.data);
                 setOpen(true);
                 setTimeout(() =>{
-                    navigate("/");
+                    navigate("/ride-detail", { state: { ride: response.data}});
                 }, 3000);
             } catch (error) {
                 console.error("Error creating trip: ", error);
             }
+            
+            
         };
+    }
+
+    const handlePrevious = () => {
+        if (step > 1) setStep(step - 1);
     }
 
     const action = (
@@ -175,7 +192,36 @@ const CreateRide = () => {
 
     return (
         <div className="flex flex-col items-center mt-10">
-
+            
+            {step === 0 && (
+                <>
+                    <h1 className="text-xl md:text-3xl font-extrabold text-gray-700 mb-16">How do you want to log in?</h1>
+                    <div className="w-full max-w-xs">
+                        <button
+                            onClick={() => navigate("/signin")}
+                            className="flex items-center justify-between w-full px-4 py-3 mb-8 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
+                        >
+                            <span>Continue with email</span>
+                            <span>&gt;</span>
+                        </button>
+                        <button
+                            className="flex items-center justify-between w-full px-4 py-3 mb-8 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100"
+                        >
+                            <span>Continue with Facebook</span>
+                            <span className="text-blue-600">&gt;</span>
+                        </button>
+                        <div className="text-center text-gray-500 mt-4">
+                            Not a member yet?{" "}
+                            <button 
+                                onClick={() => navigate("/signup")}
+                                className="text-blue-500 hover:underline"
+                            >
+                                Sign Up
+                            </button>
+                        </div>
+                    </div>
+                </>
+            )}
 
             {step === 1 && (
                 <>
@@ -244,12 +290,23 @@ const CreateRide = () => {
                             </ul>
                         )}
 
-                        <button 
-                            onClick={handleContinue}
-                            className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
-                        >
-                            Continue
-                        </button>
+                        <div className="flex space-x-16 mt-5">
+                            <button 
+                                onClick={handlePrevious}
+                                className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
+                            >
+                                Previous
+                            </button>
+
+                            <button 
+                                onClick={handleContinue}
+                                className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
+                            >
+                                Continue
+                            </button>
+                        </div>
+
+                       
                     </div>
                     
                 </>
@@ -262,12 +319,21 @@ const CreateRide = () => {
                         <MapRouteDrawing startCoordinates={startCoordinates} endCoordinates={endCoordinates} />
                     </div>
 
-                    <button 
-                        onClick={handleContinue}
-                        className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600 items-center"
-                    >
-                        Continue
-                    </button>
+                    <div className="flex space-x-16 mt-5">
+                        <button 
+                            onClick={handlePrevious}
+                            className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
+                        >
+                            Previous
+                        </button>
+
+                        <button 
+                            onClick={handleContinue}
+                            className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
+                        >
+                            Continue
+                        </button>
+                    </div>
                 </>
                 
                 
@@ -286,12 +352,21 @@ const CreateRide = () => {
                         className="font-bold mt-10 py-2 px-5 w-[20rem] md:w-[32rem] h-12 bg-gray-200 rounded-xl shadow-sm focus:outline focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
 
-                    <button 
-                        onClick={handleContinue}
-                        className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600 items-center"
-                    >
-                        Continue
-                    </button>
+                    <div className="flex space-x-16 mt-5">
+                        <button 
+                            onClick={handlePrevious}
+                            className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
+                        >
+                            Previous
+                        </button>
+
+                        <button 
+                            onClick={handleContinue}
+                            className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
+                        >
+                            Continue
+                        </button>
+                    </div>
                     
                 </>
             )}
@@ -320,12 +395,21 @@ const CreateRide = () => {
                         </button>
                     </div>
 
-                    <button 
-                        onClick={handleContinue}
-                        className="mt-10 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
-                    >
-                        Continue
-                    </button>
+                    <div className="flex space-x-16 mt-5">
+                        <button 
+                            onClick={handlePrevious}
+                            className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
+                        >
+                            Previous
+                        </button>
+
+                        <button 
+                            onClick={handleContinue}
+                            className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
+                        >
+                            Continue
+                        </button>
+                    </div>
                 </>
             )}
 
@@ -353,12 +437,21 @@ const CreateRide = () => {
                         </button>
                     </div>
 
-                    <button 
-                        onClick={handleContinue}
-                        className="mt-10 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
-                    >
-                        Continue
-                    </button>
+                    <div className="flex space-x-16 mt-5">
+                        <button 
+                            onClick={handlePrevious}
+                            className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
+                        >
+                            Previous
+                        </button>
+
+                        <button 
+                            onClick={handleContinue}
+                            className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
+                        >
+                            Continue
+                        </button>
+                    </div>
                 </>
             )}
 
@@ -375,6 +468,8 @@ const CreateRide = () => {
                     },
                 }}
             />
+
+
    
         </div>
     );
