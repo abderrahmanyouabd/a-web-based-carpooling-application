@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import { FaCar } from "react-icons/fa";
+import { FaCar, FaCheckCircle, FaBan, FaUserFriends, FaClock, FaShieldAlt } from "react-icons/fa";
 
 const RideDetail = ( ) => {
     const location = useLocation();
@@ -39,16 +39,37 @@ const RideDetail = ( ) => {
                         <h3 className="text-lg font-semibold">{ride.driver.fullName}</h3>
                     </div>
                     
-                    <p className="text-lg text-gray-500 mb-4">Verified Profile</p>
-                    <p className="text-lg text-gray-500 mb-4">Rarely cancels rides</p>
-                    
-                    <div className="border-b-2 w-full mb-4"></div>
-
-                    <div className="text-lg text-gray-500 mb-4">Your booking will be confirmed instantly</div>
+                    <div className="flex items-center mb-4">
+                        <FaCheckCircle className="text-blue-500 mr-2" />
+                        <p className="text-lg text-gray-500">Verified Profile</p>
+                    </div>
                     
                     <div className="flex items-center mb-4">
-                        <FaCar className="text-gray-500 text-2xl" />
-                        <p className="text-lg text-gray-500 pl-2">Lamborghini - White</p>
+                        <FaShieldAlt className="text-gray-500 mr-2" />
+                        <p className="text-lg text-gray-500">Rarely cancels rides</p>
+                    </div>
+                    
+                    
+                    <div className="border-b-2 w-full mb-4"></div>
+                    
+                    <div className="flex items-center mb-4">
+                        <FaClock className="text-gray-500 mr-2"/>
+                        <div className="text-lg text-gray-500">Your booking will be confirmed instantly</div>
+                    </div>
+
+                    <div className="flex items-center mb-4">
+                        <FaUserFriends className="text-gray-500 mr-2" />
+                        <span className="text-lg text-gray-500">Max. 2 in the back</span>
+                    </div>
+
+                    <div className="flex items-center mb-4">
+                        <FaBan className="text-gray-500 mr-2" />
+                        <span className="text-lg text-gray-500">No smoking, please</span>
+                    </div>
+                    
+                    <div className="flex items-center mb-4">
+                        <FaCar className="text-gray-500 text-2xl mr-2"/>
+                        <p className="text-lg text-gray-500">Lamborghini - White</p>
                     </div>
                     
 
