@@ -46,6 +46,8 @@ public class TripController {
         return ResponseEntity.ok(trip);
     }
 
+    // todo
+// user to provide all fields to be able to search except the passengers count ?
     @GetMapping("/search")
     public ResponseEntity<List<Trip>> searchTrips(
             @RequestParam(name = "goingTo", required = false) String goingTo,

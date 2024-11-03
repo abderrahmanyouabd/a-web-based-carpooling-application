@@ -2,6 +2,7 @@ package com.chay.CarPooling.service.Impl;
 
 import com.chay.CarPooling.model.Trip;
 import com.chay.CarPooling.model.User;
+import com.chay.CarPooling.model.Vehicle;
 import com.chay.CarPooling.repository.TripRepository;
 import com.chay.CarPooling.service.FareCalculationService;
 import com.chay.CarPooling.service.TripService;
@@ -15,6 +16,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -38,10 +40,15 @@ public class TripServiceImpl implements TripService {
         // I should add logic for validation, authentication, etc ...
         trip.setDriver(user);
 
-        // need to save before setting fare since the api will need access to coordinates
+        Vehicle vehicle = user.getVehicle();
+        if (vehicle == null) {
+            throw new IllegalArgumentException("User does not have a registered vehicle.");
+        }
+        trip.setVehicle(vehicle);
+        // need to save before setting fare since the api will need access to coordinates ??
 //        tripRepository.save(trip);
 
-        double suggestedFare = fareCalculationService.calculateFare(trip);
+        BigDecimal suggestedFare = fareCalculationService.calculateFare2(trip);
         trip.setFarePerSeat(suggestedFare);
 
         // retun the updated stuff

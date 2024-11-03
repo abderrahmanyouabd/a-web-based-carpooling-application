@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.HashSet;
@@ -58,14 +59,16 @@ public class Trip {
     private LocalDate date;
     private LocalTime time;
     private Integer availableSeats;
-    private double farePerSeat;
+    private BigDecimal farePerSeat;
 
     private String comment;
 
     @ManyToOne
     private User driver;
 
-    @OneToOne
+//    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicle_id", nullable = false)
     private Vehicle vehicle; // The vehicle being used for the trip
 
     @ManyToMany

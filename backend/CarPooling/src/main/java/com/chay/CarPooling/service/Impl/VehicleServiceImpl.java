@@ -43,4 +43,13 @@ public class VehicleServiceImpl implements VehicleService {
         else throw new Exception("you don't have access");
     }
 
+    @Override
+    public Vehicle findUserVehicle(User user) throws Exception {
+        List<Vehicle> vehicles = vehicleRepository.getVehicleByUserId(user.getId());
+        if(vehicles.size() > 0){
+            return vehicles.get(0);
+        }
+        return null;
+    }
+
 }

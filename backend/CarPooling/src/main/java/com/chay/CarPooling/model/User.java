@@ -45,4 +45,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private PetPreference petPreference;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
+    private Vehicle vehicle;
+
+    private String currentIpAddress;
+
 }

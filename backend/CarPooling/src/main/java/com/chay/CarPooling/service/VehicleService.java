@@ -13,4 +13,5 @@ public interface VehicleService {
     Vehicle createVehicle(Vehicle vehicle, User user);
     List<Vehicle> getUsersVehicles(User user);
     void deleteVehicle(Vehicle vehicle,User user) throws Exception;
+    Vehicle findUserVehicle(User user) throws Exception;
 }

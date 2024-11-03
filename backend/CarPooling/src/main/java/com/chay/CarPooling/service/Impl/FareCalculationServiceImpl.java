@@ -15,6 +15,8 @@ import reactor.core.publisher.Mono;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 /**
  * @author: Abderrahman Youabd aka: A1ST
@@ -40,51 +42,51 @@ public class FareCalculationServiceImpl implements FareCalculationService {
         this.webClient = webClientBuilder.build();
     }
 
-    @Override
-    public double calculateFare(Trip trip) {
-
-        // real coordinates should be given in case ur testing
-        String startLatitude = trip.getLeavingFrom().getLatitude();
-//        String startLatitude = "48.856613";
-        String startLongitude = trip.getLeavingFrom().getLongitude();
-//        String startLongitude = "2.352222";
-        String endLatitude = trip.getGoingTo().getLatitude();
-//        String endLatitude = "51.507351";
-        String endLongitude = trip.getGoingTo().getLongitude();
-//        String endLongitude = "-0.127758";
-
-        // Fetch distance and duration using OpenRouteService
-        double[] distanceAndDuration = getDistanceAndDurationFromAPI(startLatitude, startLongitude, endLatitude, endLongitude);
-        double distance = distanceAndDuration[0]; // Distance in kilometers
-        System.out.println("distance:" + distance);
-        double duration = distanceAndDuration[1]; // Duration in minutes
-        System.out.println("duration: " + duration);
-
-        // Get weather conditions for the trip origin
-//        String weatherCondition = getWeatherConditions(startLatitude, startLongitude);
-
-        int passengerCount = trip.getPassengers().size();
-
-        // Base fare components
-        double baseFare = 5.0;
-        double costPerKm = 0.50;
-        double costPerMinute = 0.10;
-
-        // Apply a weather surcharge if it is raining
-//        if (weatherCondition.equals("Rain")) {
-//            costPerKm *= 1.1;
+//    @Override
+//    public double calculateFare(Trip trip) {
+//
+//        // real coordinates should be given in case ur testing
+//        String startLatitude = trip.getLeavingFrom().getLatitude();
+////        String startLatitude = "48.856613";
+//        String startLongitude = trip.getLeavingFrom().getLongitude();
+////        String startLongitude = "2.352222";
+//        String endLatitude = trip.getGoingTo().getLatitude();
+////        String endLatitude = "51.507351";
+//        String endLongitude = trip.getGoingTo().getLongitude();
+////        String endLongitude = "-0.127758";
+//
+//        // Fetch distance and duration using OpenRouteService
+//        double[] distanceAndDuration = getDistanceAndDurationFromAPI(startLatitude, startLongitude, endLatitude, endLongitude);
+//        double distance = distanceAndDuration[0]; // Distance in kilometers
+//        System.out.println("distance:" + distance);
+//        double duration = distanceAndDuration[1]; // Duration in minutes
+//        System.out.println("duration: " + duration);
+//
+//        // Get weather conditions for the trip origin
+////        String weatherCondition = getWeatherConditions(startLatitude, startLongitude);
+//
+//        int passengerCount = trip.getPassengers().size();
+//
+//        // Base fare components
+//        double baseFare = 5.0;
+//        double costPerKm = 0.50;
+//        double costPerMinute = 0.10;
+//
+//        // Apply a weather surcharge if it is raining
+////        if (weatherCondition.equals("Rain")) {
+////            costPerKm *= 1.1;
+////        }
+//
+//        // Calculate total fare
+//        double totalFare = baseFare + (costPerKm * distance) + (costPerMinute * duration);
+//
+//        // Distribute fare among passengers
+//        if (passengerCount > 0) {
+//            totalFare /= (passengerCount + 1);
 //        }
-
-        // Calculate total fare
-        double totalFare = baseFare + (costPerKm * distance) + (costPerMinute * duration);
-
-        // Distribute fare among passengers
-        if (passengerCount > 0) {
-            totalFare /= (passengerCount + 1);
-        }
-
-        return totalFare;
-    }
+//
+//        return totalFare;
+//    }
 
     public double[] getDistanceAndDurationFromAPI(String startLatitude, String startLongitude, String endLatitude, String endLongitude) {
         // Define the API URL
@@ -161,8 +163,8 @@ public class FareCalculationServiceImpl implements FareCalculationService {
         }
     }
 
-    // todo: I need to find a good logic before using it
-////    https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/47.5316,21.6273/2024-10-08T10:00:00?key=RQCVCKFRKSUSAYPMRR5EKVPAA&contentType=json
+//    // todo: I need to find a good logic before using it
+//////    https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/47.5316,21.6273/2024-10-08T10:00:00?key=RQCVCKFRKSUSAYPMRR5EKVPAA&contentType=json
 //    @Override
 //    public String getWeatherConditions(String latitude, String longitude) {
 //        String apiKey = openWeatherApiKey;
@@ -178,8 +180,8 @@ public class FareCalculationServiceImpl implements FareCalculationService {
 //        return response.contains("rain") ? "Rain" : "Clear";
 //    }
 
-
-    private BigDecimal calculateFare2(Trip trip) {
+    @Override
+    public BigDecimal calculateFare2(Trip trip) {
         String startLatitude = trip.getLeavingFrom().getLatitude();
         String startLongitude = trip.getLeavingFrom().getLongitude();
         String endLatitude = trip.getGoingTo().getLatitude();
@@ -189,8 +191,14 @@ public class FareCalculationServiceImpl implements FareCalculationService {
 
         BigDecimal distance = BigDecimal.valueOf(distanceAndDuration[0])
                 .divide(BigDecimal.valueOf(1000), 2, RoundingMode.HALF_UP);
-        BigDecimal duration = BigDecimal.valueOf(distanceAndDuration[1])
-                .divide(BigDecimal.valueOf(3600), 2, RoundingMode.HALF_UP);
+        LocalDateTime departureTime = trip.getLeavingFrom().getDepartureTime();
+
+        // Convert duration from seconds to a Duration object
+        Duration duration = Duration.ofSeconds((long) distanceAndDuration[1]);
+
+        // Calculate the arrival time
+        LocalDateTime arrivalTime = departureTime.plus(duration);
+        trip.getGoingTo().setArrivalTime(arrivalTime);
 
 
         BigDecimal passengerCount = BigDecimal.valueOf(trip.getPassengers().size());
@@ -205,10 +213,10 @@ public class FareCalculationServiceImpl implements FareCalculationService {
         BigDecimal fuelEfficiency = new BigDecimal("8.0"); // Assume 8 liters per 100 km
 
         // Fetch weather data from the Weather API and adjust weather impact based on rain or clear weather
-        String weatherCondition = getWeatherConditions(startLatitude, startLongitude);
-        BigDecimal weatherImpact = weatherCondition.equalsIgnoreCase("rain")
-                ? new BigDecimal("1.10")  // Increase fare by 10% for rainy weather
-                : new BigDecimal("1.00"); // No additional cost for clear weather
+//        String weatherCondition = getWeatherConditions(startLatitude, startLongitude);
+//        BigDecimal weatherImpact = weatherCondition.equalsIgnoreCase("rain")
+//                ? new BigDecimal("1.10")  // Increase fare by 10% for rainy weather
+//                : new BigDecimal("1.00"); // No additional cost for clear weather
 
         // Maintenance rate (cost per kilometer)
         BigDecimal maintenanceRate = new BigDecimal("0.05"); // $0.05 per kilometer for maintenance costs
@@ -224,7 +232,8 @@ public class FareCalculationServiceImpl implements FareCalculationService {
         BigDecimal fuelCost = fuelConsumption.multiply(gasPrice);
 
         // Step 3: Adjust for weather impact
-        BigDecimal adjustedFuelCost = fuelCost.multiply(weatherImpact);
+//        BigDecimal adjustedFuelCost = fuelCost.multiply(weatherImpact);
+        BigDecimal adjustedFuelCost = BigDecimal.ZERO;
 
         // Step 4: Calculate maintenance cost
         BigDecimal maintenanceCost = distance.multiply(maintenanceRate);

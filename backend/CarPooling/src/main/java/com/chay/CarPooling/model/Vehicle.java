@@ -24,6 +24,7 @@ public class Vehicle {
     @Enumerated(EnumType.STRING)
     private GasType gasType;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 }
