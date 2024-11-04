@@ -180,6 +180,8 @@ public class FareCalculationServiceImpl implements FareCalculationService {
 //        return response.contains("rain") ? "Rain" : "Clear";
 //    }
 
+
+
     @Override
     public BigDecimal calculateFare2(Trip trip) {
         String startLatitude = trip.getLeavingFrom().getLatitude();
@@ -200,23 +202,15 @@ public class FareCalculationServiceImpl implements FareCalculationService {
         LocalDateTime arrivalTime = departureTime.plus(duration);
         trip.getGoingTo().setArrivalTime(arrivalTime);
 
-
-        BigDecimal passengerCount = BigDecimal.valueOf(trip.getPassengers().size());
+        BigDecimal passengerCount = BigDecimal.valueOf(trip.getAvailableSeats());
 
         Vehicle vehicle = trip.getVehicle();
         if (vehicle == null || vehicle.getGasType() == null) {
             throw new IllegalArgumentException("No vehicle or gas type found for the driver");
         }
-        // Get gas price for the location using the vehicle type
         BigDecimal gasPrice = BigDecimal.valueOf(getGasPrice(startLatitude, endLongitude, trip.getVehicle().getGasType().name()));
-        // Fuel efficiency (liters per 100 km)
-        BigDecimal fuelEfficiency = new BigDecimal("8.0"); // Assume 8 liters per 100 km
 
-        // Fetch weather data from the Weather API and adjust weather impact based on rain or clear weather
-//        String weatherCondition = getWeatherConditions(startLatitude, startLongitude);
-//        BigDecimal weatherImpact = weatherCondition.equalsIgnoreCase("rain")
-//                ? new BigDecimal("1.10")  // Increase fare by 10% for rainy weather
-//                : new BigDecimal("1.00"); // No additional cost for clear weather
+        BigDecimal fuelEfficiency = new BigDecimal("8.0"); // Assume 8 liters per 100 km
 
         // Maintenance rate (cost per kilometer)
         BigDecimal maintenanceRate = new BigDecimal("0.05"); // $0.05 per kilometer for maintenance costs
@@ -231,9 +225,10 @@ public class FareCalculationServiceImpl implements FareCalculationService {
         // Step 2: Calculate fuel cost
         BigDecimal fuelCost = fuelConsumption.multiply(gasPrice);
 
-        // Step 3: Adjust for weather impact
-//        BigDecimal adjustedFuelCost = fuelCost.multiply(weatherImpact);
-        BigDecimal adjustedFuelCost = BigDecimal.ZERO;
+        // Step 3: Adjust for weather impact (commented out but can be adjusted as needed)
+// BigDecimal adjustedFuelCost = fuelCost.multiply(weatherImpact);
+// System.out.println("Adjusted Fuel Cost (after weather impact): " + adjustedFuelCost);
+        BigDecimal adjustedFuelCost = fuelCost;
 
         // Step 4: Calculate maintenance cost
         BigDecimal maintenanceCost = distance.multiply(maintenanceRate);
@@ -241,13 +236,13 @@ public class FareCalculationServiceImpl implements FareCalculationService {
         // Step 5: Calculate total cost
         BigDecimal totalCost = adjustedFuelCost.add(maintenanceCost);
 
-        // Step 6: Calculate price per fare
         BigDecimal pricePerFare = totalCost.divide(passengerCount, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.ONE.add(profitMargin));
 
-        // Return the fare rounded to 2 decimal places
-        return pricePerFare.setScale(2, RoundingMode.HALF_UP);
-    }
 
+        BigDecimal finalFare = pricePerFare.setScale(2, RoundingMode.HALF_UP);
+        return finalFare;
+
+    }
 
 }
