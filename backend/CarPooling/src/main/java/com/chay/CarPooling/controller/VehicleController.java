@@ -9,8 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 /**
  * @author: Abderrahman Youabd aka: A1ST
  * @version: 1.0
@@ -27,39 +25,36 @@ public class VehicleController {
     }
 
     @PostMapping
-    public ResponseEntity<Vehicle> createVehicle(@RequestBody Vehicle vehicle,
-                                                 Authentication authentication) throws UserException {
+    public ResponseEntity<Vehicle> createOrUpdateVehicle(@RequestBody Vehicle vehicle,
+                                                         Authentication authentication) throws UserException {
         String email = (String) authentication.getPrincipal();
         User user = userService.findUserByEmail(email);
 
-        Vehicle createdVehicle = vehicleService.createVehicle(vehicle, user);
-        return ResponseEntity.ok(createdVehicle);
+        Vehicle savedVehicle = vehicleService.createOrUpdateVehicle(vehicle, user);
+        return ResponseEntity.ok(savedVehicle);
     }
 
     @GetMapping
-    public ResponseEntity<List<Vehicle>> getUsersVehicles(
-            Authentication authentication) throws UserException {
+    public ResponseEntity<Vehicle> getUserVehicle(Authentication authentication) throws UserException {
         String email = (String) authentication.getPrincipal();
         User user = userService.findUserByEmail(email);
 
-
-        List<Vehicle> vehicles = vehicleService.getUsersVehicles(user);
-        return ResponseEntity.ok(vehicles);
-//        return null;
+        Vehicle vehicle = vehicleService.findUserVehicle(user);
+        return ResponseEntity.ok(vehicle);
     }
 
-    @DeleteMapping("/{vehicleId}")
-    public ResponseEntity<Void> deleteVehicle(@PathVariable Long vehicleId, Authentication authentication) throws Exception {
+    @DeleteMapping
+    public ResponseEntity<Void> deleteUserVehicle(Authentication authentication) throws Exception {
         String email = (String) authentication.getPrincipal();
         User user = userService.findUserByEmail(email);
+        Vehicle vehicle = vehicleService.findUserVehicle(user);
 
-        Vehicle vehicle = vehicleService.getUsersVehicles(user)
-                .stream()
-                .filter(v -> v.getId().equals(vehicleId))
-                .findFirst()
-                .orElseThrow(() -> new Exception("Vehicle not found"));
-
-        vehicleService.deleteVehicle(vehicle, user);
+        if (vehicle != null) {
+            vehicleService.deleteVehicle(vehicle, user);
+        } else {
+            throw new Exception("No vehicle found for this user.");
+        }
         return ResponseEntity.noContent().build();
     }
+
 }

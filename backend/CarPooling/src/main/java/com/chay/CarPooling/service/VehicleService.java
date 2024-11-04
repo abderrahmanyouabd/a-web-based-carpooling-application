@@ -2,6 +2,7 @@ package com.chay.CarPooling.service;
 
 import com.chay.CarPooling.model.User;
 import com.chay.CarPooling.model.Vehicle;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -10,8 +11,8 @@ import java.util.List;
  * @version: 1.0
  */
 public interface VehicleService {
-    Vehicle createVehicle(Vehicle vehicle, User user);
-    List<Vehicle> getUsersVehicles(User user);
+    Vehicle createOrUpdateVehicle(Vehicle vehicle, User user);
+    @Transactional
     void deleteVehicle(Vehicle vehicle,User user) throws Exception;
-    Vehicle findUserVehicle(User user) throws Exception;
+    Vehicle findUserVehicle(User user);
 }

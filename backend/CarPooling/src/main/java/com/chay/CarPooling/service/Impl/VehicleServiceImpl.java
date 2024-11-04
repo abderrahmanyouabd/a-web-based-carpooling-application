@@ -6,6 +6,7 @@ import com.chay.CarPooling.repository.VehicleRepository;
 import com.chay.CarPooling.service.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -13,8 +14,8 @@ import java.util.List;
  * @author: Abderrahman Youabd aka: A1ST
  * @version: 1.0
  */
-
 @Service
+@Transactional
 public class VehicleServiceImpl implements VehicleService {
 
     private final VehicleRepository vehicleRepository;
@@ -25,31 +26,41 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public Vehicle createVehicle(Vehicle vehicle, User user) {
-        vehicle.setUser(user);
-        return vehicleRepository.save(vehicle);
-    }
-
-    @Override
-    public List<Vehicle> getUsersVehicles(User user) {
-        return vehicleRepository.getVehicleByUserId(user.getId());
-    }
-
-    @Override
-    public void deleteVehicle(Vehicle vehicle,User user) throws Exception {
-        if(user.getId().equals(vehicle.getUser().getId())){
-            vehicleRepository.delete(vehicle);
+    public Vehicle createOrUpdateVehicle(Vehicle newVehicle, User user) {
+        Vehicle existingVehicle = findUserVehicle(user);
+        if (existingVehicle != null) {
+            existingVehicle.setModel(newVehicle.getModel());
+            existingVehicle.setColor(newVehicle.getColor());
+            existingVehicle.setLicensePlateNumber(newVehicle.getLicensePlateNumber());
+            existingVehicle.setBrand(newVehicle.getBrand());
+            existingVehicle.setGasType(newVehicle.getGasType());
+            return vehicleRepository.save(existingVehicle);
+        } else {
+            newVehicle.setUser(user);
+            return vehicleRepository.save(newVehicle);
         }
-        else throw new Exception("you don't have access");
+    }
+
+
+    @Override
+    public Vehicle findUserVehicle(User user) {
+        return vehicleRepository.findByUserId(user.getId()) == null? null: vehicleRepository.findByUserId(user.getId());
     }
 
     @Override
-    public Vehicle findUserVehicle(User user) throws Exception {
-        List<Vehicle> vehicles = vehicleRepository.getVehicleByUserId(user.getId());
-        if(vehicles.size() > 0){
-            return vehicles.get(0);
+    @Transactional
+    public void deleteVehicle(Vehicle vehicle, User user) throws Exception {
+        if (vehicle != null) {
+            System.out.println("Attempting to delete vehicle with ID: " + vehicle.getId());
+            if (vehicle.getUser().getId().equals(user.getId())) {
+                user.setVehicle(null);
+                vehicleRepository.delete(vehicle);
+                System.out.println("Vehicle with ID " + vehicle.getId() + " has been deleted.");
+            } else {
+                throw new Exception("You don't have access to delete this vehicle.");
+            }
+        } else {
+            throw new Exception("Vehicle is null.");
         }
-        return null;
     }
-
 }
