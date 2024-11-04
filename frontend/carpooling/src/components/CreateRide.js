@@ -2,7 +2,7 @@ import React, { useState, Fragment, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import MapRouteDrawing from "./MapRouteDrawing";
-import { IconButton, Snackbar} from "@mui/material";
+import { IconButton, Snackbar, TextField, MenuItem} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 
 const CreateRide = ({ user }) => {
@@ -19,6 +19,13 @@ const CreateRide = ({ user }) => {
         passengers: 1,
         price: 20,
     });
+    const [vehicle, setVehicle] = useState({
+        model: '',
+        color: '',
+        licensePlateNumber: '',
+        brand: '',
+        gasType: ''
+    });
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
 
@@ -32,14 +39,58 @@ const CreateRide = ({ user }) => {
         }
     }, [])
 
+    const isUserHasVehicle = async () => {
+        try {
+            const token = localStorage.getItem('jwtToken');
+            const vehicleResponse = await axios.get('http://localhost:8080/api/vehicle', 
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    }
+                }
+            );
+            console.log("Vehicle data: ", vehicleResponse.data);
+            console.log("Vehicle exists: ", Object.keys(vehicleResponse.data).length > 0);
+            return vehicleResponse.data != null && Object.keys(vehicleResponse.data).length > 0;
+        } catch (error) {
+            console.error("Unable to fetch vehicle data: ", error);
+            return false;
+        }
+    }
+
     const handleContinue = async () => {
         
         if (step === 1 && params.pickUp) setStep(2);
         if (step === 2 && params.dropOff) setStep(3);
         if (step === 3 && startCoordinates && endCoordinates) setStep(4);
         if (step === 4 && params.startTime) setStep(5);
-        if (step === 5 && params.passengers) setStep(6);
-        if (step === 6 && params.price) {
+        if (step === 5 && params.passengers) {
+            const vehicleExists = await isUserHasVehicle();
+            if (vehicleExists){
+                setStep(7)
+            } else {
+                setStep(6)
+            }
+        };
+        if (step === 6 && vehicle) {
+            try {
+                const token = localStorage.getItem('jwtToken');
+                const vehicleResponse = await axios.post('http://localhost:8080/api/vehicle', 
+                    vehicle,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+                console.log("Vehicle created successfully: ", vehicleResponse.data);
+                setStep(7);
+            } catch (error) {
+                console.error("Unable to save the vehicle to the database: ", error);
+            }
+        }
+        if (step === 7 && params.price) {
             console.log("User's input: ", params);
 
             const tripData = {
@@ -72,7 +123,7 @@ const CreateRide = ({ user }) => {
             console.log("Token: " + token);
 
             try {
-                const response = await axios.post('http://localhost:8080/trips/create', tripData, {
+                const response = await axios.post('http://localhost:8080/api/trips/create', tripData, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
@@ -89,6 +140,11 @@ const CreateRide = ({ user }) => {
             
             
         };
+    }
+
+    const handleVehicleChange = (e) => {
+        const { name, value } = e.target;
+        setVehicle(prevVehicle => ({ ...prevVehicle, [name]: value }));
     }
 
     const handlePrevious = () => {
@@ -414,6 +470,68 @@ const CreateRide = ({ user }) => {
             )}
 
             {step === 6 && (
+                <>
+                    <h1 className="text-xl md:text-3xl font-extrabold text-gray-700">Enter Vehicle Details</h1>
+                    <div className="flex flex-col space-y-4 mt-5">
+                        <TextField
+                            label="Model"
+                            name="model"
+                            value={vehicle.model}
+                            onChange={handleVehicleChange}
+                            variant="outlined"
+                        />
+                        <TextField
+                            label="Color"
+                            name="color"
+                            value={vehicle.color}
+                            onChange={handleVehicleChange}
+                            variant="outlined"
+                        />
+                        <TextField
+                            label="License Plate Number"
+                            name="licensePlateNumber"
+                            value={vehicle.licensePlateNumber}
+                            onChange={handleVehicleChange}
+                            variant="outlined"
+                        />
+                        <TextField
+                            label="Brand"
+                            name="brand"
+                            value={vehicle.brand}
+                            onChange={handleVehicleChange}
+                            variant="outlined"
+                        />
+                        <TextField
+                            select
+                            label="Gas Type"
+                            name="gasType"
+                            value={vehicle.gasType}
+                            onChange={handleVehicleChange}
+                            variant="outlined"
+                        >
+                            <MenuItem value="GASOLINE">Gasoline</MenuItem>
+                            <MenuItem value="DIESEL">Diesel</MenuItem>
+                        </TextField>
+                    </div>
+
+                    <div className="flex space-x-16 mt-5">
+                        <button
+                            onClick={handlePrevious}
+                            className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
+                        >
+                            Previous
+                        </button>
+                        <button
+                            onClick={handleContinue}
+                            className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
+                        >
+                            Continue
+                        </button>
+                    </div>
+                </>
+            )}
+
+            {step === 7 && (
                 <>
                     <h1 className="text-xl md:text-3xl font-extrabold text-gray-700">Set your price per seat</h1>
 

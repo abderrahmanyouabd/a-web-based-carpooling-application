@@ -1,0 +1,53 @@
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: youabd50@gmail.com
+    password: vqeu nhck srqx cqcq
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  application:
+    name: CarPooling
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:carpoolingdb}
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: admin
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+
+server:
+  port: 8080
+
+
+openrouteservice:
+    api:
+      key: '5b3ce3597851110001cf6248e4896a13b7cd44c988adeba2a1f425b4'
+
+openweathermap:
+  api:
+    key: OPENWEATHER_API_KEY
+
+gasprice:
+  api:
+    key: ''
+

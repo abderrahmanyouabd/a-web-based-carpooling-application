@@ -71,7 +71,7 @@ const TripSearch = ({ initialParams = {} }) => {
             if (params.date) requestParams.date = params.date;
             if (params.passengers) requestParams.passengers = params.passengers;
             
-            let url = 'http://localhost:8080/trips/search?';
+            let url = 'http://localhost:8080/api/trips/search?';
             if(requestParams.leavingFrom){
                 url += `leavingFrom=${requestParams.leavingFrom.replace(/,\s+/g, ',+')}&`;
             }
@@ -80,8 +80,12 @@ const TripSearch = ({ initialParams = {} }) => {
             }
             
             console.log("Request URL: ", url);
-
-            const response = await axios.get(url);
+            const token = localStorage.getItem('jwtToken');
+            const response = await axios.get(url, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
 
             setSearchResults(response.data);
             setErrorMessage("");

@@ -69,7 +69,7 @@ const RideDetail = ( ) => {
                     
                     <div className="flex items-center mb-4">
                         <FaCar className="text-gray-500 text-2xl mr-2"/>
-                        <p className="text-lg text-gray-500">Lamborghini - White</p>
+                        <p className="text-lg text-gray-500">{ride.vehicle.model} - {ride.vehicle.color} - {ride.vehicle.licensePlateNumber}</p>
                     </div>
                     
 
