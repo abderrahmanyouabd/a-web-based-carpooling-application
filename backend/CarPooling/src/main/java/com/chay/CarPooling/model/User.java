@@ -25,7 +25,9 @@ public class User {
     private String password;
     private String mobile;
     private String bio;
-    private String profilePicture;
+
+    @Lob
+    private byte[] profilePicture;
     private String dateOfBirth;
 
     private String status;

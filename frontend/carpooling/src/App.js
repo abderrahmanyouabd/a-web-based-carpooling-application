@@ -26,7 +26,7 @@ const App = () => {
             <Route path="ride-detail" element={<RideDetail />} />
             <Route path="/signin" element={<SignIn setUser={setUser} />} />
             <Route path="/signin/forgot-password" element={<ForgotPassword />} />
-            <Route path="/signin/reset-password" element={<ResetPassword />} />
+            <Route path="/account/reset-password" element={<ResetPassword />} />
             <Route path="/signup" element={<SignUp setUser={setUser} />} />
             <Route path="/profile" element={<Profile setUser={setUser}/>} />
           </Routes>

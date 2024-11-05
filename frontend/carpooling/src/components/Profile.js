@@ -1,10 +1,12 @@
 import React, { useEffect, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import CarPoolCommercial from "../CarPoolingPictures/carpool_commercial2.png"
 
 const Profile = ({ setUser }) => {
     const [profileData, setProfileData] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
+    const [isAddProfilePictureClicked,  setIsAddProfilePictureClicked] = useState(false);
     const [isEditPersonalDetailsClicked, setIsEditPersonalDetailsClicked] = useState(false);
     const [isFullNameClicked, setIsFullNameClicked] = useState(false);
     const [isEmailClicked, setIsEmailClicked] = useState(false);
@@ -57,6 +59,10 @@ const Profile = ({ setUser }) => {
         navigate('/');
     }
 
+    const toggleAddProfilePicturePopup = () => {
+        setIsAddProfilePictureClicked(!isAddProfilePictureClicked);
+    }
+
     const toggleEditProfilePopup = () => {
         setIsEditPersonalDetailsClicked(!isEditPersonalDetailsClicked);
     }
@@ -77,61 +83,76 @@ const Profile = ({ setUser }) => {
         setIsPhoneNumberClicked(!isPhoneNumberClicked);
     }
 
-    const handleSave = async (field, value) => {
+    const handleFileChange = async (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('profilePicture', file); // Append the file directly
+            await handleSave('profilePicture', formData); // Call handleSave with the FormData
+        }
+    };
+    
 
-        console.log("FullName: ", fullName);
+    const handleSave = async (field, value) => {
+        console.log("Field: ", field, "Value: ", value);
         try {
             const token = localStorage.getItem('jwtToken');
-
-            if (!token){
+    
+            if (!token) {
                 setErrorMessage("You are not logged in. Please log in first.");
                 return;
             }
-
-            const savingObject = {};
-
+    
+            const savingObject = new FormData();
+    
+    
             if (field === 'fullName' && value.trim() !== '') {
-                savingObject.fullName = value;
-            } else if (field === 'email' && value.trim() !== ''){
-                savingObject.email = value;
-            } else if (field === 'dateOfBirth' && value.trim() !== ''){
-                savingObject.dateOfBirth = value;
-            } else if (field === 'mobile' && value.trim() !== ''){
-                savingObject.mobile = value;
+                savingObject.append('fullName', value);
+            } else if (field === 'email' && value.trim() !== '') {
+                savingObject.append('email', value);
+            } else if (field === 'dateOfBirth' && value.trim() !== '') {
+                savingObject.append('dateOfBirth', value);
+            } else if (field === 'mobile' && value.trim() !== '') {
+                savingObject.append('mobile', value);
+            } else if (field === 'profilePicture' && value.has('profilePicture')) {
+                console.log("Profile Picture");
+                savingObject.append('profilePicture', value.get('profilePicture')); 
             }
-
-            if (Object.keys(savingObject).length === 0){
-                setErrorMessage("No valid data to update");
-                return;
-            }
-
-            const response = await fetch('http://localhost:8080/api/users', {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(savingObject)
-            });
-
-            if (response.ok){
-                const updatedUser = await response.json();
-                console.log('Updated user: ', updatedUser);
-                setProfileData(updatedUser);
-                setUser(updatedUser);
-                setIsFullNameClicked(false);
-                setIsEmailClicked(false);
-                setIsDateOfBirthClicked(false);
-                setIsPhoneNumberClicked(false);
+    
+            console.log("Saving Object: ", [...savingObject]); 
+    
+            if (savingObject.has('fullName') || savingObject.has('email') || savingObject.has('mobile') || savingObject.has('dateOfBirth') || savingObject.has('profilePicture')) {
+                const response = await fetch('http://localhost:8080/api/users', {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        // Do not set Content-Type to 'application/json' when sending FormData
+                    },
+                    body: savingObject
+                });
+    
+                if (response.ok) {
+                    const updatedUser = await response.json();
+                    console.log('Updated user: ', updatedUser);
+                    setProfileData(updatedUser);
+                    setUser(updatedUser);
+                    setIsFullNameClicked(false);
+                    setIsEmailClicked(false);
+                    setIsDateOfBirthClicked(false);
+                    setIsPhoneNumberClicked(false);
+                    setIsAddProfilePictureClicked(false);
+                } else {
+                    const errorData = await response.json();
+                    setErrorMessage(errorData.message || 'Failed to save profile data.');
+                }
             } else {
-                const errorData = await response.json();
-                setErrorMessage(errorData.message || 'Failed to save profile data.');
+                setErrorMessage("No valid data to update");
             }
-            
         } catch (error) {
             console.error('Error:', error);
+            setErrorMessage('An error occurred while saving the profile data. Please try again later.');
         }
-    }
+    };    
 
     if (errorMessage) {
         return <div className="text-red-600">{errorMessage}</div>;
@@ -145,7 +166,16 @@ const Profile = ({ setUser }) => {
 
                     <div className="flex items-center space-x-4 mb-6">
                         <div className="w-32 h-32 bg-gray-300 rounded-full flex items-center justify-center">
-                            <span className="text-gray-500 text-sm leading-none">Add profile picture</span>
+                        {profileData.profilePicture ? (
+                            <img 
+                                src={`data:image/jpeg;base64,${profileData.profilePicture}`} 
+                                alt="Profile Picture" 
+                                className="w-full h-full object-cover rounded-full" 
+                            />
+                        ) : (
+                            <span className="text-gray-500 text-sm leading-none">Profile picture</span>
+                        )}
+
                         </div>
                         <h1 className="text-3xl font-bold text-gray-700">
                             {profileData.fullName || "Newcomer"}
@@ -154,8 +184,12 @@ const Profile = ({ setUser }) => {
 
                     <div className="border-b-2 mb-4"></div>
 
-                    <div className="mb-4 hover:bg-gray-200 p-4 rounded-lg">
-                        <p onClick={toggleEditProfilePopup} className="text-blue-500 cursor-pointer">Edit personal details</p>
+                    <div className="mb-4">
+                        <div onClick={toggleAddProfilePicturePopup} className="flex items-center hover:bg-gray-200 p-4 rounded-lg cursor-pointer">
+                            <AddCircleOutlineIcon className="text-blue-500" />
+                            <p className="text-blue-500 pl-4">Add Profile Picture</p>
+                        </div>
+                        <p onClick={toggleEditProfilePopup} className="text-blue-500 cursor-pointer hover:bg-gray-200 p-4 rounded-lg">Edit personal details</p>
                     </div>
 
                     <div className="border-b-2 mb-4"></div>
@@ -163,9 +197,9 @@ const Profile = ({ setUser }) => {
                     <div className="mb-8 leading-relaxed">
                         <h2 className="text-xl font-semibold pl-4">Verify your profile</h2>
 
-                        <div className="flex items-center pl-4">
+                        <div className="flex items-center pl-4 hover:bg-gray-200 rounded-lg cursor-pointer">
                             <AddCircleOutlineIcon className="text-blue-500" />
-                            <p className="text-blue-500 hover:bg-gray-200 p-4 rounded-lg">Verify ID</p>
+                            <p className="text-blue-500 p-4">Verify ID</p>
                         </div>
                         
                         {profileData.email ? (
@@ -174,18 +208,18 @@ const Profile = ({ setUser }) => {
                             <div>
                                 <div className="flex items-center pl-4">
                                     <AddCircleOutlineIcon className="text-blue-500" />
-                                    <p className="text-blue-500 hover:bg-gray-200 p-4 rounded-lg">Add email address</p>
+                                    <p className="text-blue-500 hover:bg-gray-200 p-4 rounded-lg cursor-pointer">Add email address</p>
                                 </div>
                             </div>
                         )}
                         
                         {profileData.mobile ? (
-                            <p className="text-blue-500 cursor-pointer hover:bg-gray-200 p-4 rounded-lg">Phone Number: {profileData.mobile}</p>
+                            <p className="text-blue-500 hover:bg-gray-200 p-4 rounded-lg cursor-pointer">Phone Number: {profileData.mobile}</p>
                         ) : (
                             <div>
                                 <div className="flex items-center pl-4">
                                     <AddCircleOutlineIcon className="text-blue-500" />
-                                    <p className="text-blue-500 hover:bg-gray-200 p-4 rounded-lg">Add phone number</p>
+                                    <p className="text-blue-500 hover:bg-gray-200 p-4 rounded-lg cursor-pointer">Add phone number</p>
                                 </div>
                             </div>
                         )}
@@ -197,9 +231,9 @@ const Profile = ({ setUser }) => {
                     <div className="mb-8">
                         <h2 className="text-xl font-semibold text-gray-700">About you</h2>
 
-                        <div className="flex items-center pl-4">
+                        <div className="flex items-center pl-4 hover:bg-gray-200 rounded-lg">
                             <AddCircleOutlineIcon className="text-blue-500" />
-                            <p className="text-blue-500 cursor-pointer hover:bg-gray-200 p-4 rounded-lg">Add a mini bio</p>
+                            <p className="text-blue-500 cursor-pointer p-4">Add a mini bio</p>
                         </div>
                         
                         <div className="mt-4 space-y-4 text-gray-700 leading-relaxed">
@@ -209,9 +243,9 @@ const Profile = ({ setUser }) => {
                             <p className="pl-4">🐾 I'll travel with pets depending on the animal</p>
                         </div>
 
-                        <div className="flex items-center pl-4">
+                        <div className="flex items-center pl-4 hover:bg-gray-200 rounded-lg">
                             <AddCircleOutlineIcon className="text-blue-500" />
-                            <p className="text-blue-500 cursor-pointer hover:bg-gray-200 p-4 rounded-lg">Edit travel preferences</p>
+                            <p className="text-blue-500 cursor-pointer p-4">Edit travel preferences</p>
                         </div>
                         
                     </div>
@@ -222,6 +256,56 @@ const Profile = ({ setUser }) => {
                     >
                         Log Out
                     </button>
+
+                    {isAddProfilePictureClicked && (
+                        <div className="bg-white flex justify-center fixed inset-0 z-50">
+                            <div className="w-full max-w-lg h-auto p-8 relative">
+
+                                <div className="text-right">
+                                    <button 
+                                        onClick={toggleAddProfilePicturePopup}
+                                        className="text-3xl text-gray-500 hover:text-gray-700"
+                                    >
+                                        &times;
+                                    </button>
+                                </div>
+                                        
+                                <div className="flex items-center mt-8">
+                                    
+                                    <div className="w-1/3">
+                                        <img 
+                                            src={CarPoolCommercial}
+                                            alt="Profile Preview"
+                                            className="rounded-full w-32 h-32 object-cover mb-4"
+                                        />
+                                    </div>
+                                    
+                                    
+                                    <div className="flex flex-col mt-8 w-2/3 ml-16">
+                                        <p className="text-2xl font-bold text-center">
+                                            Don't wear sunglasses, look straight ahead and make sure you're alone.
+                                        </p>
+
+                                        <button 
+                                            className="bg-blue-500 text-white py-2 px-2 rounded mt-4"
+                                            onClick={() => document.getElementById('fileInput').click()}
+                                        >
+                                            Choose a profile picture
+                                        </button>
+                                        <input 
+                                            id="fileInput"
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                        />
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    )}
 
                     {isEditPersonalDetailsClicked && (
                         <div className="bg-white flex justify-center fixed inset-0 z-50">

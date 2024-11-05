@@ -23,7 +23,7 @@ public class UpdateUserDto {
     private String mobile;
     private String dateOfBirth;
     private String bio;
-    private String profilePicture;
+    private byte[] profilePicture;
 
     @Enumerated(EnumType.STRING)
     private ChatPreference chatPreference;
