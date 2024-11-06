@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { FaCar, FaCheckCircle, FaBan, FaUserFriends, FaClock, FaShieldAlt } from "react-icons/fa";
 
-const RideDetail = ( ) => {
+const RideDetail = () => {
     const location = useLocation();
+    const [profileData, setProfileData] = useState(null);
 
     const ride = location.state?.ride;
 
@@ -12,6 +13,37 @@ const RideDetail = ( ) => {
     const formattedDate = ( date ) =>{
         return date.replace("T", " ");
     }
+
+    useEffect(() => {
+        const fetchProfileData = async () => {
+            try {
+                const token = localStorage.getItem("jwtToken");
+                if (!token) {
+                    console.log("No token found, redirecting to login page.");
+                    // TODO: Redirect to login page
+                    return;
+                }
+
+                const response = await fetch(`http://localhost:8080/api/users/profile`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    setProfileData(data);
+                } else {
+                    console.error("Failed to fetch profile data");
+                }
+            } catch (error) {
+                console.error("Error fetching profile data:", error);
+            }
+        };
+
+        fetchProfileData();
+    }, []);
 
     return (
         <div className="p-6 bg-gray-100 flex min-h-screen justify-center space-x-16">
@@ -35,8 +67,18 @@ const RideDetail = ( ) => {
                 <div className="bg-white rounded-lg shadow-lg p-6 mb-4 flex flex-col items-start">
                     
                     <div className="flex items-center mb-4">
-                        <img alt="Driver" className="w-12 h-12 rounded-full mr-4"/>
-                        <h3 className="text-lg font-semibold">{ride.driver.fullName}</h3>
+                        <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
+                            {profileData?.profilePicture ? ( 
+                                <img 
+                                    src={`data:image/jpeg;base64,${profileData.profilePicture}`} 
+                                    alt="Profile Picture" 
+                                    className="w-full h-full object-cover rounded-full" 
+                                />
+                            ) : (
+                                <span className="text-gray-500 text-sm leading-none">Profile picture</span>
+                            )}
+                        </div>
+                        <h3 className="text-lg font-semibold pl-2">{ride.driver.fullName}</h3>
                     </div>
                     
                     <div className="flex items-center mb-4">
@@ -100,13 +142,21 @@ const RideDetail = ( ) => {
 
                     <div className="border-b-2 m-5"></div>
                     
-                    <div className="mb-4 flex flex-col items-start">
-
-                        <div className="mb-2">
-                            <img alt="Driver" className="w-12 h-12 rounded-full mr-4" />
+                    <div className="mb-4 flex items-center">
+                        
+                        <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
+                            {profileData?.profilePicture ? ( 
+                                <img 
+                                    src={`data:image/jpeg;base64,${profileData.profilePicture}`} 
+                                    alt="Profile Picture" 
+                                    className="w-full h-full object-cover rounded-full" 
+                                />
+                            ) : (
+                                <span className="text-gray-500 text-sm leading-none">Profile picture</span>
+                            )}
                         </div>
                         
-                        <div className="flex items-center">
+                        <div className="flex items-center pl-2">
                             <h3 className="text-sm font-semibold">{ride.driver.fullName}</h3>
                             <FaCar className="ml-2 text-gray-500 text-2xl" />
                         </div>

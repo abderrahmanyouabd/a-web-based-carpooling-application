@@ -26,7 +26,7 @@ public class User {
     private String mobile;
     private String bio;
 
-    @Lob
+    @Column(columnDefinition = "BYTEA")
     private byte[] profilePicture;
     private String dateOfBirth;
 

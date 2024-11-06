@@ -166,15 +166,16 @@ const Profile = ({ setUser }) => {
 
                     <div className="flex items-center space-x-4 mb-6">
                         <div className="w-32 h-32 bg-gray-300 rounded-full flex items-center justify-center">
-                        {profileData.profilePicture ? (
-                            <img 
-                                src={`data:image/jpeg;base64,${profileData.profilePicture}`} 
-                                alt="Profile Picture" 
-                                className="w-full h-full object-cover rounded-full" 
-                            />
-                        ) : (
-                            <span className="text-gray-500 text-sm leading-none">Profile picture</span>
-                        )}
+                            
+                            {profileData.profilePicture ? (
+                                <img 
+                                    src={`data:image/jpeg;base64,${profileData.profilePicture}`} 
+                                    alt="Profile Picture" 
+                                    className="w-full h-full object-cover rounded-full" 
+                                />
+                            ) : (
+                                <span className="text-gray-500 text-sm leading-none">Profile picture</span>
+                            )}
 
                         </div>
                         <h1 className="text-3xl font-bold text-gray-700">
