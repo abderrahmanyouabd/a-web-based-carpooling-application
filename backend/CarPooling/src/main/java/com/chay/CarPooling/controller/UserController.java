@@ -34,9 +34,9 @@ public class UserController {
     }
 
 
-    @PatchMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PatchMapping()
     public ResponseEntity<User> UpdateUserProfileHandler(
-            @ModelAttribute UpdateUserDto dto,
+            UpdateUserDto dto,
             @RequestHeader("Authorization") String jwt) throws UserException {
 
         User user = userService.findUserProfileByJwt(jwt);
