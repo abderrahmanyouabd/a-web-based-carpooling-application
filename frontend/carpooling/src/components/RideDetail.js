@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FaCar, FaCheckCircle, FaBan, FaUserFriends, FaClock, FaShieldAlt } from "react-icons/fa";
 
 const RideDetail = () => {
@@ -7,6 +7,9 @@ const RideDetail = () => {
     const [profileData, setProfileData] = useState(null);
 
     const ride = location.state?.ride;
+
+    const isDriver = profileData?.id === ride.driver.id;
+    const navigate = useNavigate();
 
     console.log("Ride: " + ride);
 
@@ -115,10 +118,19 @@ const RideDetail = () => {
                     </div>
                     
 
-                    <div className="mt-4 text-center">
+                    <div className="mt-4 text-center space-x-4">
                         <button className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-50">
                             Contact {ride.driver.fullName}
                         </button>
+                        {isDriver && (
+                            <button
+                                onClick={() => navigate("/track-driver-location", {state: {rideId: ride.id}} )}
+                                className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-50"
+                            >
+                                Share My Driver Location
+                            </button>
+                        )}
+
                     </div>
                     
                 </div>
