@@ -12,6 +12,7 @@ import ResetPassword from "./components/ResetPassword";
 import RideDetail from "./components/RideDetail";
 import CreateRide from "./components/CreateRide";
 import DriverLocationTracker from "./components/DriverLocationTracker";
+import ViewDriverLocation from "./components/ViewDriverLocation";
 
 const App = () => {
   const [user, setUser] = useState(null);
@@ -31,6 +32,7 @@ const App = () => {
             <Route path="/signup" element={<SignUp setUser={setUser} />} />
             <Route path="/profile" element={<Profile setUser={setUser}/>} />
             <Route path="/track-driver-location" element={<DriverLocationTracker />} />
+            <Route path="/view-driver-location" element={<ViewDriverLocation />} />
           </Routes>
           
       </BrowserRouter>

@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from "react";
 import DriverLocationMapDrawing from "./DriverLocationMapDrawing";
+import { io } from "socket.io-client";
+import { useLocation } from "react-router-dom";
+
+const socket = io("http://localhost:3001");
 
 const DriverLocationTracker = () => {
+    const location = useLocation();
     const [position, setPosition] = useState({ latitude: null, longitude: null });
     const [tracking, setTracking] = useState(false);
+    const rideId = location.state?.rideId;
 
     useEffect(() => {
         if (tracking && navigator.geolocation) {
@@ -11,6 +17,13 @@ const DriverLocationTracker = () => {
                 (position) => {
                     const { latitude, longitude } = position.coords;
                     setPosition({ latitude, longitude });
+
+                    socket.emit("driverLocationUpdate", {
+                        rideId: rideId,
+                        latitude: latitude,
+                        longitude: longitude,
+                    });
+                    console.log("Ride Location updated: ", rideId, latitude, longitude);
                 },
                 (error) => {
                     console.error("Error retriving location: ", error);
