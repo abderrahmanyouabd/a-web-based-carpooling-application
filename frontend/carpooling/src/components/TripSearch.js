@@ -1,0 +1,272 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
+const TripSearch = ({ initialParams = {} }) => {
+
+    const [params, setParams] = useState({
+        leavingFrom: initialParams.leavingFrom || '',
+        goingTo: initialParams.goingTo ||'',
+        date: initialParams.date || '',
+        passengers: initialParams.passengers || 1,
+    });
+
+    const [suggestions, setSuggestions] = useState([]);
+    const [activeField, setActiveField] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [errorMessage, setErrorMessage] = useState("");
+
+    const navigate = useNavigate();
+
+    const handleParamChange = async (e) => {
+        const { name, value } = e.target;
+        setParams({...params, [name]: value });
+
+        if (name === 'leavingFrom' || name === 'goingTo') {
+            setActiveField(name);
+            const query = value;
+            if (query.length > 2){
+                try {
+                    const response = await axios.get(
+                        'https://api.openrouteservice.org/geocode/autocomplete', {
+                            params: { 
+                                api_key: '5b3ce3597851110001cf6248e4896a13b7cd44c988adeba2a1f425b4',
+                                text: query,
+                                layers: 'address,locality,country,region,county'
+                            }
+                        }
+                    );
+
+                    const citySuggestions = response.data.features.map(feature => ({
+                        id: feature.properties.id,
+                        label: feature.properties.label
+                    }));
+
+                    setSuggestions(citySuggestions);
+                } catch (error) {
+                    console.error("Error fetching suggestions: ", error);
+                }
+            } else {
+                setSuggestions([]);
+            }
+        }
+    };
+
+    const handleSuggestionClick = (cityName) => {
+        if (activeField === 'leavingFrom'){
+            setParams({...params, leavingFrom: cityName });
+        }else if (activeField === 'goingTo'){
+            setParams({...params, goingTo: cityName });
+        }
+
+        setSuggestions([]);
+    }
+
+    // const handleSearch = async () => {
+    //     console.log("User input values: ", params);
+    //     try {
+    //         const requestParams = {};
+    //         if (params.leavingFrom) requestParams.leavingFrom = params.leavingFrom;
+    //         if (params.goingTo) requestParams.goingTo = params.goingTo;
+    //         if (params.date) requestParams.date = params.date;
+    //         if (params.passengers) requestParams.passengers = params.passengers;
+    //
+    //         let url = 'http://localhost:8080/api/trips/search?';
+    //         if(requestParams.leavingFrom){
+    //             url += `leavingFrom=${requestParams.leavingFrom.replace(/,\s+/g, ',+')}&`;
+    //         }
+    //         if(requestParams.goingTo){
+    //             url += `goingTo=${requestParams.goingTo.replace(/,\s+/g, ',+')}&`;
+    //         }
+    //
+    //
+    //         console.log("Request URL: ", url);
+    //         const token = localStorage.getItem('jwtToken');
+    //         const response = await axios.get(url, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${token}`
+    //             }
+    //         });
+    //
+    //         setSearchResults(response.data);
+    //         setErrorMessage("");
+    //         console.log("Result: ", response.data);
+    //
+    //         navigate("/rides", {
+    //             state: {
+    //                 leavingFrom: params.leavingFrom,
+    //                 goingTo: params.goingTo,
+    //                 date: params.date,
+    //                 passengers: params.passengers,
+    //                 searchResults: response.data
+    //             }
+    //         });
+    //     } catch (error) {
+    //         console.error("Error searching trips: ", error);
+    //         setErrorMessage("Error searching trips. Please try again later.");
+    //     }
+    //
+    //
+    //     console.log("Error Message: ", errorMessage);
+    //
+    // }
+
+    const handleSearch = async () => {
+        console.log("User input values: ", params);
+        try {
+            const requestParams = {};
+
+            // Add parameters if they exist
+            if (params.leavingFrom) requestParams.leavingFrom = params.leavingFrom;
+            if (params.goingTo) requestParams.goingTo = params.goingTo;
+            if (params.date) requestParams.date = params.date;
+            if (params.passengers) requestParams.availableSeats = params.passengers; // Map passengers to availableSeats
+
+            // Initialize the base URL
+            let url = 'http://localhost:8080/api/trips/search?';
+
+            // Append each parameter to the URL if it exists
+            if (requestParams.leavingFrom) {
+                // Replace comma followed by space with ',+' for URL formatting
+                url += `leavingFrom=${encodeURIComponent(requestParams.leavingFrom.replace(/,\s+/g, ',+'))}&`;
+            }
+            if (requestParams.goingTo) {
+                url += `goingTo=${encodeURIComponent(requestParams.goingTo.replace(/,\s+/g, ',+'))}&`;
+            }
+            if (requestParams.date) {
+                // Ensure the date is in the correct format (e.g., YYYY-MM-DD)
+                url += `date=${encodeURIComponent(requestParams.date)}&`;
+            }
+            if (requestParams.availableSeats) {
+                url += `availableSeats=${encodeURIComponent(requestParams.availableSeats)}&`;
+            }
+
+            // Remove the trailing '&' if present
+            url = url.endsWith('&') ? url.slice(0, -1) : url;
+
+            console.log("Request URL: ", url);
+
+            // Retrieve the JWT token from localStorage
+            const token = localStorage.getItem('jwtToken');
+
+            // Make the GET request with the Authorization header
+            const response = await axios.get(url, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            // Update the state with the search results
+            setSearchResults(response.data);
+            setErrorMessage("");
+            console.log("Result: ", response.data);
+
+            // Navigate to the "/rides" page with the search parameters and results
+            navigate("/rides", {
+                state: {
+                    leavingFrom: params.leavingFrom,
+                    goingTo: params.goingTo,
+                    date: params.date,
+                    passengers: params.passengers,
+                    searchResults: response.data
+                }
+            });
+        } catch (error) {
+            console.error("Error searching trips: ", error);
+            setErrorMessage("Error searching trips. Please try again later.");
+        }
+
+        console.log("Error Message: ", errorMessage);
+    };
+
+
+    return (
+        <div className="flex justify-center items-center mt-3 w-full">
+                <div className="flex flex-col md:flex-row bg-white p-4 rounded-lg w-full shadow-lg md:w-auto">
+                    <div className="relative mb-4 md:mb-0 md:mr-4">
+                        <input 
+                            type="text"
+                            name="leavingFrom"
+                            placeholder="Leaving From"
+                            value={params.leavingFrom}
+                            onChange={handleParamChange}
+                            onFocus={() => setActiveField('leavingFrom')}
+                            className="border border-gray-300 rounded-md p-3 px-5 md:w-48 w-full"
+                        />
+                        {activeField === 'leavingFrom' && suggestions.length > 0 && (
+                            <ul className="absolute z-10 bg-white border border-gray-300 rounded-md w-full md:w-48 max-h-48 overflow-auto mt-1">
+                                {suggestions.map(city => (
+                                    <li 
+                                        key={city.id}
+                                        onClick={() => handleSuggestionClick(city.label)}
+                                        className="p-2 hover:bg-gray-200 cursor-pointer"
+                                    >
+                                        {city.label}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                        
+                    </div>
+                    
+                    <div className="relative mb-4 w-full md:mb-0 md:w-auto md:mr-4">
+                        <input 
+                            type="text"
+                            name="goingTo"
+                            placeholder="Going to"
+                            value={params.goingTo}
+                            onChange={handleParamChange}
+                            onFocus={() => setActiveField('goingTo')}
+                            className="border border-gray-300 rounded-md p-3 w-full md:w-48"
+                        />
+                        {activeField === 'goingTo' && suggestions.length > 0 && (
+                            <ul className="absolute z-10 bg-white border border-gray-300 rounded-md w-full md:w-48 max-h-48 overflow-auto mt-1">
+                                {suggestions.map(city => (
+                                    <li 
+                                        key={city.id}
+                                        onClick={() => handleSuggestionClick(city.label)}
+                                        className="p-2 hover:bg-gray-200 cursor-pointer"
+                                    >
+                                        {city.label}
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                        
+
+                    </div>
+                    
+
+                    <input 
+                        type="date"
+                        name="date"
+                        value={params.date}
+                        onChange={handleParamChange}
+                        className="border border-gray-300 rounded-md p-2 w-full mb-4 md:w-48 md:mb-0 md:mr-4"
+                    />
+
+                    <select
+                        name="passengers"
+                        value={params.passengers}
+                        onChange={handleParamChange}
+                        className="border border-gray-300 rounded-md p-2 w-full md:w-32 mb-4 md:mb-0 md:mr-4"
+                    >
+                        <option value="1">1 Passenger</option>
+                        <option value="2">2 Passengers</option>
+                        <option value="3">3 Passengers</option>
+                        <option value="4">4 Passengers</option>
+                    </select>
+
+                    <button
+                        onClick={handleSearch}
+                        className="bg-blue-500 text-white px-6 py-2 rounded-md w-full md:w-auto hover:bg-blue-600 transition-all duration-200"
+                    >
+                        Search
+                    </button>
+                </div>
+                
+        </div>
+    )
+}
+
+export default TripSearch;
