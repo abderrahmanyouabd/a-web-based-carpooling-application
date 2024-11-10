@@ -192,7 +192,7 @@ const RideDetail = () => {
                 </div>
 
                 <button className="bg-blue-500 text-white px-24 py-3 mt-4 rounded-lg font-semibold hover:bg-blue-600">
-                    Request to Book
+                    Proceed to payment
                 </button>
             </div>
 

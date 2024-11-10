@@ -158,7 +158,7 @@ const Rides = () => {
                                             alt="profile" 
                                             className="w-10 h-10 rounded-full border"
                                         />
-                                        <span className="font-semibold">{ride.driver.fullName}</span>
+                                        <span className="font-semibold">{ride.driver?.fullName}</span>
                                     </div>
                                     {ride.instantBooking && (
                                         <div className="text-sm text-gray-500 flex items-center">
