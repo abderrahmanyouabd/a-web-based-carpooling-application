@@ -16,6 +16,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -125,8 +126,13 @@ public class UserServiceImpl implements UserService {
         if(dto.getDateOfBirth()!=null){
             user.setDateOfBirth(dto.getDateOfBirth());
         }
-        if(dto.getProfilePicture()!=null){
-            user.setProfilePicture(dto.getProfilePicture());
+        if (dto.getProfilePicture() != null && !dto.getProfilePicture().isEmpty()) {
+            try {
+                byte[] profilePictureBytes = dto.getProfilePicture().getBytes();
+                user.setProfilePicture(profilePictureBytes);
+            } catch (IOException e) {
+                throw new RuntimeException("Error storing profile picture", e);
+            }
         }
         if(dto.getFullName()!=null){
             user.setFullName(dto.getFullName());

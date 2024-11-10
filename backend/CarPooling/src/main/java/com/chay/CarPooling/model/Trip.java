@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.boot.model.source.spi.IdentifierSource;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -55,8 +57,8 @@ public class Trip {
                     column = @Column(name = "going_to_longitude"))
     })
     private Station goingTo;
-
-    private LocalDate date;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private String date;
     private LocalTime time;
     private Integer availableSeats;
     private BigDecimal farePerSeat;
@@ -69,7 +71,7 @@ public class Trip {
 //    @OneToOne
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vehicle_id", nullable = false)
-    private Vehicle vehicle; // The vehicle being used for the trip
+    private Vehicle vehicle;
 
     @ManyToMany
     private Set<User> passengers = new HashSet<>();

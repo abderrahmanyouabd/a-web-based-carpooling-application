@@ -23,7 +23,7 @@ import com.stripe.model.Event;
 public class StripeWebhookController {
     private final PaymentService paymentService;
 
-    private static final String STRIPE_WEBHOOK_SECRET = "your-webhook-secret"; // Replace with actual secret
+    private static final String STRIPE_WEBHOOK_SECRET = "your-webhook-secret";
 
     @PostMapping("/stripe")
     public ResponseEntity<String> handleStripeWebhook(HttpServletRequest request, @RequestBody String payload) {
@@ -36,7 +36,7 @@ public class StripeWebhookController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Webhook error: " + e.getMessage());
         }
 
-        // Handle payment intent events
+
         if ("payment_intent.succeeded".equals(event.getType())) {
             PaymentIntent intent = (PaymentIntent) event.getDataObjectDeserializer().getObject().orElse(null);
             if (intent != null) {

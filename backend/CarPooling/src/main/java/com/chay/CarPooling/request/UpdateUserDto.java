@@ -9,6 +9,7 @@ import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author: Abderrahman Youabd aka: A1ST
@@ -23,7 +24,7 @@ public class UpdateUserDto {
     private String mobile;
     private String dateOfBirth;
     private String bio;
-    private String profilePicture;
+    private MultipartFile profilePicture;
 
     @Enumerated(EnumType.STRING)
     private ChatPreference chatPreference;
