@@ -4,7 +4,9 @@ import com.chay.CarPooling.model.Trip;
 import com.chay.CarPooling.model.User;
 import com.chay.CarPooling.model.Vehicle;
 import com.chay.CarPooling.repository.TripRepository;
+import com.chay.CarPooling.response.JoinTripResponse;
 import com.chay.CarPooling.service.FareCalculationService;
+import com.chay.CarPooling.service.PaymentService;
 import com.chay.CarPooling.service.TripService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -17,9 +19,11 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -33,6 +37,7 @@ public class TripServiceImpl implements TripService {
 
     private final TripRepository tripRepository;
     private final FareCalculationService fareCalculationService;
+    private final PaymentService paymentService;
 
 
     @Override
@@ -45,12 +50,9 @@ public class TripServiceImpl implements TripService {
             throw new IllegalArgumentException("User does not have a registered vehicle.");
         }
         trip.setVehicle(vehicle);
-        // need to save before setting fare since the api will need access to coordinates ??
-//        tripRepository.save(trip);
 
-        // BigDecimal suggestedFare = fareCalculationService.calculateFare2(trip);
-        trip.setFarePerSeat(BigDecimal.TEN);
-
+        BigDecimal suggestedFare = fareCalculationService.calculateFare2(trip);
+        trip.setFarePerSeat(suggestedFare);
         // retun the updated stuff
         return tripRepository.save(trip);
 
@@ -62,28 +64,28 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
-    public List<Trip> searchTrips(String goingTo, String leavingFrom, LocalDate date, Integer availableSeat) {
-//        if (date == null) {
-//            date = LocalDate.now();
-//        }
-        // Implement search logic based on depart, arrival and date
-        // maybe query db with appropriate filters
-        return tripRepository.searchTrips(goingTo, leavingFrom, date, availableSeat);
+    public List<Trip> searchTrips(String goingTo, String leavingFrom, String date, Integer availableSeats) {
+        return tripRepository.searchTrips(goingTo, leavingFrom, date, availableSeats);
     }
 
 
     @Override
-    public Trip joinTrip(Long tripId, User user) throws Exception {
+    public void joinTrip(Long tripId, User user) throws Exception {
         Trip trip = getTripById(tripId);
-        if (trip.getAvailableSeats() > 0) {
-            trip.setAvailableSeats(trip.getAvailableSeats() - 1);
-            trip.getPassengers().add(user);
-            // Additional logic for adding the user to the trip
-            return tripRepository.save(trip);
-        } else {
+
+        // Check if there are available seats
+        if (trip.getAvailableSeats() <= 0) {
             throw new Exception("No available seats for this trip");
         }
+
+        // Update trip details: reduce available seats and add the user
+        trip.setAvailableSeats(trip.getAvailableSeats() - 1);
+        trip.getPassengers().add(user);
+
+        // Save and return the updated trip
+        tripRepository.save(trip);
     }
+
 
     // todo: get this shit working, it's not yet.
     @Override

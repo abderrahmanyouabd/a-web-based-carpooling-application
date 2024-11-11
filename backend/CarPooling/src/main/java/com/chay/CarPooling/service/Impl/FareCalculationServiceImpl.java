@@ -110,34 +110,34 @@ public class FareCalculationServiceImpl implements FareCalculationService {
         return parseDistanceAndDuration(response);
     }
 
-    @Override
-    public Double getGasPrice(String latitude, String longitude, String gasolineOrDiesel) {
-        String apiUrl = String.format("https://api.collectapi.com/gasPrice/fromCoordinates?lng=%s&lat=%s", longitude, latitude);
-        String response = webClient.post()
-                .uri(apiUrl)
-                .header("authorization", gasPriceApiKey)
-                .header("Content-Type", "application/json; charset=utf-8")
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
-
-        // Parse the response using Jackson
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            JsonNode jsonResponse = objectMapper.readTree(response);
-            JsonNode result = jsonResponse.get("result");
-
-            if ("gasoline".equalsIgnoreCase(gasolineOrDiesel)) {
-                return result.get("gasoline").asDouble();
-            } else if ("diesel".equalsIgnoreCase(gasolineOrDiesel)) {
-                return result.get("diesel").asDouble();
-            } else {
-                throw new IllegalArgumentException("Invalid fuel type. Please provide either 'gasoline' or 'diesel'.");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Error parsing the gas price response: " + e.getMessage(), e);
-        }
-    }
+//    @Override
+//    public Double getGasPrice(String latitude, String longitude, String gasolineOrDiesel) {
+//        String apiUrl = String.format("https://api.collectapi.com/gasPrice/fromCoordinates?lng=%s&lat=%s", longitude, latitude);
+//        String response = webClient.post()
+//                .uri(apiUrl)
+//                .header("authorization", gasPriceApiKey)
+//                .header("Content-Type", "application/json; charset=utf-8")
+//                .retrieve()
+//                .bodyToMono(String.class)
+//                .block();
+//
+//        // Parse the response using Jackson
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        try {
+//            JsonNode jsonResponse = objectMapper.readTree(response);
+//            JsonNode result = jsonResponse.get("result");
+//
+//            if ("gasoline".equalsIgnoreCase(gasolineOrDiesel)) {
+//                return result.get("gasoline").asDouble();
+//            } else if ("diesel".equalsIgnoreCase(gasolineOrDiesel)) {
+//                return result.get("diesel").asDouble();
+//            } else {
+//                throw new IllegalArgumentException("Invalid fuel type. Please provide either 'gasoline' or 'diesel'.");
+//            }
+//        } catch (Exception e) {
+//            throw new RuntimeException("Error parsing the gas price response: " + e.getMessage(), e);
+//        }
+//    }
 
 
 
@@ -208,7 +208,7 @@ public class FareCalculationServiceImpl implements FareCalculationService {
         if (vehicle == null || vehicle.getGasType() == null) {
             throw new IllegalArgumentException("No vehicle or gas type found for the driver");
         }
-        BigDecimal gasPrice = BigDecimal.valueOf(getGasPrice(startLatitude, endLongitude, trip.getVehicle().getGasType().name()));
+//        BigDecimal gasPrice = BigDecimal.valueOf(getGasPrice(startLatitude, endLongitude, trip.getVehicle().getGasType().name()));
 
         BigDecimal fuelEfficiency = new BigDecimal("8.0"); // Assume 8 liters per 100 km
 
@@ -223,8 +223,8 @@ public class FareCalculationServiceImpl implements FareCalculationService {
                 .multiply(fuelEfficiency);
 
         // Step 2: Calculate fuel cost
-        BigDecimal fuelCost = fuelConsumption.multiply(gasPrice);
-
+//        BigDecimal fuelCost = fuelConsumption.multiply(gasPrice);
+        BigDecimal fuelCost = fuelConsumption.multiply(BigDecimal.ONE);
         // Step 3: Adjust for weather impact (commented out but can be adjusted as needed)
 // BigDecimal adjustedFuelCost = fuelCost.multiply(weatherImpact);
 // System.out.println("Adjusted Fuel Cost (after weather impact): " + adjustedFuelCost);

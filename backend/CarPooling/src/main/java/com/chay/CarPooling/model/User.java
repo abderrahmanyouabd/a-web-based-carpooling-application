@@ -4,6 +4,9 @@ import com.chay.CarPooling.domain.*;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.Fetch;
+
+import java.util.Objects;
 
 /**
  * @author: Abderrahman Youabd aka: A1ST
@@ -25,7 +28,6 @@ public class User {
     private String password;
     private String mobile;
     private String bio;
-
     @Column(columnDefinition = "BYTEA")
     private byte[] profilePicture;
     private String dateOfBirth;
@@ -51,5 +53,22 @@ public class User {
     private Vehicle vehicle;
 
     private String currentIpAddress;
+
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 
 }

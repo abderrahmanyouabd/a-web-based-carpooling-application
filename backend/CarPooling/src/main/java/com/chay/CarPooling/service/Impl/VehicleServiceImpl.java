@@ -15,6 +15,7 @@ import java.util.List;
  * @version: 1.0
  */
 @Service
+@Transactional
 public class VehicleServiceImpl implements VehicleService {
 
     private final VehicleRepository vehicleRepository;

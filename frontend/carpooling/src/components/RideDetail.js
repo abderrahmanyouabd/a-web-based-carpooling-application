@@ -4,26 +4,25 @@ import { FaCar, FaCheckCircle, FaBan, FaUserFriends, FaClock, FaShieldAlt } from
 
 const RideDetail = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const [profileData, setProfileData] = useState(null);
+    const [clientSecret, setClientSecret] = useState(null);
+    const [paymentInitiated, setPaymentInitiated] = useState(false);
 
     const ride = location.state?.ride;
-
     const isDriver = profileData?.id === ride.driver.id;
-    const navigate = useNavigate();
 
     console.log("Ride: " + ride);
 
-    const formattedDate = ( date ) =>{
-        return date.replace("T", " ");
-    }
+    const formattedDate = ( date ) => date.replace("T", " ");
+    const token = localStorage.getItem("jwtToken");
 
     useEffect(() => {
         const fetchProfileData = async () => {
             try {
-                const token = localStorage.getItem("jwtToken");
                 if (!token) {
                     console.log("No token found, redirecting to login page.");
-                    // TODO: Redirect to login page
+                    navigate("/signin");
                     return;
                 }
 
@@ -47,6 +46,45 @@ const RideDetail = () => {
 
         fetchProfileData();
     }, []);
+
+    const fetchClientSecret = async () => {
+        try {
+            if (!token) {
+                console.log("No token found, redirecting to sign in page.");
+                navigate("/signin");
+                return;
+            }
+
+            const response = await fetch(`http://localhost:8080/api/trips/${ride.id}/pay`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    rideId: ride.id,
+                }),
+            });
+
+            if (response.ok) {
+                const clientSecret = await response.text();
+                setClientSecret(clientSecret);
+
+                navigate("/payment", {state: { clientSecret, rideId: ride.id, token } });
+            } else {
+                console.error("Failed to fetch client secret");
+            }
+
+        } catch (error) {
+            console.error("Error fetching client secret:", error);
+        }
+    };
+
+    const handlePaymentClick = async () => {
+        if (paymentInitiated) return;
+        setPaymentInitiated(true);
+        await fetchClientSecret();
+    };
 
     return (
         <div className="p-6 bg-gray-100 flex min-h-screen justify-center space-x-16">
@@ -191,7 +229,7 @@ const RideDetail = () => {
                     </div>
                 </div>
 
-                <button className="bg-blue-500 text-white px-24 py-3 mt-4 rounded-lg font-semibold hover:bg-blue-600">
+                <button onClick={handlePaymentClick} className="bg-blue-500 text-white px-24 py-3 mt-4 rounded-lg font-semibold hover:bg-blue-600">
                     Proceed to payment
                 </button>
             </div>

@@ -1,15 +1,41 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 
-const MenuBar = ({ user }) => {
+const MenuBar = ({ setUser, user }) => {
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const token = localStorage.getItem('jwtToken')
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
         console.log("IsMenuOpen: " + isMenuOpen);
     }
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            if (token) {
+                try {
+                    const profileResponse = await fetch('http://localhost:8080/api/users/profile', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
+            
+                    if (profileResponse.ok) {
+                        const profileData = await profileResponse.json();
+                        setUser({ fullName: profileData.fullName });
+                    };
+                } catch (error) {
+                    console.error("Failed to fetch profile:", error);
+                }
+            }
+        }
+
+        fetchProfile();
+    }, [token]);
 
     return (
         <nav className="bg-gradient-to-r from-blue-500 to-indigo-400 p-4 shadow-lg">
@@ -36,15 +62,17 @@ const MenuBar = ({ user }) => {
                     </div>
 
                     <div className="hidden md:flex space-x-6">
-                        {!user ? (
+                        {token && user ? (
+                            <>  
+                                <Link to="/profile" className="text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-700 hover:shadow-md transition-all duration-200 ease-in-out">
+                                     Profile ({user.fullName})
+                                </Link>
+                            </>
+                        ) : (
                             <>
                                 <Link to="/signin" className="text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-700 hover:shadow-md transition-all duration-200 ease-in-out">Sign In</Link>
                                 <Link to="/signup" className="text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-700 hover:shadow-md transition-all duration-200 ease-in-out">Sign Up</Link>
                             </>
-                        ) : (
-                            <Link to="/profile" className="text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-700 hover:shadow-md transition-all duration-200 ease-in-out">
-                                Profile ({user.fullName})
-                            </Link>
                         )}
                         
                     </div>
