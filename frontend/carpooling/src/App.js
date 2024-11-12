@@ -38,7 +38,7 @@ const App = () => {
                         <Route path="/signup" element={<SignUp setUser={setUser} />} />
                         <Route path="/profile" element={<Profile setUser={setUser}/>} />
                         <Route path="/payment" element={<PaymentForm /> } />
-                        <Route path="/confirmation/ride/:rideId" element={<TripConfirmation />} />
+                        <Route path="/confirmation/ride/:rideId" element={<TripConfirmation user={user}/>} />
                     </Routes>
                 </BrowserRouter>
             </Elements>
