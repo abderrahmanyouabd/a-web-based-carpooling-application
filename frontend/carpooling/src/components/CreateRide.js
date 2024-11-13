@@ -5,7 +5,7 @@ import MapRouteDrawing from "./MapRouteDrawing";
 import { IconButton, Snackbar, TextField, MenuItem} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 
-const CreateRide = ({ user }) => {
+const CreateRide = () => {
 
     const [step, setStep] = useState(0);
     const [suggestions, setSuggestions] = useState([]);
@@ -28,14 +28,15 @@ const CreateRide = ({ user }) => {
     });
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
+    const token = localStorage.getItem('jwtToken');
 
     useEffect(() => {
-        if (!user) {
-            console.log("No user")
-            setStep(0);
-        } else {
+        if (token) {
             console.log("Yes user")
             setStep(1);
+        } else {
+            console.log("No user")
+            setStep(0);
         }
     }, [])
 

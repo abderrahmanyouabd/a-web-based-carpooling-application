@@ -1,16 +1,52 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
-import DriverLocationMapDrawing from "./DriverLocationMapDrawing";
-import { useLocation } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import MapRouteDrawing from "./MapRouteDrawing";
 
 const socket = io("http://localhost:3001");
 
 const ViewDriverLocation = ( ) => {
-    const location = useLocation();
     const [position, setPosition] = useState({ latitude: null, longitude: null});
-    const rideId = location.state?.rideId;
+    const token = localStorage.getItem('jwtToken');
+    const [tripDetails, setTripDetails] = useState(null);
+    const { rideId } = useParams();
+    const navigate = useNavigate();
 
-    console.log("Ride Id: " + rideId);
+    useEffect(() => {
+        const fetchTripDetails = async () => {
+            try {
+                if (!token) {
+                    navigate("/signin");
+                    return;
+                }
+
+                console.log("Ride Id: ", rideId);
+
+                let url = `http://localhost:8080/api/trips/${rideId}`;
+
+                console.log("Fetched backend Url: " + url);
+
+                const response = await fetch(url, {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setTripDetails(data);
+                    console.log("Data: ", data);
+                } else {
+                    console.error("Failed to fetch trip details.");
+                }
+            } catch (error) {
+                console.error("Error fetching trip details:", error);
+            }
+        };
+
+        fetchTripDetails();
+    }, [rideId, token]);
 
     useEffect(() => {
         socket.emit("joinDriverRoom", rideId)
@@ -23,6 +59,10 @@ const ViewDriverLocation = ( ) => {
             socket.off("locationUpdate");
         };
     }, [rideId]);
+
+    const startCoordinates = tripDetails && [parseFloat(tripDetails.leavingFrom.longitude), parseFloat(tripDetails.leavingFrom.latitude)];
+    const endCoordinates = tripDetails && [parseFloat(tripDetails.goingTo.longitude), parseFloat(tripDetails.goingTo.latitude)];
+    const driverPosition = position.latitude && position.longitude ? [position.longitude, position.latitude] : null;
 
     return (
         <div className="flex flex-col items-center p-8 bg-gray-100 min-h-screen">
@@ -38,7 +78,7 @@ const ViewDriverLocation = ( ) => {
 
             <div className="w-full max-w-3xl mt-8">
                 {position.latitude && position.longitude ? (
-                    <DriverLocationMapDrawing coordinates={[position.longitude, position.latitude]} />
+                    <MapRouteDrawing startCoordinates={startCoordinates} endCoordinates={endCoordinates} driverPosition={driverPosition}/>
                 ) : (
                     <p className="text-gray-500">Waiting for location updates...</p>
                 )}

@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
 const TripConfirmation = ({ user }) => {
-    const location = useLocation();
     const navigate = useNavigate();
     const { rideId } = useParams();
     const token = localStorage.getItem('jwtToken');
@@ -44,7 +43,7 @@ const TripConfirmation = ({ user }) => {
         };
 
         fetchTripDetails();
-    }, [rideId, token, navigate]);
+    }, [rideId, token]);
 
     const handleDownloadReceipt = async () => {
         const element = document.getElementById("receipt");

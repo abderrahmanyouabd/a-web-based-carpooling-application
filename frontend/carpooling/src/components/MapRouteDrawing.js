@@ -10,14 +10,16 @@ import { fromLonLat } from 'ol/proj';
 import { Icon, Style, Stroke } from 'ol/style';
 import GeoJSON from 'ol/format/GeoJSON';
 
-const MapRouteDrawing = ({ startCoordinates, endCoordinates }) => {
+const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition }) => {
   const mapRef = useRef();
   const [map, setMap] = useState(null);
   const [baseLayer, setBaseLayer] = useState('esri');
+  const [journeyInfo, setJourneyInfo] = useState({ distance: 0, duration: 0 });
   const initializedRef = useRef(false);
   const baseLayerRef = useRef(); 
   const vectorLayerRef = useRef(); 
-  const routeLayerRef = useRef(); 
+  const routeLayerRef = useRef();
+  const driverMarkerRef = useRef();
 
   const getBaseLayer = () => {
     const esriLayer = new TileLayer({
@@ -55,6 +57,15 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates }) => {
       }
 
       const routeData = await response.json();
+
+      console.log("Route data: ", routeData);
+
+      const { distance, duration } = routeData.routes[0].summary;
+      setJourneyInfo({
+        distance: Math.round(distance / 1000).toFixed(2),
+        duration: Math.round(duration / 3600).toFixed(2),
+      });
+
       return routeData;
     } catch (error) {
       console.error('Error occurred while fetching route: ', error);
@@ -64,12 +75,8 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates }) => {
   const addMarkers = (vectorSource) => {
     vectorSource.clear();
 
-    const startMarker = new Feature({
-      geometry: new Point(fromLonLat(startCoordinates)),
-    });
-    const endMarker = new Feature({
-      geometry: new Point(fromLonLat(endCoordinates)),
-    });
+    const startMarker = new Feature({ geometry: new Point(fromLonLat(startCoordinates)) });
+    const endMarker = new Feature({ geometry: new Point(fromLonLat(endCoordinates)) });
 
     const markerStyle = new Style({
       image: new Icon({
@@ -158,6 +165,30 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates }) => {
   }, [startCoordinates, endCoordinates]);
 
   useEffect(() => {
+    if (!map || !driverPosition) return;
+
+    console.log("Driver position: ", driverPosition);
+
+    const vectorSource = vectorLayerRef.current.getSource();
+
+    if (driverMarkerRef.current) {
+      vectorSource.removeFeature(driverMarkerRef.current);
+    }
+
+    const driverMarker = new Feature({ geometry: new Point(fromLonLat(driverPosition)) });
+    driverMarker.setStyle(new Style({
+      image: new Icon({
+        anchor: [0.5, 1],
+        src: 'https://openlayers.org/en/latest/examples/data/icon.png',
+        color: "#FF0000"
+      }),
+    }));
+
+    vectorSource.addFeature(driverMarker);
+    driverMarkerRef.current = driverMarker;
+  }, [driverPosition, map]);
+
+  useEffect(() => {
     if (!map) return;
 
     const newLayer = getBaseLayer();
@@ -173,26 +204,40 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates }) => {
 
   return (
     <div>
-      <div className="mb-4">
-        <label>
-          <input
-            type="radio"
-            value="esri"
-            checked={baseLayer === 'esri'}
-            onChange={handleLayerChange}
-          />
-          ESRI World Imagery
-        </label>
-        <label className="ml-4">
-          <input
-            type="radio"
-            value="osm"
-            checked={baseLayer === 'osm'}
-            onChange={handleLayerChange}
-          />
-          OpenStreetMap
-        </label>
+      <div className="mb-4 space-y-4">
+        <div className="flex items-center space-x-8">
+          <label className="flex items-center">
+            <input
+              type="radio"
+              value="esri"
+              checked={baseLayer === 'esri'}
+              onChange={handleLayerChange}
+              className="text-blue-600 focus:ring-blue-500 mr-2"
+            />
+              ESRI World Imagery
+          </label>
+
+          <label className="flex items-center space-x-2">
+            <input
+              type="radio"
+              value="osm"
+              checked={baseLayer === 'osm'}
+              onChange={handleLayerChange}
+              className="text-blue-600 focus:ring-blue-500 mr-2"
+            />
+            OpenStreetMap
+          </label>
+        </div>
+        
+
+        <div className="flex space-x-8 text-gray-700">
+          <p className="font-semibold">Distance: <span className="font-normal">{journeyInfo.distance} km</span></p>
+          <p className="font-semibold">Duration: <span className="font-normal">{journeyInfo.duration} hours</span></p>
+        </div>
+
       </div>
+
+      
 
       <div ref={mapRef} style={{ width: '100%', height: '500px' }} />
     </div>

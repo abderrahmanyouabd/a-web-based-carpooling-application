@@ -16,6 +16,7 @@ const RideDetail = () => {
 
     const formattedDate = ( date ) => date.replace("T", " ");
     const token = localStorage.getItem("jwtToken");
+    
 
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -162,14 +163,14 @@ const RideDetail = () => {
                         </button>
                         {isDriver ? (
                             <button
-                                onClick={() => navigate("/track-driver-location", {state: {rideId: ride.id}} )}
+                                onClick={() => navigate(`/track-driver-location/${ride.id}`)}
                                 className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-50"
                             >
                                 Share My Driver Location
                             </button>
                         ): (
                             <button
-                                onClick={() => navigate("/view-driver-location", {state: {rideId: ride.id}} )}
+                                onClick={() => navigate(`/view-driver-location/${ride.id}`)}
                                 className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-50"
                             >
                                 View Driver Location
