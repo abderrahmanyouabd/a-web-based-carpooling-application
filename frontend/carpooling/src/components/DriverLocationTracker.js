@@ -86,7 +86,7 @@ const DriverLocationTracker = () => {
         <div className="flex flex-col items-center p-8 bg-gray-100 min-h-screen">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6">Driver Location Tracker</h2>
 
-            {position.latitude && position.longitude && (
+            {/* {position.latitude && position.longitude && (
                 <p className="text-lg text-gray-700 mb-4">
                     Your current location is:
                     <br />
@@ -94,9 +94,9 @@ const DriverLocationTracker = () => {
                     <br />
                     Longitude: {position.longitude}
                 </p>
-            )}
+            )} */}
 
-            <div className="w-full max-w-3xl mt-8">
+            <div className="w-full max-w-3xl mt-4">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Live Driver Location</h3>
                 {position.latitude && position.longitude ? (
                     <MapRouteDrawing startCoordinates={startCoordinates} endCoordinates={endCoordinates} driverPosition={driverPosition}/>
