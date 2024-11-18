@@ -13,15 +13,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.model.PaymentIntent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -141,6 +138,23 @@ public class TripController {
         String res = tripService.searchPlaces(query);
         JsonNode jsonNode = objectMapper.readTree(res);
         return jsonNode;
+    }
+
+
+
+    // todo: use dto for trip as response if goona be big.
+    @GetMapping("/joined")
+    public ResponseEntity<List<Trip>> getTripsUserJoined(@RequestHeader("Authorization") String jwt) {
+        User user = userService.findUserProfileByJwt(jwt);
+        List<Trip> joinedTrips = tripService.getTripsUserJoined(user.getId());
+        return ResponseEntity.ok(joinedTrips);
+    }
+
+    @GetMapping("/created")
+    public ResponseEntity<List<Trip>> getTripsUserCreated(@RequestHeader("Authorization") String jwt) {
+        User user = userService.findUserProfileByJwt(jwt);
+        List<Trip> createdTrips = tripService.getTripsUserCreated(user.getId());
+        return ResponseEntity.ok(createdTrips);
     }
 
 }

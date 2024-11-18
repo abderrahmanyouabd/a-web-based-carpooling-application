@@ -30,8 +30,7 @@ public class UserController {
 
 
     @PatchMapping()
-    public ResponseEntity<User> UpdateUserProfileHandler(
-            @RequestBody UpdateUserDto dto,
+    public ResponseEntity<User> UpdateUserProfileHandler (UpdateUserDto dto,
             @RequestHeader("Authorization") String jwt) throws UserException {
 
         User user = userService.findUserProfileByJwt(jwt);
