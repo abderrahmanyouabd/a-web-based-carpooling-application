@@ -8,7 +8,7 @@ const TripSearch = ({ initialParams = {} }) => {
         leavingFrom: initialParams.leavingFrom || '',
         goingTo: initialParams.goingTo ||'',
         date: initialParams.date || '',
-        passengers: initialParams.passengers,
+        numberOfAvailableSeat: initialParams.numberOfAvailableSeat || '1',
     });
 
     const [suggestions, setSuggestions] = useState([]);
@@ -69,7 +69,7 @@ const TripSearch = ({ initialParams = {} }) => {
             if (params.leavingFrom) requestParams.leavingFrom = params.leavingFrom;
             if (params.goingTo) requestParams.goingTo = params.goingTo;
             if (params.date) requestParams.date = params.date;
-            if (params.passengers) requestParams.passengers = params.passengers;
+            if (params.numberOfAvailableSeat) requestParams.numberOfAvailableSeat = params.numberOfAvailableSeat;
             
             let url = 'http://localhost:8080/api/trips/search?';
             if(requestParams.leavingFrom){
@@ -96,7 +96,7 @@ const TripSearch = ({ initialParams = {} }) => {
                     leavingFrom: params.leavingFrom,
                     goingTo: params.goingTo,
                     date: params.date,
-                    passengers: params.passengers,
+                    numberOfAvailableSeat: params.numberOfAvailableSeat,
                     searchResults: response.data
                 }
             });
@@ -176,15 +176,15 @@ const TripSearch = ({ initialParams = {} }) => {
                     />
 
                     <select
-                        name="passengers"
-                        value={params.passengers}
+                        name="availableSeat"
+                        value={params.numberOfAvailableSeat}
                         onChange={handleParamChange}
                         className="border border-gray-300 rounded-md p-2 w-full md:w-32 mb-4 md:mb-0 md:mr-4"
                     >
-                        <option value="1">1 Passenger</option>
-                        <option value="2">2 Passengers</option>
-                        <option value="3">3 Passengers</option>
-                        <option value="4">4 Passengers</option>
+                        <option value="1">1 available seat</option>
+                        <option value="2">2 available seats</option>
+                        <option value="3">3 available seats</option>
+                        <option value="4">4 available seats</option>
                     </select>
 
                     <button

@@ -18,5 +18,7 @@ public interface TripService {
     void joinTrip(Long tripId, User user) throws Exception;
     String searchPlaces(String query) throws Exception;
     List<Trip> findTripByPassenger(User user);
+    List<Trip> getTripsUserJoined(Long userId);
+    List<Trip> getTripsUserCreated(Long userId);
 
 }

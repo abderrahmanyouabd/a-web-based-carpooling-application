@@ -16,7 +16,7 @@ const CreateRide = () => {
         pickUp: '',
         dropOff: '',
         startTime: '',
-        passengers: 1,
+        numberOfAvailableSeat: 1,
         price: 20,
     });
     const [vehicle, setVehicle] = useState({
@@ -65,7 +65,7 @@ const CreateRide = () => {
         if (step === 2 && params.dropOff) setStep(3);
         if (step === 3 && startCoordinates && endCoordinates) setStep(4);
         if (step === 4 && params.startTime) setStep(5);
-        if (step === 5 && params.passengers) {
+        if (step === 5 && params.numberOfAvailableSeat) {
             const vehicleExists = await isUserHasVehicle();
             if (vehicleExists){
                 setStep(7)
@@ -113,7 +113,7 @@ const CreateRide = () => {
                 },
                 date: params.startTime.split("T")[0],
                 time: params.startTime.split("T")[1],
-                availableSeats: params.passengers,
+                availableSeats: params.numberOfAvailableSeat,
                 farePerSeat: params.price,
                 comment: "",
                 stations: []
@@ -233,15 +233,15 @@ const CreateRide = () => {
     const handlePassengersIncrease = () => {
         setParams(prevParams => ({
             ...prevParams,
-            passengers: prevParams.passengers + 1
+            numberOfAvailableSeat: prevParams.numberOfAvailableSeat + 1
         }));
     };
     
     const handlePassengersDecrease = () => {
-        if (params.passengers > 0) {
+        if (params.numberOfAvailableSeat > 0) {
           setParams(prevParams => ({
             ...prevParams,
-            passengers: prevParams.passengers - 1
+            numberOfAvailableSeat: prevParams.numberOfAvailableSeat - 1
           }));
         }
     };
@@ -441,7 +441,7 @@ const CreateRide = () => {
                         </button>
                         
                         <span className="text-6xl font-bold text-gray-700">
-                            {params.passengers}
+                            {params.numberOfAvailableSeat}
                         </span>
 
                         <button

@@ -120,4 +120,13 @@ public class TripServiceImpl implements TripService {
         return tripRepository.findByPassenger(user);
 //        return List.of();
     }
+
+
+    public List<Trip> getTripsUserJoined(Long userId) {
+        return tripRepository.findByPassengers_Id(userId);
+    }
+
+    public List<Trip> getTripsUserCreated(Long userId) {
+        return tripRepository.findByDriver_Id(userId);
+    }
 }

@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 const Rides = () => {
     const location = useLocation();
-    const { leavingFrom, goingTo, date, passengers, searchResults } = location.state;
+    const { leavingFrom, goingTo, date, numberOfAvailableSeat, searchResults } = location.state;
     const [sortBy, setSoryBy] = useState("");
     const [pickUpFilter, setPickUpFilter] = useState("");
     const navigate = useNavigate();
@@ -74,7 +74,7 @@ const Rides = () => {
     return (
         <div>
             <div className="container mx-auto px-4 py-8">
-                <TripSearch initialParams={{ leavingFrom, goingTo, date, passengers }}/>
+                <TripSearch initialParams={{ leavingFrom, goingTo, date, numberOfAvailableSeat }}/>
             </div>
             
             <div className="flex bg-gray-100">
@@ -86,7 +86,7 @@ const Rides = () => {
                         <div>
                             <h2 className="text-lg font-semibold">{date}</h2>
                             <p className="text-gray-600">{leavingFrom} → {goingTo}</p>
-                            <div className="text-gray-800">{searchResults.length} rides available with {passengers} passengers</div>
+                            <div className="text-gray-800">{searchResults.length} rides available with minimum {numberOfAvailableSeat} available seat(s) </div>
                         </div>
                         
                     </div>

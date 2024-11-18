@@ -21,11 +21,6 @@ const RideDetail = () => {
     useEffect(() => {
         const fetchProfileData = async () => {
             try {
-                if (!token) {
-                    console.log("No token found, redirecting to login page.");
-                    navigate("/signin");
-                    return;
-                }
 
                 const response = await fetch(`http://localhost:8080/api/users/profile`, {
                     method: 'GET',
@@ -226,7 +221,7 @@ const RideDetail = () => {
                 <div className="bg-white rounded-lg shadow-lg p-5 mt-8">
                     <div className="flex justify-between">
                         <p className="text-xl font-semibold mr-2"> ${ride.farePerSeat}</p>
-                        <p className="text-xl font-bold">1 passenger</p>
+                        <p className="text-xl font-bold">1 seat</p>
                     </div>
                 </div>
 
