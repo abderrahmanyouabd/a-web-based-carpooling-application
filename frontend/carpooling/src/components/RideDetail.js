@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Fragment } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaCar, FaCheckCircle, FaBan, FaUserFriends, FaClock, FaShieldAlt } from "react-icons/fa";
+import { IconButton, Button, Snackbar} from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
 
 const RideDetail = () => {
     const location = useLocation();
@@ -8,6 +10,7 @@ const RideDetail = () => {
     const [profileData, setProfileData] = useState(null);
     const [clientSecret, setClientSecret] = useState(null);
     const [paymentInitiated, setPaymentInitiated] = useState(false);
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
 
     const ride = location.state?.ride;
     const isDriver = profileData?.id === ride.driver.id;
@@ -47,7 +50,7 @@ const RideDetail = () => {
         try {
             if (!token) {
                 console.log("No token found, redirecting to sign in page.");
-                navigate("/signin");
+                setSnackbarOpen(true);
                 return;
             }
 
@@ -73,6 +76,8 @@ const RideDetail = () => {
 
         } catch (error) {
             console.error("Error fetching client secret:", error);
+        } finally {
+            setPaymentInitiated(false);
         }
     };
 
@@ -81,6 +86,26 @@ const RideDetail = () => {
         setPaymentInitiated(true);
         await fetchClientSecret();
     };
+
+    const handleSnackbarClose = () => {
+        setSnackbarOpen(false);
+    }
+
+    const action = (
+        <Fragment>
+            <Button color="secondary" size="small" onClick={() => navigate("/signin")}>
+                Sign in
+            </Button>
+            <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleSnackbarClose}
+            >
+                <CloseIcon fontSize="small" />
+            </IconButton>
+        </Fragment>
+    );
 
     return (
         <div className="p-6 bg-gray-100 flex min-h-screen justify-center space-x-16">
@@ -228,6 +253,20 @@ const RideDetail = () => {
                 <button onClick={handlePaymentClick} className="bg-blue-500 text-white px-24 py-3 mt-4 rounded-lg font-semibold hover:bg-blue-600">
                     Proceed to payment
                 </button>
+
+                <Snackbar
+                    open={snackbarOpen}
+                    autoHideDuration={3000}
+                    onClose={handleSnackbarClose}
+                    message="Please sign in to book the trip"
+                    action={action}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                    ContentProps={{
+                        sx: {
+                            fontSize: '0.8rem'
+                        },
+                    }}
+                />
             </div>
 
         
