@@ -111,8 +111,8 @@ const TripSearch = ({ initialParams = {} }) => {
     }
 
     return (
-        <div className="flex justify-center items-center mt-3 w-full">
-                <div className="flex flex-col md:flex-row bg-white p-4 rounded-lg w-full shadow-lg md:w-auto">
+        <div className="flex justify-center items-center mt-3">
+                <div className="flex flex-col md:flex-row bg-white p-4 space-x-8 rounded-lg w-full shadow-lg md:w-auto">
                     <div className="relative mb-4 md:mb-0 md:mr-4">
                         <input 
                             type="text"
@@ -121,7 +121,7 @@ const TripSearch = ({ initialParams = {} }) => {
                             value={params.leavingFrom}
                             onChange={handleParamChange}
                             onFocus={() => setActiveField('leavingFrom')}
-                            className="border border-gray-300 rounded-md p-3 px-5 md:w-48 w-full"
+                            className="border border-gray-300 rounded-md p-2 md:w-48 w-full"
                         />
                         {activeField === 'leavingFrom' && suggestions.length > 0 && (
                             <ul className="absolute z-10 bg-white border border-gray-300 rounded-md w-full md:w-48 max-h-48 overflow-auto mt-1">
@@ -147,7 +147,7 @@ const TripSearch = ({ initialParams = {} }) => {
                             value={params.goingTo}
                             onChange={handleParamChange}
                             onFocus={() => setActiveField('goingTo')}
-                            className="border border-gray-300 rounded-md p-3 w-full md:w-48"
+                            className="border border-gray-300 rounded-md p-2 w-full md:w-48"
                         />
                         {activeField === 'goingTo' && suggestions.length > 0 && (
                             <ul className="absolute z-10 bg-white border border-gray-300 rounded-md w-full md:w-48 max-h-48 overflow-auto mt-1">

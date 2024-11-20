@@ -10,7 +10,7 @@ const RideDetail = () => {
     const [profileData, setProfileData] = useState(null);
     const [clientSecret, setClientSecret] = useState(null);
     const [paymentInitiated, setPaymentInitiated] = useState(false);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbar, setSnackbar] = useState({ open: false, message: "" });
 
     const ride = location.state?.ride;
     const isDriver = profileData?.id === ride.driver.id;
@@ -49,8 +49,8 @@ const RideDetail = () => {
     const fetchClientSecret = async () => {
         try {
             if (!token) {
-                console.log("No token found, redirecting to sign in page.");
-                setSnackbarOpen(true);
+                console.log("No token found, ask user to sign in");
+                showSnackbar("Please sign in to proceed with payment");
                 return;
             }
 
@@ -87,8 +87,12 @@ const RideDetail = () => {
         await fetchClientSecret();
     };
 
+    const showSnackbar = (message) => {
+        setSnackbar({ open: true, message });
+    }
+
     const handleSnackbarClose = () => {
-        setSnackbarOpen(false);
+        setSnackbar({ open: false, message: ""});
     }
 
     const action = (
@@ -106,6 +110,16 @@ const RideDetail = () => {
             </IconButton>
         </Fragment>
     );
+
+    const handleViewDriverLocation = () => {
+        if (!token) {
+            console.log("No token found, ask user to sign in");
+            showSnackbar("Please sign in to view driver's location");
+            return;
+        } else {
+            navigate(`/view-driver-location/${ride.id}`);
+        }
+    }
 
     return (
         <div className="p-6 bg-gray-100 flex min-h-screen justify-center space-x-16">
@@ -190,7 +204,7 @@ const RideDetail = () => {
                             </button>
                         ): (
                             <button
-                                onClick={() => navigate(`/view-driver-location/${ride.id}`)}
+                                onClick={handleViewDriverLocation}
                                 className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-50"
                             >
                                 View Driver Location
@@ -255,10 +269,10 @@ const RideDetail = () => {
                 </button>
 
                 <Snackbar
-                    open={snackbarOpen}
+                    open={snackbar.open}
                     autoHideDuration={3000}
                     onClose={handleSnackbarClose}
-                    message="Please sign in to book the trip"
+                    message={snackbar.message}
                     action={action}
                     anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                     ContentProps={{
@@ -267,6 +281,8 @@ const RideDetail = () => {
                         },
                     }}
                 />
+
+                
             </div>
 
         

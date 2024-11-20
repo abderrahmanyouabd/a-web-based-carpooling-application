@@ -69,20 +69,26 @@ const Rides = () => {
     }
 
     const sortedRides = sortRides(searchResults);
+
+    const getTimePart = (datetime) =>{
+        if(!datetime) return "";
+        const timePart = datetime.split("T")[1];
+        return timePart;
+    }
        
 
     return (
         <div>
-            <div className="container mx-auto px-4 py-8">
+            <div className="mx-auto px-6 py-8">
                 <TripSearch initialParams={{ leavingFrom, goingTo, date, numberOfAvailableSeat }}/>
             </div>
             
-            <div className="flex bg-gray-100">
+            <div className="flex justify-center space-x-8">
                 <Sidebar setSoryBy={setSoryBy} setPickUpFilter={setPickUpFilter} />
 
-                <div className="w-3/4 p-4">
+                <div className="w-auto">
                     
-                    <div className="flex justify-between items-center p-4 mb-6">
+                    <div className="flex justify-between items-center p-4 ml-4 mb-6">
                         <div>
                             <h2 className="text-lg font-semibold">{date}</h2>
                             <p className="text-gray-600">{leavingFrom} → {goingTo}</p>
@@ -93,7 +99,7 @@ const Rides = () => {
                        
 
 
-                    <div className="overflow-auto h-[40rem] p-4">
+                    <div className="overflow-auto h-auto w-[50rem]">
                         {sortedRides.map((ride) => (
                             <div
                                 key={ride.id}
@@ -104,11 +110,11 @@ const Rides = () => {
                                 <div className="flex justify-between items-center">
                                     <div className="flex items-center">  
                                         <div>
-                                            <p className="text-lg font-semibold">{ride.time}</p>
+                                            <p className="text-lg font-semibold">{getTimePart(ride.leavingFrom.departureTime)}</p>
                                         </div>
                                         <AiOutlineArrowRight className="text-xl mx-4" />
                                         <div>
-                                            <p className="text-lg font-semibold">{ride.goingTo.arrivalTime || 'N/A'}</p>
+                                            <p className="text-lg font-semibold">{getTimePart(ride.goingTo.arrivalTime) || 'N/A'}</p>
                                         </div>
                                     </div>
 
@@ -120,7 +126,7 @@ const Rides = () => {
                                                 <div className="absolute left-0 top-[-6px] w-[10px] h-[10px] rounded-full bg-teal-600"></div>
                                             </div>
 
-                                            <p className="mx-4 text-gray-500 text-sm whitespace-nowrap">{ride.duration}</p>
+                                            <p className="mx-4 text-gray-500 text-sm whitespace-nowrap">{ride.time}</p>
 
                                             {/* Right part of the line */}
                                             <div className="flex-1 h-[2px] bg-gray-300 relative">
@@ -169,7 +175,9 @@ const Rides = () => {
                             </div>
                         ))}
                     </div>
+
                 </div>
+                
             </div>
         </div>
         

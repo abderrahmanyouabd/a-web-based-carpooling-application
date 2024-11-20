@@ -16,6 +16,7 @@ const ViewDriverLocation = ( ) => {
         const fetchTripDetails = async () => {
             try {
                 if (!token) {
+                    console.log("User is not logged in. Navigating to sign in page...");
                     navigate("/signin");
                     return;
                 }
