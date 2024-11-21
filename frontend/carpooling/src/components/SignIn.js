@@ -43,7 +43,7 @@ const SignIn = ({ setUser }) => {
     
                 if (profileResponse.ok) {
                     const profileData = await profileResponse.json();
-                    setUser({ fullName: profileData.fullName });
+                    setUser(profileData);
                     navigate('/'); 
                 } else {
                     setErrorMessage("Failed to fetch profile data after login.");

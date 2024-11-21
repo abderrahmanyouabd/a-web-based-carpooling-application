@@ -86,9 +86,26 @@ const SignUp = ({ setUser }) => {
             if (response.ok){
                 console.log("User's input values: ", userData);
                 console.log("JWT Token: ", data.jwt);
-                setUser({ fullName: fullName });
+                
                 localStorage.setItem('jwtToken', data.jwt);
-                navigate('/');
+
+                const token = data.jwt;
+                const profileResponse = await fetch('http://localhost:8080/api/users/profile', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+    
+                if (profileResponse.ok) {
+                    const profileData = await profileResponse.json();
+                    setUser(profileData);
+                    navigate('/'); 
+                } else {
+                    setErrorMessage("Failed to fetch profile data after login.");
+                }
+                
             } else {
                 setErrorMessage(data.message || 'Sign up failed email address already used :(');
             }

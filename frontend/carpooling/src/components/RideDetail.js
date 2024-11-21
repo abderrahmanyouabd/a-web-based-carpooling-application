@@ -70,6 +70,9 @@ const RideDetail = () => {
                 setClientSecret(clientSecret);
 
                 navigate("/payment", {state: { clientSecret, rideId: ride.id, token } });
+            } else if (response.status === 409) {
+                showSnackbar("Client already joined this trip.");
+                console.log("Client already joined this trip.");
             } else {
                 console.error("Failed to fetch client secret");
             }
