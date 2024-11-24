@@ -24,6 +24,29 @@ const MenuBar = ({ setUser, user }) => {
         navigate('/');
     }
 
+    useEffect(() => {
+        const fetchProfileData = async () => {
+            if (token){
+                const profileResponse = await fetch('http://localhost:8080/api/users/profile', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (profileResponse.ok) {
+                    const profileData = await profileResponse.json();
+                    setUser(profileData);
+                } else {
+                    console.log("Failed to fetch profile data for MenuBar");
+                }
+            }
+        }
+        fetchProfileData();
+
+    }, [token]);
+
     return (
         <nav className="bg-gradient-to-r from-blue-500 to-indigo-400 p-4 shadow-lg">
             <div className="container mx-auto">

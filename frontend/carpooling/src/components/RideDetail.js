@@ -11,16 +11,11 @@ const RideDetail = () => {
     const [clientSecret, setClientSecret] = useState(null);
     const [paymentInitiated, setPaymentInitiated] = useState(false);
     const [snackbar, setSnackbar] = useState({ open: false, message: "" });
-
     const ride = location.state?.ride;
     const isDriver = profileData?.id === ride.driver.id;
-
-    console.log("Ride: " + ride);
-
     const formattedDate = ( date ) => date.replace("T", " ");
     const token = localStorage.getItem("jwtToken");
     
-
     useEffect(() => {
         const fetchProfileData = async () => {
             try {
@@ -71,7 +66,7 @@ const RideDetail = () => {
 
                 navigate("/payment", {state: { clientSecret, rideId: ride.id, token } });
             } else if (response.status === 409) {
-                showSnackbar("Client already joined this trip.");
+                showSnackbar("You already joined this trip.");
                 console.log("Client already joined this trip.");
             } else {
                 console.error("Failed to fetch client secret");
@@ -98,7 +93,18 @@ const RideDetail = () => {
         setSnackbar({ open: false, message: ""});
     }
 
-    const action = (
+    const action = snackbar.message === "You already joined this trip." ? ( 
+        <Fragment>
+            <IconButton
+                size="small"
+                aria-label="close"
+                color="inherit"
+                onClick={handleSnackbarClose}
+            >
+                <CloseIcon fontSize="small" />
+            </IconButton>
+        </Fragment>    
+    ) : (
         <Fragment>
             <Button color="secondary" size="small" onClick={() => navigate("/signin")}>
                 Sign in
@@ -113,7 +119,8 @@ const RideDetail = () => {
             </IconButton>
         </Fragment>
     );
-
+        
+    
     const handleViewDriverLocation = () => {
         if (!token) {
             console.log("No token found, ask user to sign in");
@@ -147,9 +154,9 @@ const RideDetail = () => {
                     
                     <div className="flex items-center mb-4">
                         <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
-                            {profileData?.profilePicture ? ( 
+                            {ride.driver?.profilePicture ? ( 
                                 <img 
-                                    src={`data:image/jpeg;base64,${profileData.profilePicture}`} 
+                                    src={`data:image/jpeg;base64,${ride.driver.profilePicture}`} 
                                     alt="Profile Picture" 
                                     className="w-full h-full object-cover rounded-full" 
                                 />
@@ -240,9 +247,9 @@ const RideDetail = () => {
                     <div className="mb-4 flex items-center">
                         
                         <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
-                            {profileData?.profilePicture ? ( 
+                            {ride.driver?.profilePicture ? ( 
                                 <img 
-                                    src={`data:image/jpeg;base64,${profileData.profilePicture}`} 
+                                    src={`data:image/jpeg;base64,${ride.driver.profilePicture}`} 
                                     alt="Profile Picture" 
                                     className="w-full h-full object-cover rounded-full" 
                                 />
