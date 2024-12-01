@@ -1,14 +1,14 @@
 package com.chay.CarPooling.model;
 
+import com.chay.CarPooling.utils.DurationToIntervalConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.boot.model.source.spi.IdentifierSource;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.Duration;
 import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.List;
@@ -79,4 +79,7 @@ public class Trip {
 
     @ElementCollection
     private List<Station> stations;
+
+    @Convert(converter = DurationToIntervalConverter.class)
+    private Duration duration;
 }

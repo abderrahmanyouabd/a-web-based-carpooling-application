@@ -1,6 +1,7 @@
 package com.chay.CarPooling.controller;
 
 import com.chay.CarPooling.config.JwtProvider;
+import com.chay.CarPooling.domain.Gender;
 import com.chay.CarPooling.domain.UserRole;
 import com.chay.CarPooling.model.PasswordResetToken;
 import com.chay.CarPooling.model.Trip;
@@ -58,6 +59,7 @@ public class AuthController {
         String password = user.getPassword();
         String fullName = user.getFullName();
         String dateOfBirth = user.getDateOfBirth();
+        Gender gender = user.getGender();
 
 
         User isEmailExist = userRepository.findByEmail(email);
@@ -78,6 +80,7 @@ public class AuthController {
         createdUser.setPassword(passwordEncoder.encode(password));
         createdUser.setDateOfBirth(dateOfBirth);
         createdUser.setRole(UserRole.USER_ROLE);
+        createdUser.setGender(gender);
 
         User savedUser = userRepository.save(createdUser);
 

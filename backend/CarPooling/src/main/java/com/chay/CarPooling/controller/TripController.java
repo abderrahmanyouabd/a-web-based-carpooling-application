@@ -5,6 +5,7 @@ import com.chay.CarPooling.model.Trip;
 import com.chay.CarPooling.model.User;
 import com.chay.CarPooling.repository.PaymentTransactionRepository;
 import com.chay.CarPooling.response.JoinTripResponse;
+import com.chay.CarPooling.response.TripResponse;
 import com.chay.CarPooling.service.PaymentService;
 import com.chay.CarPooling.service.TripService;
 import com.chay.CarPooling.service.UserService;
@@ -140,20 +141,17 @@ public class TripController {
         return jsonNode;
     }
 
-
-
-    // todo: use dto for trip as response if goona be big.
     @GetMapping("/joined")
-    public ResponseEntity<List<Trip>> getTripsUserJoined(@RequestHeader("Authorization") String jwt) {
+    public ResponseEntity<List<TripResponse>> getTripsUserJoined(@RequestHeader("Authorization") String jwt) {
         User user = userService.findUserProfileByJwt(jwt);
-        List<Trip> joinedTrips = tripService.getTripsUserJoined(user.getId());
+        List<TripResponse> joinedTrips = tripService.getTripsUserJoined(user.getId());
         return ResponseEntity.ok(joinedTrips);
     }
 
     @GetMapping("/created")
-    public ResponseEntity<List<Trip>> getTripsUserCreated(@RequestHeader("Authorization") String jwt) {
+    public ResponseEntity<List<TripResponse>> getTripsUserCreated(@RequestHeader("Authorization") String jwt) {
         User user = userService.findUserProfileByJwt(jwt);
-        List<Trip> createdTrips = tripService.getTripsUserCreated(user.getId());
+        List<TripResponse> createdTrips = tripService.getTripsUserCreated(user.getId());
         return ResponseEntity.ok(createdTrips);
     }
 

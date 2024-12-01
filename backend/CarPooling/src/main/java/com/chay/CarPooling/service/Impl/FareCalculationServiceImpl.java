@@ -191,12 +191,14 @@ public class FareCalculationServiceImpl implements FareCalculationService {
 
         double[] distanceAndDuration = getDistanceAndDurationFromAPI(startLatitude, startLongitude, endLatitude, endLongitude);
 
+        // todo: there is issue with endtime
         BigDecimal distance = BigDecimal.valueOf(distanceAndDuration[0])
-                .divide(BigDecimal.valueOf(1000), 2, RoundingMode.HALF_UP);
+                .divide(BigDecimal.valueOf(3600), 2, RoundingMode.HALF_UP);
         LocalDateTime departureTime = trip.getLeavingFrom().getDepartureTime();
 
         // Convert duration from seconds to a Duration object
         Duration duration = Duration.ofSeconds((long) distanceAndDuration[1]);
+        trip.setDuration(duration);
 
         // Calculate the arrival time
         LocalDateTime arrivalTime = departureTime.plus(duration);
