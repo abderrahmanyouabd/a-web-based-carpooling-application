@@ -35,6 +35,9 @@ public class User {
     private String status;
 
     @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    @Enumerated(EnumType.STRING)
     private UserRole role = UserRole.USER_ROLE;
 
     @Enumerated(EnumType.STRING)

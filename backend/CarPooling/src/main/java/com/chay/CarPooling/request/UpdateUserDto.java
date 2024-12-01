@@ -1,9 +1,6 @@
 package com.chay.CarPooling.request;
 
-import com.chay.CarPooling.domain.ChatPreference;
-import com.chay.CarPooling.domain.PetPreference;
-import com.chay.CarPooling.domain.PlaylistPreference;
-import com.chay.CarPooling.domain.SmokingPreference;
+import com.chay.CarPooling.domain.*;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
@@ -25,6 +22,9 @@ public class UpdateUserDto {
     private String dateOfBirth;
     private String bio;
     private MultipartFile profilePicture;
+
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     @Enumerated(EnumType.STRING)
     private ChatPreference chatPreference;

@@ -2,8 +2,8 @@ package com.chay.CarPooling.service;
 
 import com.chay.CarPooling.model.Trip;
 import com.chay.CarPooling.model.User;
+import com.chay.CarPooling.response.TripResponse;
 
-import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -18,7 +18,7 @@ public interface TripService {
     void joinTrip(Long tripId, User user) throws Exception;
     String searchPlaces(String query) throws Exception;
     List<Trip> findTripByPassenger(User user);
-    List<Trip> getTripsUserJoined(Long userId);
-    List<Trip> getTripsUserCreated(Long userId);
+    List<TripResponse> getTripsUserJoined(Long userId);
+    List<TripResponse> getTripsUserCreated(Long userId);
 
 }

@@ -143,6 +143,9 @@ public class UserServiceImpl implements UserService {
         if(dto.getChatPreference()!=null){
             user.setChatPreference(dto.getChatPreference());
         }
+        if(dto.getGender()!=null){
+            user.setGender(dto.getGender());
+        }
         if(dto.getPetPreference()!=null){
             user.setPetPreference(dto.getPetPreference());
         }

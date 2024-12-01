@@ -4,7 +4,7 @@ import com.chay.CarPooling.model.Trip;
 import com.chay.CarPooling.model.User;
 import com.chay.CarPooling.model.Vehicle;
 import com.chay.CarPooling.repository.TripRepository;
-import com.chay.CarPooling.response.JoinTripResponse;
+import com.chay.CarPooling.response.TripResponse;
 import com.chay.CarPooling.service.FareCalculationService;
 import com.chay.CarPooling.service.PaymentService;
 import com.chay.CarPooling.service.TripService;
@@ -19,11 +19,6 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -122,11 +117,27 @@ public class TripServiceImpl implements TripService {
     }
 
 
-    public List<Trip> getTripsUserJoined(Long userId) {
-        return tripRepository.findByPassengers_Id(userId);
+    public List<TripResponse> getTripsUserJoined(Long userId) {
+        List<Trip> joinedTrips = tripRepository.findByPassengers_Id(userId);
+        return joinedTrips.stream().map(trip ->
+                new TripResponse(
+                        trip.getId(),
+                        trip.getLeavingFrom(),
+                        trip.getGoingTo(),
+                        trip.getFarePerSeat(),
+                        trip.getDriver()
+                )).toList();
     }
 
-    public List<Trip> getTripsUserCreated(Long userId) {
-        return tripRepository.findByDriver_Id(userId);
+    public List<TripResponse> getTripsUserCreated(Long userId) {
+        List<Trip> createdTrips = tripRepository.findByDriver_Id(userId);
+        return createdTrips.stream().map(trip ->
+                new TripResponse(
+                        trip.getId(),
+                        trip.getLeavingFrom(),
+                        trip.getGoingTo(),
+                        trip.getFarePerSeat(),
+                        trip.getDriver()
+                )).toList();
     }
 }
