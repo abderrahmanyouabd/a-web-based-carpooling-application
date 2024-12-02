@@ -48,7 +48,7 @@ const TripConfirmation = ({ user }) => {
 
     const handleDownloadReceipt = async () => {
         const element = document.getElementById("receipt");
-        
+
         const canvas = await html2canvas(element, {
             scale: 4,
             useCORS: true,
@@ -61,15 +61,10 @@ const TripConfirmation = ({ user }) => {
             format: "a4"
         });
         const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
-
         const imgWidth = pageWidth - 40;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-        const marginX = 20;
-        const marginY = 20;
-
-        pdf.addImage(imgData, "PNG", marginX, marginY, imgWidth, imgHeight);
+        pdf.addImage(imgData, "PNG", 20, 20, imgWidth, imgHeight);
         pdf.save(`trip-confirmation-receipt_${rideId}.pdf`);
     };
 
@@ -96,19 +91,27 @@ const TripConfirmation = ({ user }) => {
 
                 <div className="p-4 border-t border-gray-200">
                     <h3 className="text-xl font-semibold text-gray-700 mb-2">👤 Driver Information</h3>
-                    <div className="flex justify-center mb-4">
-                        {tripDetails.driver.profilePicture ? (
-                            <img 
-                                src={`data:image/jpeg;base64,${tripDetails.driver.profilePicture}`} 
-                                alt="Profile Picture" 
-                                className="w-32 h-32 object-cover rounded-full" 
-                            />
-                        ) : (
-                            <span className="text-gray-500 text-sm leading-none">Profile picture</span>
-                        )}
+                    <div className="flex items-center justify-center mb-4">
+                        
+                        <div className="w-32 h-32 flex items-center justify-center">
+                        <img
+                            src={
+                                tripDetails.driver.profilePicture
+                                    ? `data:image/jpeg;base64,${tripDetails.driver.profilePicture}`
+                                    : tripDetails.driver.gender === "FEMALE"
+                                        ? "/images/default_female.jpg"
+                                        : tripDetails.driver.gender === "MALE"
+                                            ? "/images/default_male.png"
+                                            : "/images/default_user.png"
+                            }
+                            alt="Profile Picture"
+                            className="w-32 h-32 object-cover rounded-full"
+                        />
+                        </div>
+                        
                     </div>
                     <div className="flex items-center justify-between">
-                        <p className="text-lg"><span className="font-semibold pr-2">Name:</span> {tripDetails.driver.fullName}</p>
+                        <p className="text-lg"><span className="font-semibold pr-2">Name:</span> {tripDetails.driver?.fullName}</p>
                         <p className="text-lg"><span className="font-semibold pr-2">Email:</span>{tripDetails.driver.email}</p> 
                     </div>
                 </div>

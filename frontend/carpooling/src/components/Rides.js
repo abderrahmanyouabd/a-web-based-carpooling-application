@@ -126,7 +126,7 @@ const Rides = () => {
                                                 <div className="absolute left-0 top-[-6px] w-[10px] h-[10px] rounded-full bg-teal-600"></div>
                                             </div>
 
-                                            <p className="mx-4 text-gray-500 text-sm whitespace-nowrap">{ride.time}</p>
+                                            <p className="mx-4 text-gray-500 text-sm whitespace-nowrap">{ride.duration}</p>
 
                                             {/* Right part of the line */}
                                             <div className="flex-1 h-[2px] bg-gray-300 relative">
@@ -159,11 +159,27 @@ const Rides = () => {
                                     <div className="flex items-center space-x-4">
                                         <FaCar className="text-2xl text-gray-500" />
 
-                                        <img 
-                                            src={ride.profileImage} 
-                                            alt="profile" 
-                                            className="w-10 h-10 rounded-full border"
-                                        />
+                                        <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
+                                            {ride.driver?.profilePicture ? ( 
+                                                <img 
+                                                    src={`data:image/jpeg;base64,${ride.driver.profilePicture}`} 
+                                                    alt="Profile Picture" 
+                                                    className="w-full h-full object-cover rounded-full" 
+                                                />
+                                            ) : (
+                                                <img 
+                                                    src={
+                                                        ride.driver.gender === "FEMALE"
+                                                            ? "https://www.pngkey.com/png/detail/297-2978655_profile-picture-default-female.png"
+                                                            : ride.driver.gender === "MALE"
+                                                                ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
+                                                                : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
+                                                    }
+                                                    alt="Default Profile Picture"
+                                                    className="w-full h-full object-cover rounded-full"
+                                                />
+                                            )}
+                                        </div>
                                         <span className="font-semibold">{ride.driver?.fullName}</span>
                                     </div>
                                     {ride.instantBooking && (

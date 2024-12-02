@@ -161,7 +161,17 @@ const RideDetail = () => {
                                     className="w-full h-full object-cover rounded-full" 
                                 />
                             ) : (
-                                <span className="text-gray-500 text-sm leading-none">Profile picture</span>
+                                <img 
+                                    src={
+                                        ride.driver.gender === "FEMALE"
+                                            ? "https://www.pngkey.com/png/detail/297-2978655_profile-picture-default-female.png"
+                                            : ride.driver.gender === "MALE"
+                                                ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
+                                                : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
+                                    }
+                                    alt="Default Profile Picture"
+                                    className="w-full h-full object-cover rounded-full"
+                                />
                             )}
                         </div>
                         <h3 className="text-lg font-semibold pl-2">{ride.driver.fullName}</h3>
@@ -224,6 +234,45 @@ const RideDetail = () => {
                     </div>
                     
                 </div>
+
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                    <h1 className="text-2xl font-bold">Passengers</h1>
+                    <div className="mt-2 space-y-4">
+
+                        {ride.passengers.map((passenger, index) => (
+                            <div key={index} className="flex items-center">
+                                <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
+                                    {passenger.profilePicture ? ( 
+                                        <img 
+                                            src={`data:image/jpeg;base64,${passenger.profilePicture}`} 
+                                            alt="Profile Picture" 
+                                            className="w-full h-full object-cover rounded-full" 
+                                        />
+                                    ) : (
+                                        <img 
+                                            src={
+                                                passenger.gender === "FEMALE"
+                                                    ? "https://www.pngkey.com/png/detail/297-2978655_profile-picture-default-female.png"
+                                                    : passenger.gender === "MALE"
+                                                        ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
+                                                        : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
+                                            }
+                                            alt="Default Profile Picture"
+                                            className="w-full h-full object-cover rounded-full"
+                                        />
+                                    )}
+                                </div>
+
+                                <div className="flex flex-col">
+                                    <h2 className="text-sm font-bold ml-2">{passenger.fullName}</h2>
+                                    <p className="text-gray-500 ml-2">{passenger.gender}</p>
+                                </div>
+
+                            </div>
+                        ))}
+
+                    </div>
+                </div>
             
             </div>
 
@@ -254,7 +303,18 @@ const RideDetail = () => {
                                     className="w-full h-full object-cover rounded-full" 
                                 />
                             ) : (
-                                <span className="text-gray-500 text-sm leading-none">Profile picture</span>
+                                <img 
+                                    src={
+                                        ride.driver.gender === "FEMALE"
+                                            ? "https://www.pngkey.com/png/detail/297-2978655_profile-picture-default-female.png"
+                                            : ride.driver.gender === "MALE"
+                                                ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
+                                                : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
+                                    }
+                                    alt="Default Profile Picture"
+                                    className="w-full h-full object-cover rounded-full"
+                                />
+
                             )}
                         </div>
                         
