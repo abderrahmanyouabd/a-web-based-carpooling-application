@@ -103,11 +103,18 @@ const Rides = () => {
                         {sortedRides.map((ride) => (
                             <div
                                 key={ride.id}
-                                onClick={() => handleRideClick(ride)}
-                                className="bg-white border rounded-lg p-4 mb-4 shadow-lg flex flex-col space-y-4 hover:shadow-2xl transition-shadow duration-200"
+                                onClick={ride.availableSeats > 0 ? () => handleRideClick(ride) : null}
+                                className={`bg-white border rounded-lg p-4 mb-4 shadow-lg flex flex-col space-y-4 hover:shadow-2xl transition-shadow duration-200
+                                    ${ride.availableSeats === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-2xl'}`}
                             >   
 
+                                {ride.availableSeats === 0 && (
+                                        <div className="text-center bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                                            FULL
+                                        </div>
+                                )}
                                 <div className="flex justify-between items-center">
+                                    
                                     <div className="flex items-center">  
                                         <div>
                                             <p className="text-lg font-semibold">{getTimePart(ride.leavingFrom.departureTime)}</p>
@@ -141,6 +148,7 @@ const Rides = () => {
                                         <p className="text-lg font-semibold">{ride.leavingFrom.name}</p>
                                         <p className="text-lg font-semibold">{ride.goingTo.name}</p>
                                     </div>
+
                                 </div>
 
                                 <div className="flex justify-between items-center">
@@ -181,13 +189,13 @@ const Rides = () => {
                                             )}
                                         </div>
                                         <span className="font-semibold">{ride.driver?.fullName}</span>
+                                        
+                                        <div className="w-px h-6 bg-gray-400"></div>
+                                        <div>Avail.Seat: {ride.availableSeats}</div>
                                     </div>
-                                    {ride.instantBooking && (
-                                        <div className="text-sm text-gray-500 flex items-center">
-                                            <span className="mr-1">⚡</span> Instant Booking
-                                        </div>
-                                    )}
+                                    
                                 </div>
+
                             </div>
                         ))}
                     </div>
