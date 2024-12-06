@@ -13,7 +13,6 @@ const RideDetail = () => {
     const [snackbar, setSnackbar] = useState({ open: false, message: "" });
     const ride = location.state?.ride;
     const isDriver = profileData?.id === ride.driver.id;
-    const formattedDate = ( date ) => date.replace("T", " ");
     const token = localStorage.getItem("jwtToken");
     
     useEffect(() => {
@@ -131,11 +130,33 @@ const RideDetail = () => {
         }
     }
 
+    const formattedDate = (date) => date.replace("T", " "); 
+
+    const formatDateToDayOfTheWeek = (dateWithTSeparator) => {
+        const dateWithoutTSeparator = formattedDate(dateWithTSeparator);
+        const date = new Date(dateWithoutTSeparator);
+
+        const formatter = new Intl.DateTimeFormat('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        return formatter.format(date);
+    };
+
+    const getTimePart = (datetime) =>{
+        if(!datetime) return "";
+        const timePart = datetime.split("T")[1];
+        return timePart;
+    }
+
     return (
         <div className="p-6 bg-gray-100 flex min-h-screen justify-center space-x-16">
 
             <div className="w-full max-w-3xl space-y-4">
-                <h1 className="text-2xl font-semibold text-gray-800 mb-6"> {formattedDate(ride.leavingFrom.departureTime)}</h1>
+                <h1 className="text-2xl font-semibold text-gray-800 mb-6"> {formatDateToDayOfTheWeek(ride.leavingFrom.departureTime)}</h1>
 
                 <div className="bg-white rounded-lg shadow-lg p-6">
                     <div className="flex flex-col space-y-8">
@@ -145,7 +166,7 @@ const RideDetail = () => {
                         </div>
                         <div>
                             <h2 className="text-lg font-bold">{ride.goingTo.name}</h2>
-                            <p className="text-gray-500 mt-1">{formattedDate(ride.leavingFrom.departureTime)}</p>
+                            <p className="text-gray-500 mt-1">{formattedDate(ride.goingTo.arrivalTime)}</p>
                         </div>
                     </div>
                 </div>
@@ -234,51 +255,54 @@ const RideDetail = () => {
                     </div>
                     
                 </div>
+                
+                {ride.passengers.length > 0 && (
+                    <div className="bg-white rounded-lg shadow-lg p-6">
+                        <h1 className="text-2xl font-bold">Passengers</h1>
+                        <div className="mt-2 space-y-4">
 
-                <div className="bg-white rounded-lg shadow-lg p-6">
-                    <h1 className="text-2xl font-bold">Passengers</h1>
-                    <div className="mt-2 space-y-4">
+                            {ride.passengers.map((passenger, index) => (
+                                <div key={index} className="flex items-center">
+                                    <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
+                                        {passenger.profilePicture ? ( 
+                                            <img 
+                                                src={`data:image/jpeg;base64,${passenger.profilePicture}`} 
+                                                alt="Profile Picture" 
+                                                className="w-full h-full object-cover rounded-full" 
+                                            />
+                                        ) : (
+                                            <img 
+                                                src={
+                                                    passenger.gender === "FEMALE"
+                                                        ? "https://www.pngkey.com/png/detail/297-2978655_profile-picture-default-female.png"
+                                                        : passenger.gender === "MALE"
+                                                            ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
+                                                            : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
+                                                }
+                                                alt="Default Profile Picture"
+                                                className="w-full h-full object-cover rounded-full"
+                                            />
+                                        )}
+                                    </div>
 
-                        {ride.passengers.map((passenger, index) => (
-                            <div key={index} className="flex items-center">
-                                <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
-                                    {passenger.profilePicture ? ( 
-                                        <img 
-                                            src={`data:image/jpeg;base64,${passenger.profilePicture}`} 
-                                            alt="Profile Picture" 
-                                            className="w-full h-full object-cover rounded-full" 
-                                        />
-                                    ) : (
-                                        <img 
-                                            src={
-                                                passenger.gender === "FEMALE"
-                                                    ? "https://www.pngkey.com/png/detail/297-2978655_profile-picture-default-female.png"
-                                                    : passenger.gender === "MALE"
-                                                        ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
-                                                        : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
-                                            }
-                                            alt="Default Profile Picture"
-                                            className="w-full h-full object-cover rounded-full"
-                                        />
-                                    )}
+                                    <div className="flex flex-col">
+                                        <h2 className="text-sm font-bold ml-2">{passenger.fullName}</h2>
+                                        <p className="text-gray-500 ml-2">{passenger.gender}</p>
+                                    </div>
+
                                 </div>
+                            ))}
 
-                                <div className="flex flex-col">
-                                    <h2 className="text-sm font-bold ml-2">{passenger.fullName}</h2>
-                                    <p className="text-gray-500 ml-2">{passenger.gender}</p>
-                                </div>
-
-                            </div>
-                        ))}
-
+                        </div>
                     </div>
-                </div>
+                )}
+                
             
             </div>
 
             <div>
                 <div className="bg-white rounded-lg shadow-lg p-6 mt-14">
-                    <h1 className="text-lg font-semibold text-gray-800 mb-6"> {formattedDate(ride.leavingFrom.departureTime)}</h1>
+                    <h1 className="text-lg font-semibold text-gray-800 mb-6"> {formatDateToDayOfTheWeek(ride.leavingFrom.departureTime)}</h1>
                     
                     <div className="flex flex-col space-y-8">
                         <div>
@@ -287,7 +311,7 @@ const RideDetail = () => {
                         </div>
                         <div>
                             <h2 className="text-sm font-bold">{ride.goingTo.name}</h2>
-                            <p className="text-gray-500 mt-1">{formattedDate(ride.leavingFrom.departureTime)}</p>
+                            <p className="text-gray-500 mt-1">{formattedDate(ride.goingTo.arrivalTime)}</p>
                         </div>
                     </div>    
 

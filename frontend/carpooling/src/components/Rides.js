@@ -65,7 +65,7 @@ const Rides = () => {
     };
 
     const handleRideClick = (ride) => {
-        navigate("/ride-detail", {state: {ride} });
+        navigate(`/ride-detail/${ride.id}`, {state: {ride} });
     }
 
     const sortedRides = sortRides(searchResults);
