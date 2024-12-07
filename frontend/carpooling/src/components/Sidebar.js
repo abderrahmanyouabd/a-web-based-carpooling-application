@@ -21,10 +21,10 @@ const Sidebar = ({ setSoryBy, setPickUpFilter}) => {
     };
 
     return (
-        <div className="w-1/4 p-6">
+        <div className="p-4">
             <h2 className="font-bold text-lg mb-4">Sort by</h2>
 
-            <div className="flex flex-col space-y-2 p-2 mb-6">
+            <div className="flex flex-col bg-white border rounded-lg space-y-2 p-2 mb-6">
                 <label className="flex items-center space-x-2">
                     <input 
                         type="radio"
@@ -34,7 +34,7 @@ const Sidebar = ({ setSoryBy, setPickUpFilter}) => {
                         onChange={handleSortChange}
                         className="mr-2"
                     />
-                    <span>Earliest departure</span>
+                    <span>Earliest </span>
                     <FaClock/>
                 </label>
 
@@ -60,7 +60,7 @@ const Sidebar = ({ setSoryBy, setPickUpFilter}) => {
                         onChange={handleSortChange}
                         className="mr-2"
                     />
-                    <span>Close to departure point</span>
+                    <span>Close to</span>
                     <FaWalking />
                 </label>
 
@@ -73,7 +73,7 @@ const Sidebar = ({ setSoryBy, setPickUpFilter}) => {
                         onChange={handleSortChange}
                         className="mr-2"
                     />
-                    <span>Close to arrival point</span>
+                    <span>Close to</span>
                     <FaWalking />
                 </label>
 
@@ -93,7 +93,7 @@ const Sidebar = ({ setSoryBy, setPickUpFilter}) => {
             </div>
 
             <h2 className="font-bold text-lg mb-4">Pick-up time</h2>
-            <div className="flex flex-col space-y-4 p-2">
+            <div className="flex flex-col bg-white border rounded-lg space-y-4 p-2">
                 <label className="flex items-center space-x-2">
                     <input 
                         type="radio"

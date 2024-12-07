@@ -174,7 +174,18 @@ const Profile = ({ setUser }) => {
                                     className="w-full h-full object-cover rounded-full" 
                                 />
                             ) : (
-                                <span className="text-gray-500 text-sm leading-none">Profile picture</span>
+                                <img 
+                                    src={
+                                        profileData.gender === "FEMALE"
+                                            ? "https://www.pngkey.com/png/detail/297-2978655_profile-picture-default-female.png"
+                                            : profileData.gender === "MALE"
+                                                ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
+                                                : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
+                                    }
+                                    alt="Default Profile Picture"
+                                    className="w-full h-full object-cover rounded-full"
+                                />
+
                             )}
 
                         </div>

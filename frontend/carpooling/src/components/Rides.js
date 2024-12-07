@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 const Rides = () => {
     const location = useLocation();
-    const { leavingFrom, goingTo, date, passengers, searchResults } = location.state;
+    const { leavingFrom, goingTo, date, numberOfAvailableSeat, searchResults } = location.state;
     const [sortBy, setSoryBy] = useState("");
     const [pickUpFilter, setPickUpFilter] = useState("");
     const navigate = useNavigate();
@@ -65,50 +65,63 @@ const Rides = () => {
     };
 
     const handleRideClick = (ride) => {
-        navigate("/ride-detail", {state: {ride} });
+        navigate(`/ride-detail/${ride.id}`, {state: {ride} });
     }
 
     const sortedRides = sortRides(searchResults);
+
+    const getTimePart = (datetime) =>{
+        if(!datetime) return "";
+        const timePart = datetime.split("T")[1];
+        return timePart;
+    }
        
 
     return (
         <div>
-            <div className="container mx-auto px-4 py-8">
-                <TripSearch initialParams={{ leavingFrom, goingTo, date, passengers }}/>
+            <div className="mx-auto px-6 py-8">
+                <TripSearch initialParams={{ leavingFrom, goingTo, date, numberOfAvailableSeat }}/>
             </div>
             
-            <div className="flex bg-gray-100">
+            <div className="flex justify-center space-x-8">
                 <Sidebar setSoryBy={setSoryBy} setPickUpFilter={setPickUpFilter} />
 
-                <div className="w-3/4 p-4">
+                <div className="w-auto">
                     
-                    <div className="flex justify-between items-center p-4 mb-6">
+                    <div className="flex justify-between items-center p-4 ml-4 mb-6">
                         <div>
                             <h2 className="text-lg font-semibold">{date}</h2>
                             <p className="text-gray-600">{leavingFrom} → {goingTo}</p>
-                            <div className="text-gray-800">{searchResults.length} rides available with {passengers} passengers</div>
+                            <div className="text-gray-800">{searchResults.length} rides available with minimum {numberOfAvailableSeat} available seat(s) </div>
                         </div>
                         
                     </div>
                        
 
 
-                    <div className="overflow-auto h-[40rem] p-4">
+                    <div className="overflow-auto h-auto w-[50rem]">
                         {sortedRides.map((ride) => (
                             <div
                                 key={ride.id}
-                                onClick={() => handleRideClick(ride)}
-                                className="bg-white border rounded-lg p-4 mb-4 shadow-lg flex flex-col space-y-4 hover:shadow-2xl transition-shadow duration-200"
+                                onClick={ride.availableSeats > 0 ? () => handleRideClick(ride) : null}
+                                className={`bg-white border rounded-lg p-4 mb-4 shadow-lg flex flex-col space-y-4 hover:shadow-2xl transition-shadow duration-200
+                                    ${ride.availableSeats === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-2xl'}`}
                             >   
 
+                                {ride.availableSeats === 0 && (
+                                        <div className="text-center bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                                            FULL
+                                        </div>
+                                )}
                                 <div className="flex justify-between items-center">
+                                    
                                     <div className="flex items-center">  
                                         <div>
-                                            <p className="text-lg font-semibold">{ride.time}</p>
+                                            <p className="text-lg font-semibold">{getTimePart(ride.leavingFrom.departureTime)}</p>
                                         </div>
                                         <AiOutlineArrowRight className="text-xl mx-4" />
                                         <div>
-                                            <p className="text-lg font-semibold">{ride.goingTo.arrivalTime || 'N/A'}</p>
+                                            <p className="text-lg font-semibold">{getTimePart(ride.goingTo.arrivalTime) || 'N/A'}</p>
                                         </div>
                                     </div>
 
@@ -135,6 +148,7 @@ const Rides = () => {
                                         <p className="text-lg font-semibold">{ride.leavingFrom.name}</p>
                                         <p className="text-lg font-semibold">{ride.goingTo.name}</p>
                                     </div>
+
                                 </div>
 
                                 <div className="flex justify-between items-center">
@@ -153,23 +167,41 @@ const Rides = () => {
                                     <div className="flex items-center space-x-4">
                                         <FaCar className="text-2xl text-gray-500" />
 
-                                        <img 
-                                            src={ride.profileImage} 
-                                            alt="profile" 
-                                            className="w-10 h-10 rounded-full border"
-                                        />
-                                        <span className="font-semibold">{ride.driver.fullName}</span>
-                                    </div>
-                                    {ride.instantBooking && (
-                                        <div className="text-sm text-gray-500 flex items-center">
-                                            <span className="mr-1">⚡</span> Instant Booking
+                                        <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
+                                            {ride.driver?.profilePicture ? ( 
+                                                <img 
+                                                    src={`data:image/jpeg;base64,${ride.driver.profilePicture}`} 
+                                                    alt="Profile Picture" 
+                                                    className="w-full h-full object-cover rounded-full" 
+                                                />
+                                            ) : (
+                                                <img 
+                                                    src={
+                                                        ride.driver.gender === "FEMALE"
+                                                            ? "https://www.pngkey.com/png/detail/297-2978655_profile-picture-default-female.png"
+                                                            : ride.driver.gender === "MALE"
+                                                                ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
+                                                                : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
+                                                    }
+                                                    alt="Default Profile Picture"
+                                                    className="w-full h-full object-cover rounded-full"
+                                                />
+                                            )}
                                         </div>
-                                    )}
+                                        <span className="font-semibold">{ride.driver?.fullName}</span>
+                                        
+                                        <div className="w-px h-6 bg-gray-400"></div>
+                                        <div>Avail.Seat: {ride.availableSeats}</div>
+                                    </div>
+                                    
                                 </div>
+
                             </div>
                         ))}
                     </div>
+
                 </div>
+                
             </div>
         </div>
         

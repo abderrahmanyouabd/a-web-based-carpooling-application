@@ -13,6 +13,11 @@ import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
 import RideDetail from "./components/RideDetail";
 import CreateRide from "./components/CreateRide";
+import PaymentForm from "./components/PaymentForm";
+import TripConfirmation from "./components/TripConfirmation";
+import DriverLocationTracker from "./components/DriverLocationTracker";
+import ViewDriverLocation from "./components/ViewDriverLocation";
+import YourRides from "./components/YourRides";
 
 
 const stripePromise = loadStripe('pk_test_51QIWPCEaMiQXGjyX1GMqULAWqRw5tdO5wxBQIuJ3sJyn6IJWlHx7W3qAIeBQrWepCH2hyMsP9mpJBSY617w7htKU003fDfYVGj');
@@ -22,20 +27,24 @@ const App = () => {
 
     return (
         <div>
-            {/* Wrap BrowserRouter with Elements provider */}
             <Elements stripe={stripePromise}>
                 <BrowserRouter>
-                    <MenuBar user={user} />
+                    <MenuBar setUser={setUser} user={user} />
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/create-ride" element={<CreateRide user={user}/>} />
                         <Route path="/rides" element={<Rides />} />
-                        <Route path="ride-detail" element={<RideDetail user={user} />} />
+                        <Route path="/ride-detail/:rideId" element={<RideDetail user={user} />} />
                         <Route path="/signin" element={<SignIn setUser={setUser} />} />
                         <Route path="/signin/forgot-password" element={<ForgotPassword />} />
                         <Route path="/account/reset-password" element={<ResetPassword />} />
                         <Route path="/signup" element={<SignUp setUser={setUser} />} />
                         <Route path="/profile" element={<Profile setUser={setUser}/>} />
+                        <Route path="/track-driver-location/:rideId" element={<DriverLocationTracker /> } />
+                        <Route path="/view-driver-location/:rideId" element={<ViewDriverLocation />} />
+                        <Route path="/payment" element={<PaymentForm /> } />
+                        <Route path="/confirmation/ride/:rideId" element={<TripConfirmation user={user}/>} />
+                        <Route path="/your-rides" element={<YourRides />} />
                     </Routes>
                 </BrowserRouter>
             </Elements>

@@ -5,7 +5,7 @@ import MapRouteDrawing from "./MapRouteDrawing";
 import { IconButton, Snackbar, TextField, MenuItem} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 
-const CreateRide = ({ user }) => {
+const CreateRide = () => {
 
     const [step, setStep] = useState(0);
     const [suggestions, setSuggestions] = useState([]);
@@ -16,7 +16,7 @@ const CreateRide = ({ user }) => {
         pickUp: '',
         dropOff: '',
         startTime: '',
-        passengers: 1,
+        numberOfAvailableSeat: 1,
         price: 20,
     });
     const [vehicle, setVehicle] = useState({
@@ -28,14 +28,15 @@ const CreateRide = ({ user }) => {
     });
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
+    const token = localStorage.getItem('jwtToken');
 
     useEffect(() => {
-        if (!user) {
-            console.log("No user")
-            setStep(0);
-        } else {
+        if (token) {
             console.log("Yes user")
             setStep(1);
+        } else {
+            console.log("No user")
+            setStep(0);
         }
     }, [])
 
@@ -64,7 +65,7 @@ const CreateRide = ({ user }) => {
         if (step === 2 && params.dropOff) setStep(3);
         if (step === 3 && startCoordinates && endCoordinates) setStep(4);
         if (step === 4 && params.startTime) setStep(5);
-        if (step === 5 && params.passengers) {
+        if (step === 5 && params.numberOfAvailableSeat) {
             const vehicleExists = await isUserHasVehicle();
             if (vehicleExists){
                 setStep(7)
@@ -112,7 +113,7 @@ const CreateRide = ({ user }) => {
                 },
                 date: params.startTime.split("T")[0],
                 time: params.startTime.split("T")[1],
-                availableSeats: params.passengers,
+                availableSeats: params.numberOfAvailableSeat,
                 farePerSeat: params.price,
                 comment: "",
                 stations: []
@@ -177,7 +178,7 @@ const CreateRide = ({ user }) => {
                     const response = await axios.get(
                         'https://api.openrouteservice.org/geocode/autocomplete', {
                             params: { 
-                                api_key: '5b3ce3597851110001cf62488431b93ed22945d4b47ec86a93895fe8',
+                                api_key: '5b3ce3597851110001cf6248e4896a13b7cd44c988adeba2a1f425b4',
                                 text: query,
                                 layers: 'address,locality,country,region,county'
                             }
@@ -232,15 +233,15 @@ const CreateRide = ({ user }) => {
     const handlePassengersIncrease = () => {
         setParams(prevParams => ({
             ...prevParams,
-            passengers: prevParams.passengers + 1
+            numberOfAvailableSeat: prevParams.numberOfAvailableSeat + 1
         }));
     };
     
     const handlePassengersDecrease = () => {
-        if (params.passengers > 0) {
+        if (params.numberOfAvailableSeat > 0) {
           setParams(prevParams => ({
             ...prevParams,
-            passengers: prevParams.passengers - 1
+            numberOfAvailableSeat: prevParams.numberOfAvailableSeat - 1
           }));
         }
     };
@@ -440,7 +441,7 @@ const CreateRide = ({ user }) => {
                         </button>
                         
                         <span className="text-6xl font-bold text-gray-700">
-                            {params.passengers}
+                            {params.numberOfAvailableSeat}
                         </span>
 
                         <button

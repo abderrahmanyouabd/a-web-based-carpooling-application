@@ -10,14 +10,18 @@ import { fromLonLat } from 'ol/proj';
 import { Icon, Style, Stroke } from 'ol/style';
 import GeoJSON from 'ol/format/GeoJSON';
 
-const MapRouteDrawing = ({ startCoordinates, endCoordinates }) => {
+const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition }) => {
   const mapRef = useRef();
   const [map, setMap] = useState(null);
   const [baseLayer, setBaseLayer] = useState('esri');
+  const [journeyInfo, setJourneyInfo] = useState({ distance: 0, duration: 0 });
+  const [routeSteps, setRouteSteps] = useState([]);
+  const [isInstructionOpen, setIsInstructionOpen] = useState(false);
   const initializedRef = useRef(false);
   const baseLayerRef = useRef(); 
   const vectorLayerRef = useRef(); 
-  const routeLayerRef = useRef(); 
+  const routeLayerRef = useRef();
+  const driverMarkerRef = useRef();
 
   const getBaseLayer = () => {
     const esriLayer = new TileLayer({
@@ -64,12 +68,8 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates }) => {
   const addMarkers = (vectorSource) => {
     vectorSource.clear();
 
-    const startMarker = new Feature({
-      geometry: new Point(fromLonLat(startCoordinates)),
-    });
-    const endMarker = new Feature({
-      geometry: new Point(fromLonLat(endCoordinates)),
-    });
+    const startMarker = new Feature({ geometry: new Point(fromLonLat(startCoordinates)) });
+    const endMarker = new Feature({ geometry: new Point(fromLonLat(endCoordinates)) });
 
     const markerStyle = new Style({
       image: new Icon({
@@ -136,6 +136,30 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates }) => {
 
           routeLayerRef.current = routeLayer;
           mapInstance.addLayer(routeLayer);
+
+          const summary = routeData.features[0].properties.summary;
+          if (summary) {
+            setJourneyInfo({
+              distance: (summary.distance / 1000).toFixed(2), // Convert to km and format
+              duration: (summary.duration / 3600).toFixed(2), // Convert to hours and format
+            });
+          } else {
+            console.error('Journey info not found in the route data.');
+          }
+
+          const segments = routeData.features[0].properties.segments
+          if (segments) {
+            const steps = segments[0].steps.map((step) => ({
+              instruction: step.instruction,
+              name: step.name,
+              distance: (step.distance / 1000).toFixed(2), // Convert to km and format
+              duration: (step.duration / 60).toFixed(2), // Convert to minutes and format
+            }))
+            setRouteSteps(steps);
+          } else {
+            console.error('Route steps not found in the route data.');
+          }
+
         } else {
           console.error('No route data returned.');
         }
@@ -158,6 +182,30 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates }) => {
   }, [startCoordinates, endCoordinates]);
 
   useEffect(() => {
+    if (!map || !driverPosition) return;
+
+    console.log("Driver position: ", driverPosition);
+
+    const vectorSource = vectorLayerRef.current.getSource();
+
+    if (driverMarkerRef.current) {
+      vectorSource.removeFeature(driverMarkerRef.current);
+    }
+
+    const driverMarker = new Feature({ geometry: new Point(fromLonLat(driverPosition)) });
+    driverMarker.setStyle(new Style({
+      image: new Icon({
+        anchor: [0.5, 1],
+        src: 'https://openlayers.org/en/latest/examples/data/icon.png',
+        color: "#FF0000"
+      }),
+    }));
+
+    vectorSource.addFeature(driverMarker);
+    driverMarkerRef.current = driverMarker;
+  }, [driverPosition, map]);
+
+  useEffect(() => {
     if (!map) return;
 
     const newLayer = getBaseLayer();
@@ -171,30 +219,82 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates }) => {
     setBaseLayer(event.target.value);
   };
 
+  const toggleDropdown = () => {
+    setIsInstructionOpen(!isInstructionOpen);
+  }
+
   return (
     <div>
-      <div className="mb-4">
-        <label>
-          <input
-            type="radio"
-            value="esri"
-            checked={baseLayer === 'esri'}
-            onChange={handleLayerChange}
-          />
-          ESRI World Imagery
-        </label>
-        <label className="ml-4">
-          <input
-            type="radio"
-            value="osm"
-            checked={baseLayer === 'osm'}
-            onChange={handleLayerChange}
-          />
-          OpenStreetMap
-        </label>
+      <div className="mb-6 space-y-6">
+        <div className="flex items-center space-x-8">
+          <label className="flex items-center cursor-pointer">
+            <input
+              type="radio"
+              value="esri"
+              checked={baseLayer === 'esri'}
+              onChange={handleLayerChange}
+              className="text-blue-600 focus:ring-blue-500 mr-2"
+            />
+            <span className="text-gray-800 font-medium">ESRI World Imagery</span>
+          </label>
+
+          <label className="flex items-center cursor-pointer">
+            <input
+              type="radio"
+              value="osm"
+              checked={baseLayer === 'osm'}
+              onChange={handleLayerChange}
+              className="text-blue-600 focus:ring-blue-500 mr-2"
+            />
+            <span className="text-gray-800 font-medium">OpenStreetMap</span>
+          </label>
+        </div>
+        
+
+        <div className="flex items-center justify-between rounded-lg">
+          <p className="font-semibold">Total Distance: <span className="font-normal">{journeyInfo.distance} km</span></p>
+          <p className="font-semibold">Total Duration: <span className="font-normal">{journeyInfo.duration} hours</span></p>
+        </div>
+
+        <div className="rounded-lg shadow-lg">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4 p-2">
+            Route Instructions
+            <button onClick={toggleDropdown} className="ml-2 text-blue-500 text-sm">
+              {isInstructionOpen ? 'Hide' : 'Show'}
+            </button>
+          </h2>
+          {isInstructionOpen && (
+            <div className="w-full max-h-60 overflow-y-auto rounded-lg shadow-md">
+              <ul className="list-none pl-5 space-y-3">
+                  {routeSteps.map((step, index) => (
+                    <li key={index} className="py-2">
+                      <div className="flex flex-col space-y-2 md:flex-row md:space-y-0 md:space-x-6">
+                        <p className="text-gray-700 font-medium">
+                          {index + 1}. {step.instruction}
+                        </p>
+                        <p className="text-gray-500">
+                          {step.distance} km
+                        </p>
+                        <p className="text-gray-500">
+                          {step.duration} min
+                        </p>
+                      </div>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          )}
+          
+        </div>
       </div>
 
-      <div ref={mapRef} style={{ width: '100%', height: '500px' }} />
+      <div className="mb-6">
+        <div className="w-full h-[500px] rounded-lg shadow-lg border-2 border-gray-500 overflow-hidden">
+          <div ref={mapRef} className="w-full h-full" />
+        </div>
+      </div>
+      
+      
     </div>
   );
 };

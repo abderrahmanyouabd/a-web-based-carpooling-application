@@ -9,7 +9,7 @@ const SignUp = ({ setUser }) => {
         firstName: '',
         lastName: '',
         dateOfBirth: '',
-        //gender: '',
+        gender: '',
         password: ''
     });
     const [errorMessage, setErrorMessage] = useState("");
@@ -60,8 +60,12 @@ const SignUp = ({ setUser }) => {
             setStep(4)
         };
 
-        if(step === 4 && params.password) {
+        if(step === 4 && params.gender) {
+
             setStep(5)
+        }
+
+        if(step === 5 && params.password){
             handleSignUp();
         }
 
@@ -86,9 +90,26 @@ const SignUp = ({ setUser }) => {
             if (response.ok){
                 console.log("User's input values: ", userData);
                 console.log("JWT Token: ", data.jwt);
-                setUser({ fullName: fullName });
+                
                 localStorage.setItem('jwtToken', data.jwt);
-                navigate('/');
+
+                const token = data.jwt;
+                const profileResponse = await fetch('http://localhost:8080/api/users/profile', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+    
+                if (profileResponse.ok) {
+                    const profileData = await profileResponse.json();
+                    setUser(profileData);
+                    navigate('/'); 
+                } else {
+                    setErrorMessage("Failed to fetch profile data after login.");
+                }
+                
             } else {
                 setErrorMessage(data.message || 'Sign up failed email address already used :(');
             }
@@ -190,7 +211,7 @@ const SignUp = ({ setUser }) => {
 
                 )}
 
-                {/* {step === 4 && (
+                {step === 4 && (
 
                     <>
                         <h1 className="text-3xl font-extrabold text-gray-700">How would you like to be addressed?</h1>
@@ -199,40 +220,40 @@ const SignUp = ({ setUser }) => {
                             <div 
                                 className="flex justify-betwween items-center py-4 px-6 hover:bg-gray-300 rounded-[20px] border-b cursor-pointer"
                                 onClick={() => {
-                                    setParams({ ...params, gender: 'female'});
+                                    setParams({ ...params, gender: 'FEMALE'});
                                     setStep(step + 1);
                                 }}
                             >
-                                <span className="w-[32rem] font-bold text-gray-700">Mrs. / Ms.</span>
+                                <span className="w-[32rem] font-bold text-gray-700">FEMALE</span>
                                 <span>&#8250;</span>
                             </div>
 
                             <div 
                                 className="flex justify-betwween items-center py-4 px-6 hover:bg-gray-300 rounded-[20px] border-b cursor-pointer"
                                 onClick={() => { 
-                                    setParams({ ...params, gender: 'male'});
+                                    setParams({ ...params, gender: 'MALE'});
                                     setStep(step + 1);
                                 }}
                             >
-                                <span className="w-[32rem] font-bold text-gray-700">Mr.</span>
+                                <span className="w-[32rem] font-bold text-gray-700">MALE</span>
                                 <span>&#8250;</span>
                             </div>
 
                             <div 
                                 className="flex justify-betwween items-center py-4 px-6 hover:bg-gray-300 rounded-[20px] border-b cursor-pointer"
                                 onClick={() => {
-                                    setParams({ ...params, gender: 'neither'});
+                                    setParams({ ...params, gender: 'NOT_SPECIFIED'});
                                     setStep(step + 1);
                                 }}
                             >
-                                <span className="w-[32rem] font-bold text-gray-700">I'd rather not say</span>
+                                <span className="w-[32rem] font-bold text-gray-700">NOT SPECIFIED</span>
                                 <span>&#8250;</span>
                             </div>
                         </div>
                     </>
-                )} */}
+                )}
 
-                {step === 4 && (
+                {step === 5 && (
 
                     <>
                         <h1 className="text-xl md:text-3xl font-extrabold text-gray-700 mb-10">Define your password</h1>
