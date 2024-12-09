@@ -32,8 +32,6 @@ public class Trip {
                     column = @Column(name = "leaving_from_location")),
             @AttributeOverride(name = "departureTime",
                     column = @Column(name = "leaving_from_departure_time")),
-            @AttributeOverride(name = "arrivalTime",
-                    column = @Column(name = "leaving_from_arrival_time")),
             @AttributeOverride(name = "latitude",
                     column = @Column(name = "leaving_from_latitude")),
             @AttributeOverride(name = "longitude",
@@ -47,8 +45,6 @@ public class Trip {
                     column = @Column(name = "going_to_name")),
             @AttributeOverride(name = "location",
                     column = @Column(name = "going_to_location")),
-            @AttributeOverride(name = "departureTime",
-                    column = @Column(name = "going_to_departure_time")),
             @AttributeOverride(name = "arrivalTime",
                     column = @Column(name = "going_to_arrival_time")),
             @AttributeOverride(name = "latitude",
@@ -76,9 +72,6 @@ public class Trip {
     @ManyToMany
     private Set<User> passengers = new HashSet<>();
 
-
-    @ElementCollection
-    private List<Station> stations;
 
     @Convert(converter = DurationToIntervalConverter.class)
     private Duration duration;

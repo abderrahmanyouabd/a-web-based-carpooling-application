@@ -1,6 +1,7 @@
 package com.chay.CarPooling.service;
 
 import com.chay.CarPooling.model.User;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @author: Abderrahman Youabd aka: A1ST
@@ -10,4 +11,5 @@ public interface TrackingService {
 
     String updateDriverLocation(User driver, String ipAddress);
     User findDriverById(Long driverId);
+    String getClientIp(HttpServletRequest request);
 }

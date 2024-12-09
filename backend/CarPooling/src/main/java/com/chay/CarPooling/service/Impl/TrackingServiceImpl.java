@@ -3,6 +3,7 @@ package com.chay.CarPooling.service.Impl;
 import com.chay.CarPooling.model.User;
 import com.chay.CarPooling.repository.UserRepository;
 import com.chay.CarPooling.service.TrackingService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,15 @@ public class TrackingServiceImpl implements TrackingService {
     public User findDriverById(Long driverId) {
         return userRepository.findById(driverId)
                 .orElseThrow(() -> new IllegalArgumentException("Driver not found"));
+    }
+
+    @Override
+    public String getClientIp(HttpServletRequest request) {
+        String clientIp = request.getHeader("X-Forwarded-For");
+        if (clientIp == null || clientIp.isEmpty() || "unknown".equalsIgnoreCase(clientIp)) {
+            clientIp = request.getRemoteAddr();
+        }
+        return clientIp;
     }
 
 

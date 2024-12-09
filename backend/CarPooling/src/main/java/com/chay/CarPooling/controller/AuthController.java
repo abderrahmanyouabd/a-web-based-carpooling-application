@@ -14,7 +14,9 @@ import com.chay.CarPooling.response.AuthResponse;
 import com.chay.CarPooling.service.FareCalculationService;
 import com.chay.CarPooling.service.Impl.CustomeUserServiceImplementation;
 import com.chay.CarPooling.service.PasswordResetTokenService;
+import com.chay.CarPooling.service.TrackingService;
 import com.chay.CarPooling.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ExpressionException;
@@ -49,7 +51,7 @@ public class AuthController {
     private final CustomeUserServiceImplementation customUserDetails;
     private final UserService userService;
     private final PasswordResetTokenService passwordResetTokenService;
-    private final FareCalculationService fareCalculationService;
+    private final TrackingService trackingService;
 
 
     @PostMapping("/signup")
@@ -60,6 +62,7 @@ public class AuthController {
         String fullName = user.getFullName();
         String dateOfBirth = user.getDateOfBirth();
         Gender gender = user.getGender();
+        String clientIp = user.getCurrentIpAddress();
 
 
         User isEmailExist = userRepository.findByEmail(email);
@@ -81,6 +84,7 @@ public class AuthController {
         createdUser.setDateOfBirth(dateOfBirth);
         createdUser.setRole(UserRole.USER_ROLE);
         createdUser.setGender(gender);
+        createdUser.setStatus(true);
 
         User savedUser = userRepository.save(createdUser);
 
@@ -107,7 +111,7 @@ public class AuthController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<AuthResponse> signin(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<AuthResponse> signin(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
         String username = loginRequest.getEmail();
         String password = loginRequest.getPassword();
 
@@ -123,6 +127,12 @@ public class AuthController {
         String token = jwtProvider.generateToken(authentication);
         AuthResponse authResponse = new AuthResponse();
 
+        String clientIp = trackingService.getClientIp(request);
+
+        // todo: if last ip is not equal to current ip, send email to user saying that someone logged in to his account, is it you? if not change password.
+        User user = userRepository.findByEmail(username);
+        user.setCurrentIpAddress(clientIp);
+        userRepository.save(user);
         authResponse.setMessage("Login Success");
         authResponse.setJwt(token);
 

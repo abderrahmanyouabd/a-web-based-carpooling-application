@@ -46,7 +46,9 @@ public class TripServiceImpl implements TripService {
         }
         trip.setVehicle(vehicle);
 
-        BigDecimal suggestedFare = fareCalculationService.calculateFare2(trip);
+        // BigDecimal suggestedFare = fareCalculationService.calculateFare2(trip);
+        BigDecimal suggestedFare = fareCalculationService.calculateFareOnxx(trip);
+        System.out.println("Suggested fare: " + suggestedFare.toString());
         trip.setFarePerSeat(suggestedFare);
         // retun the updated stuff
         return tripRepository.save(trip);
@@ -125,7 +127,8 @@ public class TripServiceImpl implements TripService {
                         trip.getLeavingFrom(),
                         trip.getGoingTo(),
                         trip.getFarePerSeat(),
-                        trip.getDriver()
+                        trip.getDriver(),
+                        trip.getPassengers()
                 )).toList();
     }
 
@@ -137,7 +140,8 @@ public class TripServiceImpl implements TripService {
                         trip.getLeavingFrom(),
                         trip.getGoingTo(),
                         trip.getFarePerSeat(),
-                        trip.getDriver()
+                        trip.getDriver(),
+                        trip.getPassengers()
                 )).toList();
     }
 }
