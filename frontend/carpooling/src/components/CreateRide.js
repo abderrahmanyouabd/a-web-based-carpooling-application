@@ -133,7 +133,7 @@ const CreateRide = () => {
                 console.log("Trip created successfully: ", response.data);
                 setOpen(true);
                 setTimeout(() =>{
-                    navigate("/ride-detail", { state: { ride: response.data}});
+                    navigate(`/ride-detail/${response.data.id}`, { state: { ride: response.data}});
                 }, 3000);
             } catch (error) {
                 console.error("Error creating trip: ", error);

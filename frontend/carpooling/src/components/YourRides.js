@@ -8,7 +8,7 @@ const YourRides = () => {
     const navigate = useNavigate();
 
     const handleRideClick = (ride) => {
-        navigate("/ride-detail", {state: {ride} });
+        navigate(`/ride-detail/${ride.id}`, {state: {ride} });
     }
 
     useEffect(() => {
