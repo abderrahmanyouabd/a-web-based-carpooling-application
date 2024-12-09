@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author: Abderrahman Youabd aka: A1ST
@@ -22,4 +24,5 @@ public class TripResponse {
     private Station goingTo;
     private BigDecimal farePerSeat;
     private User driver;
+    private Set<User> passengers;
 }

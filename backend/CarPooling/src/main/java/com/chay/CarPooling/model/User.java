@@ -32,7 +32,8 @@ public class User {
     private byte[] profilePicture;
     private String dateOfBirth;
 
-    private String status;
+    // todo: Use it later to block or unblock an account
+    private boolean status;
 
     @Enumerated(EnumType.STRING)
     private Gender gender;

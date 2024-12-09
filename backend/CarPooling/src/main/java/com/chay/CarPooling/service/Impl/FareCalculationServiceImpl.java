@@ -1,8 +1,13 @@
 package com.chay.CarPooling.service.Impl;
 
+import ai.onnxruntime.OnnxTensor;
+import ai.onnxruntime.OrtEnvironment;
+import ai.onnxruntime.OrtException;
+import ai.onnxruntime.OrtSession;
 import com.chay.CarPooling.model.Trip;
 import com.chay.CarPooling.model.Vehicle;
 import com.chay.CarPooling.service.FareCalculationService;
+import com.chay.CarPooling.utils.OrtSessionManager;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -12,11 +17,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * @author: Abderrahman Youabd aka: A1ST
@@ -42,51 +50,6 @@ public class FareCalculationServiceImpl implements FareCalculationService {
         this.webClient = webClientBuilder.build();
     }
 
-//    @Override
-//    public double calculateFare(Trip trip) {
-//
-//        // real coordinates should be given in case ur testing
-//        String startLatitude = trip.getLeavingFrom().getLatitude();
-////        String startLatitude = "48.856613";
-//        String startLongitude = trip.getLeavingFrom().getLongitude();
-////        String startLongitude = "2.352222";
-//        String endLatitude = trip.getGoingTo().getLatitude();
-////        String endLatitude = "51.507351";
-//        String endLongitude = trip.getGoingTo().getLongitude();
-////        String endLongitude = "-0.127758";
-//
-//        // Fetch distance and duration using OpenRouteService
-//        double[] distanceAndDuration = getDistanceAndDurationFromAPI(startLatitude, startLongitude, endLatitude, endLongitude);
-//        double distance = distanceAndDuration[0]; // Distance in kilometers
-//        System.out.println("distance:" + distance);
-//        double duration = distanceAndDuration[1]; // Duration in minutes
-//        System.out.println("duration: " + duration);
-//
-//        // Get weather conditions for the trip origin
-////        String weatherCondition = getWeatherConditions(startLatitude, startLongitude);
-//
-//        int passengerCount = trip.getPassengers().size();
-//
-//        // Base fare components
-//        double baseFare = 5.0;
-//        double costPerKm = 0.50;
-//        double costPerMinute = 0.10;
-//
-//        // Apply a weather surcharge if it is raining
-////        if (weatherCondition.equals("Rain")) {
-////            costPerKm *= 1.1;
-////        }
-//
-//        // Calculate total fare
-//        double totalFare = baseFare + (costPerKm * distance) + (costPerMinute * duration);
-//
-//        // Distribute fare among passengers
-//        if (passengerCount > 0) {
-//            totalFare /= (passengerCount + 1);
-//        }
-//
-//        return totalFare;
-//    }
 
     public double[] getDistanceAndDurationFromAPI(String startLatitude, String startLongitude, String endLatitude, String endLongitude) {
         // Define the API URL
@@ -195,11 +158,12 @@ public class FareCalculationServiceImpl implements FareCalculationService {
         BigDecimal distance = BigDecimal.valueOf(distanceAndDuration[0])
                 .divide(BigDecimal.valueOf(1000), 2, RoundingMode.HALF_UP);
         LocalDateTime departureTime = trip.getLeavingFrom().getDepartureTime();
+        
 
         // Convert duration from seconds to a Duration object
-        Duration duration = Duration.ofSeconds((long) distanceAndDuration[1]);
+        Duration duration = Duration.ofMinutes((long) distanceAndDuration[1]);
         trip.setDuration(duration);
-
+        System.out.println("Duration: " + duration);
         // Calculate the arrival time
         LocalDateTime arrivalTime = departureTime.plus(duration);
         trip.getGoingTo().setArrivalTime(arrivalTime);
@@ -246,5 +210,44 @@ public class FareCalculationServiceImpl implements FareCalculationService {
         return finalFare;
 
     }
+
+
+
+    // I need a caluculation for the fare I will use a pkl file for the calculation start below
+    @Override
+    public BigDecimal calculateFareOnxx(Trip trip) {
+        // Define the ONNX model path
+        String modelPath = "backend/CarPooling/src/main/java/com/chay/CarPooling/utils/optimized_driving_cost_model.onnx";
+
+        // Input parameters (example values can be replaced with trip data)
+        float distance = 554f; // Assuming trip has a getDistance() method
+        float fuelPrice = 3.36f; // Assuming trip has a getFuelPrice() method
+        float fuelEfficiency = 8.0f; // Assuming trip has a getFuelEfficiency() method
+
+        try {
+            // Ensure model is loaded only once
+            OrtEnvironment env = OrtEnvironment.getEnvironment();
+            OrtSession session = OrtSessionManager.getSession(modelPath, env);
+
+            // Create input tensor
+            float[][] inputData = {{distance, fuelPrice, fuelEfficiency}};
+            try (OnnxTensor tensor = OnnxTensor.createTensor(env, inputData)) {
+                // Prepare input map
+                Map<String, OnnxTensor> inputs = Collections.singletonMap("float_input", tensor);
+
+                // Run inference
+                OrtSession.Result result = session.run(inputs);
+
+                // Extract prediction
+                float[] predictedCost = (float[]) result.get(0).getValue();
+
+                // Return the prediction as BigDecimal
+                return BigDecimal.valueOf(predictedCost[0]).setScale(2, RoundingMode.HALF_UP); // Rounded to 2 decimal places
+            }
+        } catch (OrtException e) {
+            throw new RuntimeException("Error during ONNX model inference: " + e.getMessage(), e);
+        }
+    }
+
 
 }

@@ -27,7 +27,7 @@ public class TrackingController {
 
     @PostMapping("/update-location")
     public ResponseEntity<Map<String, String>> updateDriverLocation(HttpServletRequest request, @RequestParam Long driverId) {
-        String ipAddress = getClientIp(request);
+        String ipAddress = trackingService.getClientIp(request);
         User driver = trackingService.findDriverById(driverId);
 
         String returnedIp = trackingService.updateDriverLocation(driver, ipAddress);
@@ -38,12 +38,4 @@ public class TrackingController {
         return ResponseEntity.ok(response);
     }
 
-
-    private String getClientIp(HttpServletRequest request) {
-        String clientIp = request.getHeader("X-Forwarded-For");
-        if (clientIp == null || clientIp.isEmpty() || "unknown".equalsIgnoreCase(clientIp)) {
-            clientIp = request.getRemoteAddr();
-        }
-        return clientIp;
-    }
 }
