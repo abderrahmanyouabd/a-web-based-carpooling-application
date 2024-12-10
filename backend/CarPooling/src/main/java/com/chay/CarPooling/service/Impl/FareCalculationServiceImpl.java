@@ -246,7 +246,6 @@ public class FareCalculationServiceImpl implements FareCalculationService {
                     if (outputArray.length > 0 && outputArray[0].length > 0) {
                         // Extract the value
                         float predictedCost = outputArray[0][0];
-                        System.out.println("Extracted value: " + predictedCost);
 
                         // Convert to BigDecimal and return
                         return BigDecimal.valueOf(predictedCost).setScale(2, RoundingMode.HALF_UP);

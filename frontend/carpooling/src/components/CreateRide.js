@@ -26,6 +26,10 @@ const CreateRide = () => {
         brand: '',
         gasType: ''
     });
+    const [journeyInfo, setJourneyInfo] = useState({
+        distance: 0,
+        duration: 0
+    });
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
     const token = localStorage.getItem('jwtToken');
@@ -100,7 +104,7 @@ const CreateRide = () => {
                     location: params.pickUp,
                     longitude: startCoordinates[0].toString(),
                     latitude: startCoordinates[1].toString(),
-                    departureTime: params.startTime,
+                    departureTime: params.startTime.replace('T', ' '),
                     arrivalTime: ""
                 },
                 goingTo: {
@@ -109,8 +113,10 @@ const CreateRide = () => {
                     longitude: endCoordinates[0].toString(),
                     latitude: endCoordinates[1].toString(),
                     departureTime: "",
-                    arrivalTime: "",
+                    arrivalTime: calculateArrivalTime(params.startTime, journeyInfo.duration)
                 },
+                distance: journeyInfo.distance, // for backend predicting price
+                duration: journeyInfo.duration, 
                 date: params.startTime.split("T")[0],
                 time: params.startTime.split("T")[1],
                 availableSeats: params.numberOfAvailableSeat,
@@ -119,25 +125,24 @@ const CreateRide = () => {
                 stations: []
             };
 
+            console.log("TripData: ", tripData);
             const token = localStorage.getItem('jwtToken');
 
-            console.log("Token: " + token);
-
-            try {
-                const response = await axios.post('http://localhost:8080/api/trips/create', tripData, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                console.log("Trip created successfully: ", response.data);
-                setOpen(true);
-                setTimeout(() =>{
-                    navigate(`/ride-detail/${response.data.id}`, { state: { ride: response.data}});
-                }, 3000);
-            } catch (error) {
-                console.error("Error creating trip: ", error);
-            }
+            // try {
+            //     const response = await axios.post('http://localhost:8080/api/trips/create', tripData, {
+            //         headers: {
+            //             'Authorization': `Bearer ${token}`,
+            //             'Content-Type': 'application/json'
+            //         }
+            //     });
+            //     console.log("Trip created successfully: ", response.data);
+            //     setOpen(true);
+            //     setTimeout(() =>{
+            //         navigate(`/ride-detail/${response.data.id}`, { state: { ride: response.data}});
+            //     }, 3000);
+            // } catch (error) {
+            //     console.error("Error creating trip: ", error);
+            // }
             
             
         };
@@ -245,6 +250,28 @@ const CreateRide = () => {
           }));
         }
     };
+
+    const handleJourneyInfoUpdate = (info) => {
+        setJourneyInfo(info);
+        console.log("Journey info updated: ", info);
+    };
+
+    const calculateArrivalTime = (departureTime, duration) => {
+        const departureDate = new Date(departureTime);
+
+        const [hours, minutes, seconds] = duration
+            .match(/(\d+):(\d+):(\d+)/)
+            .slice(1, 4)
+            .map(Number);
+        
+        departureDate.setHours(departureDate.getHours() + hours);
+        departureDate.setMinutes(departureDate.getMinutes() + minutes);
+        departureDate.setSeconds(departureDate.getSeconds() + seconds);
+        
+        const arrivalTime = departureDate.toISOString();
+
+        return arrivalTime.replace('.000Z', '').replace('T', ' ');
+    }
 
 
     return (
@@ -373,7 +400,11 @@ const CreateRide = () => {
 
                 <>
                     <div className="w-full max-w-3xl">
-                        <MapRouteDrawing startCoordinates={startCoordinates} endCoordinates={endCoordinates} />
+                        <MapRouteDrawing 
+                            startCoordinates={startCoordinates} 
+                            endCoordinates={endCoordinates} 
+                            journeyInfoUpdate={handleJourneyInfoUpdate}
+                        />
                     </div>
 
                     <div className="flex space-x-16 mt-5">
