@@ -104,7 +104,7 @@ const CreateRide = () => {
                     location: params.pickUp,
                     longitude: startCoordinates[0].toString(),
                     latitude: startCoordinates[1].toString(),
-                    departureTime: params.startTime.replace('T', ' '),
+                    departureTime: params.startTime,
                     arrivalTime: ""
                 },
                 goingTo: {
@@ -270,7 +270,7 @@ const CreateRide = () => {
         
         const arrivalTime = departureDate.toISOString();
 
-        return arrivalTime.replace('.000Z', '').replace('T', ' ');
+        return arrivalTime.replace('.000Z', '');
     }
 
 

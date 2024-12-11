@@ -144,10 +144,12 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition, jou
               duration: handleConvertTimeToHourMinuteAndSecond((summary.duration / 3600)), // Convert to hours and format
             });
 
-            journeyInfoUpdate({
-              distance: (summary.distance / 1000).toFixed(2), // Convert to km and format
-              duration: handleConvertTimeToHourMinuteAndSecond((summary.duration / 3600)), // Convert to hours and format
-            });
+            if (journeyInfoUpdate != null) {
+              journeyInfoUpdate({
+                distance: (summary.distance / 1000).toFixed(2), // Convert to km and format
+                duration: handleConvertTimeToHourMinuteAndSecond((summary.duration / 3600)), // Convert to hours and format
+              });
+            }  
 
           } else {
             console.error('Journey info not found in the route data.');
