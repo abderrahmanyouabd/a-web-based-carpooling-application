@@ -34,4 +34,3 @@ build/
 
 ### Ignore the model because it is too large
 *.onnx
-

@@ -128,21 +128,21 @@ const CreateRide = () => {
             console.log("TripData: ", tripData);
             const token = localStorage.getItem('jwtToken');
 
-            // try {
-            //     const response = await axios.post('http://localhost:8080/api/trips/create', tripData, {
-            //         headers: {
-            //             'Authorization': `Bearer ${token}`,
-            //             'Content-Type': 'application/json'
-            //         }
-            //     });
-            //     console.log("Trip created successfully: ", response.data);
-            //     setOpen(true);
-            //     setTimeout(() =>{
-            //         navigate(`/ride-detail/${response.data.id}`, { state: { ride: response.data}});
-            //     }, 3000);
-            // } catch (error) {
-            //     console.error("Error creating trip: ", error);
-            // }
+            try {
+                const response = await axios.post('http://localhost:8080/api/trips/create', tripData, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                console.log("Trip created successfully: ", response.data);
+                setOpen(true);
+                setTimeout(() =>{
+                    navigate(`/ride-detail/${response.data.id}`, { state: { ride: response.data}});
+                }, 3000);
+            } catch (error) {
+                console.error("Error creating trip: ", error);
+            }
             
             
         };

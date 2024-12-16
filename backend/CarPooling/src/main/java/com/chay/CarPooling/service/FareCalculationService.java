@@ -11,9 +11,9 @@ import java.math.BigDecimal;
  */
 
 public interface FareCalculationService {
-    BigDecimal calculateFare2(Trip trip);
+//    BigDecimal calculateFare2(Trip trip);
     BigDecimal calculateFareOnxx(Trip trip);
-    double[] getDistanceAndDurationFromAPI(String startLatitude, String startLongitude, String endLatitude, String endLongitude);
+//    double[] getDistanceAndDurationFromAPI(String startLatitude, String startLongitude, String endLatitude, String endLongitude);
 //    String getWeatherConditions(String latitude, String longitude);
 //    Double getGasPrice(String Latitude, String Longitude, String gasolineOrDiesel);
 

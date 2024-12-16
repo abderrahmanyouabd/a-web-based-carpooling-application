@@ -19,6 +19,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 /**
@@ -45,12 +46,7 @@ public class TripServiceImpl implements TripService {
             throw new IllegalArgumentException("User does not have a registered vehicle.");
         }
         trip.setVehicle(vehicle);
-
-        // BigDecimal suggestedFare = fareCalculationService.calculateFare2(trip);
-        BigDecimal suggestedFare = fareCalculationService.calculateFareOnxx(trip);
-        System.out.println("Suggested fare: " + suggestedFare.toString());
-        trip.setFarePerSeat(suggestedFare);
-        // retun the updated stuff
+        trip.setStatus("PENDING");
         return tripRepository.save(trip);
 
     }

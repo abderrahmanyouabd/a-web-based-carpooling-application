@@ -3,9 +3,12 @@ package com.chay.CarPooling.controller;
 import com.chay.CarPooling.model.PaymentTransaction;
 import com.chay.CarPooling.model.Trip;
 import com.chay.CarPooling.model.User;
+import com.chay.CarPooling.model.Vehicle;
 import com.chay.CarPooling.repository.PaymentTransactionRepository;
+import com.chay.CarPooling.repository.TripRepository;
 import com.chay.CarPooling.response.JoinTripResponse;
 import com.chay.CarPooling.response.TripResponse;
+import com.chay.CarPooling.service.FareCalculationService;
 import com.chay.CarPooling.service.PaymentService;
 import com.chay.CarPooling.service.TripService;
 import com.chay.CarPooling.service.UserService;
@@ -20,7 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: Abderrahman Youabd aka: A1ST
@@ -40,14 +46,16 @@ public class TripController {
     private ObjectMapper objectMapper;
 
     private final PaymentService paymentService;
+    private final FareCalculationService fareCalculationService;
     private final PaymentTransactionRepository paymentTransactionRepository;
+    private final TripRepository tripRepository;
 
 
     @PostMapping("/create")
     public ResponseEntity<Trip> createTrip(@RequestHeader("Authorization") String jwt, @RequestBody Trip trip) {
         User user = userService.findUserProfileByJwt(jwt);
-        Trip createdTrip = tripService.createTrip(trip, user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdTrip);
+        Trip savedTrip = tripService.createTrip(trip, user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedTrip);
     }
 
     @GetMapping("/{id}")
@@ -153,6 +161,40 @@ public class TripController {
         User user = userService.findUserProfileByJwt(jwt);
         List<TripResponse> createdTrips = tripService.getTripsUserCreated(user.getId());
         return ResponseEntity.ok(createdTrips);
+    }
+
+
+    @PostMapping("/calculate-fare")
+    public ResponseEntity<Map<String, BigDecimal>> calculateFare(@RequestParam Long tripId) {
+        Trip existingTrip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new IllegalArgumentException("Trip not found"));
+        if (existingTrip.getGoingTo() == null || existingTrip.getLeavingFrom() == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        BigDecimal totalFare = fareCalculationService.calculateFareOnxx(existingTrip);
+        BigDecimal farePerSeat = totalFare.divide(BigDecimal.valueOf(existingTrip.getAvailableSeats()), RoundingMode.HALF_UP);
+        existingTrip.setFarePerSeat(farePerSeat);
+        tripRepository.save(existingTrip);
+
+        Map<String, BigDecimal> response = new HashMap<>();
+        response.put("totalFare", totalFare);
+        response.put("farePerSeat", farePerSeat);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{tripId}/finalize")
+    public ResponseEntity<Trip> finalizeTrip(@PathVariable Long tripId, @RequestBody Map<String, BigDecimal> requestBody) {
+        Trip trip = tripRepository.findById(tripId)
+                .orElseThrow(() -> new IllegalArgumentException("Trip not found"));
+        if (requestBody.containsKey("farePerSeat")) {
+            BigDecimal newFarePerSeat = requestBody.get("farePerSeat");
+            trip.setFarePerSeat(newFarePerSeat);
+        }
+        trip.setStatus("CONFIRMED");
+        Trip updatedTrip = tripRepository.save(trip);
+
+        return ResponseEntity.ok(updatedTrip);
     }
 
 }
