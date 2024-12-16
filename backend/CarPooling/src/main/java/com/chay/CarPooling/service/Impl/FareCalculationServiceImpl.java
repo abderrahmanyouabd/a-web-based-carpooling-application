@@ -51,82 +51,82 @@ public class FareCalculationServiceImpl implements FareCalculationService {
     }
 
 
-    public double[] getDistanceAndDurationFromAPI(String startLatitude, String startLongitude, String endLatitude, String endLongitude) {
-        // Define the API URL
-        String apiUrl = "https://api.openrouteservice.org/v2/directions/driving-car";
-
-        // Create the request body with the coordinates
-        String requestBody = String.format("{\"coordinates\":[[%s,%s],[%s,%s]]}", startLongitude, startLatitude, endLongitude, endLatitude);
-
-        // Call the WebClient to make a POST request with the appropriate headers
-        String response = webClient.post()
-                .uri(apiUrl)
-                .header("Authorization", "Bearer " + openRouteServiceApiKey)  // Ensure that the API key is passed correctly
-                .header("Content-Type", "application/json; charset=utf-8")
-                .header("Accept", "application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8")
-                .bodyValue(requestBody) // Set the request body
-                .retrieve()
-                .bodyToMono(String.class)  // Retrieve the response as a String
-                .block();  // Block to wait for the response
-
-        // Parse the response to extract distance and duration
-        return parseDistanceAndDuration(response);
-    }
-
-//    @Override
-//    public Double getGasPrice(String latitude, String longitude, String gasolineOrDiesel) {
-//        String apiUrl = String.format("https://api.collectapi.com/gasPrice/fromCoordinates?lng=%s&lat=%s", longitude, latitude);
+//    public double[] getDistanceAndDurationFromAPI(String startLatitude, String startLongitude, String endLatitude, String endLongitude) {
+//        // Define the API URL
+//        String apiUrl = "https://api.openrouteservice.org/v2/directions/driving-car";
+//
+//        // Create the request body with the coordinates
+//        String requestBody = String.format("{\"coordinates\":[[%s,%s],[%s,%s]]}", startLongitude, startLatitude, endLongitude, endLatitude);
+//
+//        // Call the WebClient to make a POST request with the appropriate headers
 //        String response = webClient.post()
 //                .uri(apiUrl)
-//                .header("authorization", gasPriceApiKey)
+//                .header("Authorization", "Bearer " + openRouteServiceApiKey)  // Ensure that the API key is passed correctly
 //                .header("Content-Type", "application/json; charset=utf-8")
+//                .header("Accept", "application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8")
+//                .bodyValue(requestBody) // Set the request body
 //                .retrieve()
-//                .bodyToMono(String.class)
-//                .block();
+//                .bodyToMono(String.class)  // Retrieve the response as a String
+//                .block();  // Block to wait for the response
 //
-//        // Parse the response using Jackson
-//        ObjectMapper objectMapper = new ObjectMapper();
+//        // Parse the response to extract distance and duration
+//        return parseDistanceAndDuration(response);
+//    }
+
+//    @Override
+    private Double getGasPrice(String latitude, String longitude, String gasolineOrDiesel) {
+        String apiUrl = String.format("https://api.collectapi.com/gasPrice/fromCoordinates?lng=%s&lat=%s", longitude, latitude);
+        String response = webClient.post()
+                .uri(apiUrl)
+                .header("authorization", gasPriceApiKey)
+                .header("Content-Type", "application/json; charset=utf-8")
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        // Parse the response using Jackson
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            JsonNode jsonResponse = objectMapper.readTree(response);
+            JsonNode result = jsonResponse.get("result");
+
+            if ("gasoline".equalsIgnoreCase(gasolineOrDiesel)) {
+                return result.get("gasoline").asDouble();
+            } else if ("diesel".equalsIgnoreCase(gasolineOrDiesel)) {
+                return result.get("diesel").asDouble();
+            } else {
+                throw new IllegalArgumentException("Invalid fuel type. Please provide either 'gasoline' or 'diesel'.");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error parsing the gas price response: " + e.getMessage(), e);
+        }
+    }
+
+
+
+//    private double[] parseDistanceAndDuration(String apiResponse) {
 //        try {
-//            JsonNode jsonResponse = objectMapper.readTree(response);
-//            JsonNode result = jsonResponse.get("result");
+//            ObjectMapper objectMapper = new ObjectMapper();
+//            JsonNode rootNode = objectMapper.readTree(apiResponse);
 //
-//            if ("gasoline".equalsIgnoreCase(gasolineOrDiesel)) {
-//                return result.get("gasoline").asDouble();
-//            } else if ("diesel".equalsIgnoreCase(gasolineOrDiesel)) {
-//                return result.get("diesel").asDouble();
-//            } else {
-//                throw new IllegalArgumentException("Invalid fuel type. Please provide either 'gasoline' or 'diesel'.");
-//            }
+//            // Extract distance and duration from the first route summary
+//            JsonNode summaryNode = rootNode.path("routes").get(0).path("summary");
+//
+//            double distanceInMeters = summaryNode.path("distance").asDouble();
+//            double durationInSeconds = summaryNode.path("duration").asDouble();
+//
+//            // Convert distance to kilometers and duration to minutes
+//            double distanceInKm = distanceInMeters / 1000;
+//            double durationInMinutes = durationInSeconds / 60;
+//
+//            return new double[]{distanceInKm, durationInMinutes};
+//
 //        } catch (Exception e) {
-//            throw new RuntimeException("Error parsing the gas price response: " + e.getMessage(), e);
+//            throw new RuntimeException("Error parsing distance and duration from OpenRouteService response", e);
 //        }
 //    }
 
 
-
-    private double[] parseDistanceAndDuration(String apiResponse) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode rootNode = objectMapper.readTree(apiResponse);
-
-            // Extract distance and duration from the first route summary
-            JsonNode summaryNode = rootNode.path("routes").get(0).path("summary");
-
-            double distanceInMeters = summaryNode.path("distance").asDouble();
-            double durationInSeconds = summaryNode.path("duration").asDouble();
-
-            // Convert distance to kilometers and duration to minutes
-            double distanceInKm = distanceInMeters / 1000;
-            double durationInMinutes = durationInSeconds / 60;
-
-            return new double[]{distanceInKm, durationInMinutes};
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error parsing distance and duration from OpenRouteService response", e);
-        }
-    }
-
-//    // todo: I need to find a good logic before using it
 //////    https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/47.5316,21.6273/2024-10-08T10:00:00?key=RQCVCKFRKSUSAYPMRR5EKVPAA&contentType=json
 //    @Override
 //    public String getWeatherConditions(String latitude, String longitude) {
@@ -145,104 +145,104 @@ public class FareCalculationServiceImpl implements FareCalculationService {
 
 
 
-    @Override
-    public BigDecimal calculateFare2(Trip trip) {
-        String startLatitude = trip.getLeavingFrom().getLatitude();
-        String startLongitude = trip.getLeavingFrom().getLongitude();
-        String endLatitude = trip.getGoingTo().getLatitude();
-        String endLongitude = trip.getGoingTo().getLongitude();
+//    @Override
+//    public BigDecimal calculateFare2(Trip trip) {
+//        String startLatitude = trip.getLeavingFrom().getLatitude();
+//        String startLongitude = trip.getLeavingFrom().getLongitude();
+//        String endLatitude = trip.getGoingTo().getLatitude();
+//        String endLongitude = trip.getGoingTo().getLongitude();
+//
+//        double[] distanceAndDuration = getDistanceAndDurationFromAPI(startLatitude, startLongitude, endLatitude, endLongitude);
+//
+//        // todo: there is issue with endtime
+//        BigDecimal distance = BigDecimal.valueOf(distanceAndDuration[0])
+//                .divide(BigDecimal.valueOf(1000), 2, RoundingMode.HALF_UP);
+//        LocalDateTime departureTime = trip.getLeavingFrom().getDepartureTime();
+//
+//
+//        // Convert duration from seconds to a Duration object
+//        Duration duration = Duration.ofMinutes((long) distanceAndDuration[1]);
+//        trip.setDuration(duration);
+//        System.out.println("Duration: " + duration);
+//        // Calculate the arrival time
+//        LocalDateTime arrivalTime = departureTime.plus(duration);
+//        trip.getGoingTo().setArrivalTime(arrivalTime);
+//
+//        BigDecimal passengerCount = BigDecimal.valueOf(trip.getAvailableSeats());
+//
+//        Vehicle vehicle = trip.getVehicle();
+//        if (vehicle == null || vehicle.getGasType() == null) {
+//            throw new IllegalArgumentException("No vehicle or gas type found for the driver");
+//        }
+////        BigDecimal gasPrice = BigDecimal.valueOf(getGasPrice(startLatitude, endLongitude, trip.getVehicle().getGasType().name()));
+//
+//        BigDecimal fuelEfficiency = new BigDecimal("8.0"); // Assume 8 liters per 100 km
+//
+//        // Maintenance rate (cost per kilometer)
+//        BigDecimal maintenanceRate = new BigDecimal("0.05"); // $0.05 per kilometer for maintenance costs
+//
+//        // Profit margin
+//        BigDecimal profitMargin = new BigDecimal("0.10"); // 10% profit margin
+//
+//        // Step 1: Calculate fuel consumption
+//        BigDecimal fuelConsumption = distance.divide(new BigDecimal("100"), RoundingMode.HALF_UP)
+//                .multiply(fuelEfficiency);
+//
+//        // Step 2: Calculate fuel cost
+////        BigDecimal fuelCost = fuelConsumption.multiply(gasPrice);
+//        BigDecimal fuelCost = fuelConsumption.multiply(BigDecimal.ONE);
+//        // Step 3: Adjust for weather impact (commented out but can be adjusted as needed)
+//// BigDecimal adjustedFuelCost = fuelCost.multiply(weatherImpact);
+//// System.out.println("Adjusted Fuel Cost (after weather impact): " + adjustedFuelCost);
+//        BigDecimal adjustedFuelCost = fuelCost;
+//
+//        // Step 4: Calculate maintenance cost
+//        BigDecimal maintenanceCost = distance.multiply(maintenanceRate);
+//
+//        // Step 5: Calculate total cost
+//        BigDecimal totalCost = adjustedFuelCost.add(maintenanceCost);
+//
+//        BigDecimal pricePerFare = totalCost.divide(passengerCount, RoundingMode.HALF_UP)
+//                .multiply(BigDecimal.ONE.add(profitMargin));
+//
+//
+//        BigDecimal finalFare = pricePerFare.setScale(2, RoundingMode.HALF_UP);
+//        return finalFare;
+//
+//    }
 
-        double[] distanceAndDuration = getDistanceAndDurationFromAPI(startLatitude, startLongitude, endLatitude, endLongitude);
-
-        // todo: there is issue with endtime
-        BigDecimal distance = BigDecimal.valueOf(distanceAndDuration[0])
-                .divide(BigDecimal.valueOf(1000), 2, RoundingMode.HALF_UP);
-        LocalDateTime departureTime = trip.getLeavingFrom().getDepartureTime();
-        
-
-        // Convert duration from seconds to a Duration object
-        Duration duration = Duration.ofMinutes((long) distanceAndDuration[1]);
-        trip.setDuration(duration);
-        System.out.println("Duration: " + duration);
-        // Calculate the arrival time
-        LocalDateTime arrivalTime = departureTime.plus(duration);
-        trip.getGoingTo().setArrivalTime(arrivalTime);
-
-        BigDecimal passengerCount = BigDecimal.valueOf(trip.getAvailableSeats());
-
-        Vehicle vehicle = trip.getVehicle();
-        if (vehicle == null || vehicle.getGasType() == null) {
-            throw new IllegalArgumentException("No vehicle or gas type found for the driver");
-        }
-//        BigDecimal gasPrice = BigDecimal.valueOf(getGasPrice(startLatitude, endLongitude, trip.getVehicle().getGasType().name()));
-
-        BigDecimal fuelEfficiency = new BigDecimal("8.0"); // Assume 8 liters per 100 km
-
-        // Maintenance rate (cost per kilometer)
-        BigDecimal maintenanceRate = new BigDecimal("0.05"); // $0.05 per kilometer for maintenance costs
-
-        // Profit margin
-        BigDecimal profitMargin = new BigDecimal("0.10"); // 10% profit margin
-
-        // Step 1: Calculate fuel consumption
-        BigDecimal fuelConsumption = distance.divide(new BigDecimal("100"), RoundingMode.HALF_UP)
-                .multiply(fuelEfficiency);
-
-        // Step 2: Calculate fuel cost
-//        BigDecimal fuelCost = fuelConsumption.multiply(gasPrice);
-        BigDecimal fuelCost = fuelConsumption.multiply(BigDecimal.ONE);
-        // Step 3: Adjust for weather impact (commented out but can be adjusted as needed)
-// BigDecimal adjustedFuelCost = fuelCost.multiply(weatherImpact);
-// System.out.println("Adjusted Fuel Cost (after weather impact): " + adjustedFuelCost);
-        BigDecimal adjustedFuelCost = fuelCost;
-
-        // Step 4: Calculate maintenance cost
-        BigDecimal maintenanceCost = distance.multiply(maintenanceRate);
-
-        // Step 5: Calculate total cost
-        BigDecimal totalCost = adjustedFuelCost.add(maintenanceCost);
-
-        BigDecimal pricePerFare = totalCost.divide(passengerCount, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.ONE.add(profitMargin));
-
-
-        BigDecimal finalFare = pricePerFare.setScale(2, RoundingMode.HALF_UP);
-        return finalFare;
-
-    }
 
 
 
-    // I need a caluculation for the fare I will use a pkl file for the calculation start below
     @Override
     public BigDecimal calculateFareOnxx(Trip trip) {
-        // Define the ONNX model path
         String modelPath = "backend/CarPooling/src/main/java/com/chay/CarPooling/utils/optimized_driving_cost_model.onnx";
-
-        // Input parameters (example values can be replaced with trip data)
-        float distance = 554f; // Assuming trip has a getDistance() method
-        float fuelPrice = 3.36f; // Assuming trip has a getFuelPrice() method
-        float fuelEfficiency = 8.0f; // Assuming trip has a getFuelEfficiency() method
+        double fuelEfficiency = 8.0;
+        double fuelPrice = getGasPrice(trip.getLeavingFrom().getLatitude(), trip.getLeavingFrom().getLongitude(), trip.getVehicle().getGasType().name());
+        double distance = trip.getDistance();
 
         try {
-            // Ensure model is loaded only once
             OrtEnvironment env = OrtEnvironment.getEnvironment();
             OrtSession session = OrtSessionManager.getSession(modelPath, env);
 
-            // Create input tensor
-            float[][] inputData = {{distance, fuelPrice, fuelEfficiency}};
+            float[][] inputData = {{(float)distance, (float)fuelPrice, (float)fuelEfficiency}};
             try (OnnxTensor tensor = OnnxTensor.createTensor(env, inputData)) {
-                // Prepare input map
                 Map<String, OnnxTensor> inputs = Collections.singletonMap("float_input", tensor);
 
-                // Run inference
                 OrtSession.Result result = session.run(inputs);
 
-                // Extract prediction
-                float[] predictedCost = (float[]) result.get(0).getValue();
-
-                // Return the prediction as BigDecimal
-                return BigDecimal.valueOf(predictedCost[0]).setScale(2, RoundingMode.HALF_UP); // Rounded to 2 decimal places
+                Object output = result.get(0).getValue();
+                if (output instanceof float[][] outputArray) {
+                    if (outputArray.length > 0 && outputArray[0].length > 0) {
+                        float predictedCost = outputArray[0][0];
+                        System.out.println("Extracted value: " + predictedCost);
+                        return BigDecimal.valueOf(predictedCost).setScale(2, RoundingMode.HALF_UP);
+                    } else {
+                        throw new RuntimeException("ONNX model output is empty or malformed.");
+                    }
+                } else {
+                    throw new RuntimeException("Unexpected output type from ONNX model: " + output.getClass());
+                }
             }
         } catch (OrtException e) {
             throw new RuntimeException("Error during ONNX model inference: " + e.getMessage(), e);

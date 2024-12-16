@@ -1,6 +1,5 @@
 package com.chay.CarPooling.model;
 
-import com.chay.CarPooling.utils.DurationToIntervalConverter;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,10 +7,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.LocalTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -58,6 +55,9 @@ public class Trip {
     private LocalTime time;
     private Integer availableSeats;
     private BigDecimal farePerSeat;
+    private double distance;
+//    @Enumerated(EnumType.STRING)
+    private String status;
 
     private String comment;
 
@@ -72,7 +72,7 @@ public class Trip {
     @ManyToMany
     private Set<User> passengers = new HashSet<>();
 
-
-    @Convert(converter = DurationToIntervalConverter.class)
-    private Duration duration;
+    // todo: change after Ling's changes
+//    @Convert(converter = DurationToIntervalConverter.class)
+    private String duration;
 }
