@@ -115,7 +115,7 @@ const CreateRide = () => {
                     departureTime: "",
                     arrivalTime: calculateArrivalTime(params.startTime, journeyInfo.duration)
                 },
-                distance: journeyInfo.distance, // for backend predicting price
+                distance: parseFloat(journeyInfo.distance), // for backend predicting price
                 duration: journeyInfo.duration, 
                 date: params.startTime.split("T")[0],
                 time: params.startTime.split("T")[1],
