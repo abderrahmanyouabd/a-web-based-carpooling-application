@@ -91,9 +91,9 @@ public class FareCalculationServiceImpl implements FareCalculationService {
             JsonNode result = jsonResponse.get("result");
 
             if ("gasoline".equalsIgnoreCase(gasolineOrDiesel)) {
-                return result.get("gasoline").asDouble();
+                return 45.2;
             } else if ("diesel".equalsIgnoreCase(gasolineOrDiesel)) {
-                return result.get("diesel").asDouble();
+                return 53.3;
             } else {
                 throw new IllegalArgumentException("Invalid fuel type. Please provide either 'gasoline' or 'diesel'.");
             }

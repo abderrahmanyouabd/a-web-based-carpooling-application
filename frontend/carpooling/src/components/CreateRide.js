@@ -31,6 +31,7 @@ const CreateRide = () => {
         duration: 0
     });
     const [open, setOpen] = useState(false);
+    const [tripId, setTripId] = useState(null);
     const navigate = useNavigate();
     const token = localStorage.getItem('jwtToken');
 
@@ -72,6 +73,7 @@ const CreateRide = () => {
         if (step === 5 && params.numberOfAvailableSeat) {
             const vehicleExists = await isUserHasVehicle();
             if (vehicleExists){
+                await createTripAndCalculateFare();
                 setStep(7)
             } else {
                 setStep(6)
@@ -90,62 +92,112 @@ const CreateRide = () => {
                     }
                 );
                 console.log("Vehicle created successfully: ", vehicleResponse.data);
+                 
+                await createTripAndCalculateFare();
                 setStep(7);
             } catch (error) {
                 console.error("Unable to save the vehicle to the database: ", error);
             }
         }
         if (step === 7 && params.price) {
-            console.log("User's input: ", params);
-
-            const tripData = {
-                leavingFrom: {
-                    name: params.pickUp,
-                    location: params.pickUp,
-                    longitude: startCoordinates[0].toString(),
-                    latitude: startCoordinates[1].toString(),
-                    departureTime: params.startTime,
-                    arrivalTime: ""
-                },
-                goingTo: {
-                    name: params.dropOff,
-                    location: params.dropOff,
-                    longitude: endCoordinates[0].toString(),
-                    latitude: endCoordinates[1].toString(),
-                    departureTime: "",
-                    arrivalTime: calculateArrivalTime(params.startTime, journeyInfo.duration)
-                },
-                distance: parseFloat(journeyInfo.distance), // for backend predicting price
-                duration: journeyInfo.duration, 
-                date: params.startTime.split("T")[0],
-                time: params.startTime.split("T")[1],
-                availableSeats: params.numberOfAvailableSeat,
-                farePerSeat: params.price,
-                comment: "",
-                stations: []
-            };
-
-            console.log("TripData: ", tripData);
-            const token = localStorage.getItem('jwtToken');
-
             try {
-                const response = await axios.post('http://localhost:8080/api/trips/create', tripData, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
+                const finalFareData = {
+                    totalFare: params.price * params.numberOfAvailableSeat,
+                    farePerSeat: params.price,
+                };
+
+                const response = await axios.post(
+                    `http://localhost:8080/api/trips/${tripId}/finalize`,
+                    finalFareData,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
                     }
-                });
-                console.log("Trip created successfully: ", response.data);
+                );
+
+                console.log("Trip finalized successfully: ", response.data);
                 setOpen(true);
                 setTimeout(() =>{
                     navigate(`/ride-detail/${response.data.id}`, { state: { ride: response.data}});
                 }, 3000);
+
             } catch (error) {
                 console.error("Error creating trip: ", error);
             }
             
             
         };
+    }
+
+    const createTripAndCalculateFare = async () => {
+        console.log("User's input: ", params);
+
+        const tripData = {
+            leavingFrom: {
+                name: params.pickUp,
+                location: params.pickUp,
+                longitude: startCoordinates[0].toString(),
+                latitude: startCoordinates[1].toString(),
+                departureTime: params.startTime,
+                arrivalTime: ""
+            },
+            goingTo: {
+                name: params.dropOff,
+                location: params.dropOff,
+                longitude: endCoordinates[0].toString(),
+                latitude: endCoordinates[1].toString(),
+                departureTime: "",
+                arrivalTime: calculateArrivalTime(params.startTime, journeyInfo.duration)
+            },
+            distance: parseFloat(journeyInfo.distance), // for backend predicting price
+            duration: journeyInfo.duration, 
+            date: params.startTime.split("T")[0],
+            time: params.startTime.split("T")[1],
+            availableSeats: params.numberOfAvailableSeat,
+            comment: "",
+            stations: []
+        };
+
+        console.log("TripData: ", tripData);
+
+        try {
+            
+            const createTripResponse = await axios.post('http://localhost:8080/api/trips/create', tripData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const tripId = Number(createTripResponse.data.id);
+            setTripId(tripId);
+            console.log("Trip created pendening status: ", createTripResponse.data);
+
+            
+            const fareResponse = await axios.post(
+                `http://localhost:8080/api/trips/calculate-fare?tripId=${tripId}`,
+                {}, // empty object as the request body
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+            console.log("Fare Response: ", fareResponse.data);
+
+            const { totalFare, farePerSeat } = fareResponse.data;
+            console.log("Fare calaculated: ", fareResponse.data);
+
+            setParams((prevParams) => ({
+                ...prevParams,
+                price: farePerSeat
+            }));    
+            
+        } catch (error) {
+            console.error("Error creating trip: ", error);
+        }        
     }
 
     const handleVehicleChange = (e) => {

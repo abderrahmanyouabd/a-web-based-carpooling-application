@@ -141,13 +141,13 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition, jou
           if (summary) {
             setJourneyInfo({
               distance: (summary.distance / 1000).toFixed(2), // Convert to km and format
-              duration: handleConvertTimeToHourMinuteAndSecond((summary.duration / 3600)), // Convert to hours and format
+              duration: handleConvertTimeToHourMinuteAndSecond((summary.duration / 3600)),
             });
 
             if (journeyInfoUpdate != null) {
               journeyInfoUpdate({
                 distance: (summary.distance / 1000).toFixed(2), // Convert to km and format
-                duration: handleConvertTimeToHourMinuteAndSecond((summary.duration / 3600)), // Convert to hours and format
+                duration: handleConvertTimeToHourMinuteAndSecond((summary.duration / 3600)),
               });
             }  
 
@@ -232,10 +232,12 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition, jou
   }
 
   const handleConvertTimeToHourMinuteAndSecond = (time) => {
-    const hours = Math.floor(time);
-    const remainingMinutes = (time - hours) * 60;
-    const minutes = Math.round(remainingMinutes);
-    const seconds = Math.round((remainingMinutes - minutes) * 60);
+    const totalSeconds = Math.round(time * 3600);
+
+    const hours = Math.floor(totalSeconds / 3600);
+    const remainingMinutes = totalSeconds % 3600;
+    const minutes = Math.floor(remainingMinutes / 60);
+    const seconds = remainingMinutes % 60;
 
     return `${hours}:${minutes}:${seconds}`;
   }
