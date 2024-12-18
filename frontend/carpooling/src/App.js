@@ -19,6 +19,7 @@ import DriverLocationTracker from "./components/DriverLocationTracker";
 import ViewDriverLocation from "./components/ViewDriverLocation";
 import YourRides from "./components/YourRides";
 import ChatPage from "./components/communication/ChatPage";
+import RegisterVehicle from "./components/RegisterVehicle";
 
 
 const stripePromise = loadStripe('pk_test_51QIWPCEaMiQXGjyX1GMqULAWqRw5tdO5wxBQIuJ3sJyn6IJWlHx7W3qAIeBQrWepCH2hyMsP9mpJBSY617w7htKU003fDfYVGj');
@@ -47,6 +48,7 @@ const App = () => {
                         <Route path="/confirmation/ride/:rideId" element={<TripConfirmation user={user}/>} />
                         <Route path="/your-rides" element={<YourRides />} />
                         <Route path="/chat/:rideId" element={<ChatPage />} />
+                        <Route path="/register-vehicle" element={<RegisterVehicle /> } />
                     </Routes>
                 </BrowserRouter>
             </Elements>

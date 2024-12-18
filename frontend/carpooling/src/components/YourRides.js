@@ -127,7 +127,9 @@ const YourRides = () => {
                                             Arrival: {new Date(ride.goingTo.arrivalTime).toLocaleString()}
                                         </p>
                                         <p className="text-sm text-gray-500">
-                                            Price: ${ride.farePerSeat.toFixed(2)} per seat
+                                            Price: {ride.farePerSeat != null ?
+                                                `${ride.farePerSeat.toFixed(2)} per seat`
+                                                : 'Price not available'} 
                                         </p>
                                     </div>
 

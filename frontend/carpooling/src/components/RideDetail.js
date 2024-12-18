@@ -173,12 +173,12 @@ const RideDetail = () => {
                         <div>
                             <h2 className="text-lg font-bold">{ride.leavingFrom.name}</h2>
                             {/* <p className="text-gray-500 mt-1">{formattedDate(ride.leavingFrom.departureTime)}</p> */}
-                            <p className="text-gray-500 mt-1">10:00</p>
+                            <p className="text-gray-500 mt-1">{formattedDate(ride.leavingFrom.departureTime)}</p>
                         </div>
                         <div>
                             <h2 className="text-lg font-bold">{ride.goingTo.name}</h2>
                             {/* <p className="text-gray-500 mt-1">{formattedDate(ride.goingTo.arrivalTime)}</p> */}
-                            <p className="text-gray-500 mt-1">12:00</p>
+                            <p className="text-gray-500 mt-1">{formattedDate(ride.goingTo.arrivalTime)}</p>
                         </div>
                     </div>
                 </div>
@@ -320,12 +320,12 @@ const RideDetail = () => {
                         <div>
                             <h2 className="text-sm font-bold">{ride.leavingFrom.name}</h2>
                             {/* <p className="text-gray-500 mt-1">{formattedDate(ride.leavingFrom.departureTime)}</p> */}
-                            <p className="text-gray-500 mt-1">10:00</p>
+                            <p className="text-gray-500 mt-1">{formattedDate(ride.leavingFrom.departureTime)}</p>
                         </div>
                         <div>
                             <h2 className="text-sm font-bold">{ride.goingTo.name}</h2>
                             {/* <p className="text-gray-500 mt-1">{formattedDate(ride.goingTo.arrivalTime)}</p> */}
-                            <p className="text-gray-500 mt-1">12:00</p>
+                            <p className="text-gray-500 mt-1">{formattedDate(ride.goingTo.arrivalTime)}</p>
                         </div>
                     </div>    
 

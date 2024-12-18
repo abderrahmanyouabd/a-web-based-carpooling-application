@@ -122,6 +122,16 @@ const MenuBar = ({ setUser, user }) => {
                                     </Link>
                                 </li>
                                 <li>
+                                    <Link
+                                        to="/register-vehicle"
+                                        onClick={toggleDesktopMenu}
+                                        className="block px-4 py-2 text-gray-700 hover:bg-blue-500 hover:text-white rounded"
+                                    >
+                                        Register Vehicle
+                                    </Link>
+                                </li>
+
+                                <li>
                                     <button
                                         onClick={handleLogout}
                                         className="w-full text-left px-4 py-2 text-gray-700 hover:bg-blue-500 hover:text-white rounded"
