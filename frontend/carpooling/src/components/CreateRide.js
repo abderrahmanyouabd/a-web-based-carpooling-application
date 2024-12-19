@@ -205,8 +205,17 @@ const CreateRide = () => {
         setVehicle(prevVehicle => ({ ...prevVehicle, [name]: value }));
     }
 
-    const handlePrevious = () => {
-        if (step > 1) setStep(step - 1);
+    const handlePrevious = async () => {
+        if (step == 7 && params.price) {
+            const vehicleExists = await isUserHasVehicle();
+            if (vehicleExists){
+                setStep(5)
+            } else {
+                setStep(6)
+            }
+        } else if (step > 1) {
+            setStep(step - 1)
+        }
     }
 
     const action = (
