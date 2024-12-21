@@ -1,5 +1,5 @@
 import React, { useEffect, useState, Fragment } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { FaCar, FaCheckCircle, FaBan, FaUserFriends, FaClock, FaShieldAlt } from "react-icons/fa";
 import { IconButton, Button, Snackbar} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
@@ -130,6 +130,16 @@ const RideDetail = () => {
         }
     }
 
+    const handleContactDriver = () => {
+        if (!token) {
+            console.log("No token found, ask user to sign in");
+            showSnackbar("Please sign in to contact driver");
+            return;
+        } else {
+            navigate(`/chat/${ride.id}`, {state: { driverName: ride.driver.fullName } });
+        }
+    };
+
     const formattedDate = (date) => date.replace("T", " "); 
 
     const formatDateToDayOfTheWeek = (dateWithTSeparator) => {
@@ -162,10 +172,12 @@ const RideDetail = () => {
                     <div className="flex flex-col space-y-8">
                         <div>
                             <h2 className="text-lg font-bold">{ride.leavingFrom.name}</h2>
+                            {/* <p className="text-gray-500 mt-1">{formattedDate(ride.leavingFrom.departureTime)}</p> */}
                             <p className="text-gray-500 mt-1">{formattedDate(ride.leavingFrom.departureTime)}</p>
                         </div>
                         <div>
                             <h2 className="text-lg font-bold">{ride.goingTo.name}</h2>
+                            {/* <p className="text-gray-500 mt-1">{formattedDate(ride.goingTo.arrivalTime)}</p> */}
                             <p className="text-gray-500 mt-1">{formattedDate(ride.goingTo.arrivalTime)}</p>
                         </div>
                     </div>
@@ -233,7 +245,7 @@ const RideDetail = () => {
                     
 
                     <div className="mt-4 text-center space-x-4">
-                        <button className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-50">
+                        <button onClick={handleContactDriver} className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-50">
                             Contact {ride.driver.fullName}
                         </button>
                         {isDriver ? (
@@ -307,10 +319,12 @@ const RideDetail = () => {
                     <div className="flex flex-col space-y-8">
                         <div>
                             <h2 className="text-sm font-bold">{ride.leavingFrom.name}</h2>
+                            {/* <p className="text-gray-500 mt-1">{formattedDate(ride.leavingFrom.departureTime)}</p> */}
                             <p className="text-gray-500 mt-1">{formattedDate(ride.leavingFrom.departureTime)}</p>
                         </div>
                         <div>
                             <h2 className="text-sm font-bold">{ride.goingTo.name}</h2>
+                            {/* <p className="text-gray-500 mt-1">{formattedDate(ride.goingTo.arrivalTime)}</p> */}
                             <p className="text-gray-500 mt-1">{formattedDate(ride.goingTo.arrivalTime)}</p>
                         </div>
                     </div>    

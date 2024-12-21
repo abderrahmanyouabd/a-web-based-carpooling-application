@@ -75,6 +75,14 @@ const Rides = () => {
         const timePart = datetime.split("T")[1];
         return timePart;
     }
+
+    const formatDuration = (duration) => {
+        const [hours, minutes, seconds] = duration.split(':').map(Number);
+        const formattedHours = hours > 0 ? `${hours} hour${hours > 1 ? 's': ''} `: '';
+        const formattedMinutes = minutes > 0 ? `${minutes} minute${minutes > 1 ? 's': ''} `: '';
+
+        return `${formattedHours}${formattedMinutes}`;
+    }
        
 
     return (
@@ -133,7 +141,14 @@ const Rides = () => {
                                                 <div className="absolute left-0 top-[-6px] w-[10px] h-[10px] rounded-full bg-teal-600"></div>
                                             </div>
 
-                                            <p className="mx-4 text-gray-500 text-sm whitespace-nowrap">{ride.duration}</p>
+                                            <p className="mx-4 text-gray-500 text-sm whitespace-nowrap">
+                                                {ride.duration != null ?
+                                                    formatDuration(ride.duration)
+                                                :
+                                                    "No time available"
+                                                }
+
+                                            </p>
 
                                             {/* Right part of the line */}
                                             <div className="flex-1 h-[2px] bg-gray-300 relative">

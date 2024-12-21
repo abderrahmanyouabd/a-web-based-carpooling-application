@@ -10,7 +10,7 @@ import { fromLonLat } from 'ol/proj';
 import { Icon, Style, Stroke } from 'ol/style';
 import GeoJSON from 'ol/format/GeoJSON';
 
-const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition }) => {
+const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition, journeyInfoUpdate }) => {
   const mapRef = useRef();
   const [map, setMap] = useState(null);
   const [baseLayer, setBaseLayer] = useState('esri');
@@ -141,8 +141,16 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition }) =
           if (summary) {
             setJourneyInfo({
               distance: (summary.distance / 1000).toFixed(2), // Convert to km and format
-              duration: (summary.duration / 3600).toFixed(2), // Convert to hours and format
+              duration: handleConvertTimeToHourMinuteAndSecond((summary.duration / 3600)),
             });
+
+            if (journeyInfoUpdate != null) {
+              journeyInfoUpdate({
+                distance: (summary.distance / 1000).toFixed(2), // Convert to km and format
+                duration: handleConvertTimeToHourMinuteAndSecond((summary.duration / 3600)),
+              });
+            }  
+
           } else {
             console.error('Journey info not found in the route data.');
           }
@@ -223,6 +231,17 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition }) =
     setIsInstructionOpen(!isInstructionOpen);
   }
 
+  const handleConvertTimeToHourMinuteAndSecond = (time) => {
+    const totalSeconds = Math.round(time * 3600);
+
+    const hours = Math.floor(totalSeconds / 3600);
+    const remainingMinutes = totalSeconds % 3600;
+    const minutes = Math.floor(remainingMinutes / 60);
+    const seconds = remainingMinutes % 60;
+
+    return `${hours}:${minutes}:${seconds}`;
+  }
+
   return (
     <div>
       <div className="mb-6 space-y-6">
@@ -253,7 +272,7 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition }) =
 
         <div className="flex items-center justify-between rounded-lg">
           <p className="font-semibold">Total Distance: <span className="font-normal">{journeyInfo.distance} km</span></p>
-          <p className="font-semibold">Total Duration: <span className="font-normal">{journeyInfo.duration} hours</span></p>
+          <p className="font-semibold">Total Duration: <span className="font-normal">{journeyInfo.duration} </span></p>
         </div>
 
         <div className="rounded-lg shadow-lg">

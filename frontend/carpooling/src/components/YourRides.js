@@ -8,7 +8,7 @@ const YourRides = () => {
     const navigate = useNavigate();
 
     const handleRideClick = (ride) => {
-        navigate("/ride-detail", {state: {ride} });
+        navigate(`/ride-detail/${ride.id}`, {state: {ride} });
     }
 
     useEffect(() => {
@@ -102,8 +102,19 @@ const YourRides = () => {
                                                 className="w-full h-full object-cover rounded-full" 
                                             />
                                         ) : (
-                                            <span className="text-gray-500 text-sm leading-none">Profile picture</span>
+                                            <img 
+                                                src={
+                                                    ride.driver.gender === "FEMALE"
+                                                        ? "https://www.pngkey.com/png/detail/297-2978655_profile-picture-default-female.png"
+                                                        : ride.driver.gender === "MALE"
+                                                            ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
+                                                            : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
+                                                }
+                                                alt="Default Profile Picture"
+                                                className="w-full h-full object-cover rounded-full"
+                                            />
                                         )}
+
                                     </div>
                                     <div className="flex-grow">
                                         <h2 className="text-lg font-semibold text-gray-800">
@@ -116,7 +127,9 @@ const YourRides = () => {
                                             Arrival: {new Date(ride.goingTo.arrivalTime).toLocaleString()}
                                         </p>
                                         <p className="text-sm text-gray-500">
-                                            Price: ${ride.farePerSeat.toFixed(2)} per seat
+                                            Price: {ride.farePerSeat != null ?
+                                                `${ride.farePerSeat.toFixed(2)} per seat`
+                                                : 'Price not available'} 
                                         </p>
                                     </div>
 
