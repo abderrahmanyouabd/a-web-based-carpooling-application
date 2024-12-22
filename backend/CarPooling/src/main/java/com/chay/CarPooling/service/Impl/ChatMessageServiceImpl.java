@@ -44,8 +44,12 @@ public class ChatMessageServiceImpl implements ChatMessageService {
 
     @Override
     public List<ChatMessage> findGroupMessages() {
-        // Assuming you have a repository or DAO to fetch messages
-        return chatMessageRepository.findByRecipientIdIsNull(); // Implement this method in your repository
+        return chatMessageRepository.findByRecipientIdIsNull();
+    }
+
+    @Override
+    public List<ChatMessage> findMessagesByRideId(Long rideId) {
+        return chatMessageRepository.findByRideId(rideId);
     }
 
 }

@@ -1,8 +1,7 @@
 package com.chay.CarPooling.controller;
 
 import com.chay.CarPooling.model.ChatUser;
-import com.chay.CarPooling.service.Impl.ChatUserService;
-import com.stripe.model.TODO;
+import com.chay.CarPooling.service.ChatUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -42,5 +41,4 @@ public class ChatUserController {
         return ResponseEntity.ok(chatUserService.findConnectedUsers());
     }
 
-//    TODO: Allow access to the chat room/endpoints only for connected and authenticated and joined the trip users.
 }

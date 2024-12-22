@@ -28,13 +28,20 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         System.out.println("STOMP endpoint '/ws' registered successfully.");
     }
 
+//    @Override
+//    public void configureMessageBroker(MessageBrokerRegistry registry) {
+//        registry.enableSimpleBroker("/topic","/queue");
+//        registry.setApplicationDestinationPrefixes("/app");
+//        registry.setUserDestinationPrefix("/user");
+//        System.out.println("Message broker configured successfully.");
+//    }
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic","/queue");
+        registry.enableSimpleBroker("/topic");
         registry.setApplicationDestinationPrefixes("/app");
-        registry.setUserDestinationPrefix("/user");
-        System.out.println("Message broker configured successfully.");
+        System.out.println("WebSocket broker configured.");
     }
+
 
     @Override
     public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
@@ -44,6 +51,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         converter.setObjectMapper(new ObjectMapper());
         converter.setContentTypeResolver(resolver);
         messageConverters.add(converter);
-        return false; // to not register the default converters
+        return false;
     }
 }

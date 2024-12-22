@@ -1,4 +1,4 @@
-package com.chay.CarPooling.service.Impl;
+package com.chay.CarPooling.service;
 
 import com.chay.CarPooling.model.ChatUser;
 

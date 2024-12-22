@@ -1,9 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import SockJS from 'sockjs-client';
 import { over } from 'stompjs';
+import {jwtDecode} from 'jwt-decode';
 
 function ChatApp() {
-    const [userId, setUserId] = useState('');
+    const { rideId } = useParams();
+    const token = localStorage.getItem('jwtToken');
+    const [userId, setUserId] = useState(null);
     const [fullName, setFullName] = useState('');
     const [connected, setConnected] = useState(false);
     const [connectedUsers, setConnectedUsers] = useState([]);
@@ -11,7 +15,6 @@ function ChatApp() {
     const messageInputRef = useRef(null);
     const stompClientRef = useRef(null);
 
-    // Auto-scroll chat to the latest message
     useEffect(() => {
         const chatMessages = document.getElementById('chat-messages');
         if (chatMessages) {
@@ -19,7 +22,11 @@ function ChatApp() {
         }
     }, [messages]);
 
-    const normalizeTimestamp = (timestamp) => new Date(timestamp).getTime();
+    useEffect(() => {
+        if (rideId && token) {
+            fetchUserDetails(rideId);
+        }
+    }, [rideId, token]);
 
     useEffect(() => {
         if (connected) {
@@ -27,11 +34,40 @@ function ChatApp() {
         }
     }, [connected]);
 
-    const connect = (e) => {
-        e.preventDefault();
-        if (!userId.trim() || !fullName.trim()) return;
+    const fetchUserDetails = async (rideId) => {
+        try {
+            const res = await fetch(`/api/trips/${rideId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
 
-        console.log('Attempting to connect...');
+            if (res.ok) {
+                const trip = await res.json();
+                const decodedToken = jwtDecode(token);
+                const user = trip.passengers.find((p) => p.email === decodedToken.email);
+                if (user) {
+                    setUserId(user.id);
+                    setFullName(user.fullName);
+                } else {
+                    console.error('Logged-in user is not part of this ride.');
+                }
+            } else {
+                console.error('Failed to fetch trip details for ride');
+            }
+        } catch (err) {
+            console.error('Error fetching trip details:', err);
+        }
+    };
+
+    const normalizeTimestamp = (timestamp) => new Date(timestamp).getTime();
+
+    const connect = () => {
+        if (!rideId || !userId) {
+            console.error('Ride ID or User ID is missing!');
+            return;
+        }
+
         const socket = new SockJS('/ws');
         const stompClient = over(socket);
         stompClientRef.current = stompClient;
@@ -40,49 +76,38 @@ function ChatApp() {
     };
 
     const onConnected = () => {
-        console.log('Connected to WebSocket');
         setConnected(true);
 
-        // Subscribe to public broadcast topic for messages and user updates
-        if (!stompClientRef.current.subscribedToPublic) {
-            stompClientRef.current.subscribe('/topic/public', (payload) => {
-                const msg = JSON.parse(payload.body);
-
-                if (msg.status) {
-                    // Handle user connection/disconnection updates
-                    fetchConnectedUsers();
-                } else {
-                    // Handle chat messages
-                    setMessages((prev) => {
-                        const isDuplicate = prev.some(
-                            (m) =>
-                                m.senderId === msg.senderId &&
-                                normalizeTimestamp(m.timestamp) === normalizeTimestamp(msg.timestamp) &&
-                                m.content === msg.content
-                        );
-                        if (!isDuplicate) {
-                            return [...prev, msg];
-                        }
-                        return prev;
-                    });
+        stompClientRef.current.subscribe(`/topic/ride/${rideId}`, (payload) => {
+            const msg = JSON.parse(payload.body);
+            setMessages((prev) => {
+                const isDuplicate = prev.some(
+                    (m) =>
+                        m.senderId === msg.senderId &&
+                        normalizeTimestamp(m.timestamp) === normalizeTimestamp(msg.timestamp) &&
+                        m.content === msg.content
+                );
+                if (!isDuplicate) {
+                    return [...prev, msg];
                 }
+                return prev;
             });
+        });
 
-            stompClientRef.current.subscribedToPublic = true;
-            console.log('Subscribed to /topic/public');
-        }
+        stompClientRef.current.subscribe('/topic/public', () => {
+            fetchConnectedUsers();
+        });
 
         stompClientRef.current.send(
             '/app/user.addUser',
             {},
             JSON.stringify({
-                chatUserId: parseInt(userId),
+                chatUserId: userId,
                 fullName: fullName,
                 status: 'ONLINE',
             })
         );
 
-        console.log('Sent user add request:', { userId, fullName });
         fetchConnectedUsers();
     };
 
@@ -92,14 +117,18 @@ function ChatApp() {
 
     const fetchConnectedUsers = async () => {
         try {
-            const res = await fetch('/connected-users');
-            if (!res.ok) {
+            const res = await fetch('/connected-users', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (res.ok) {
+                const users = await res.json();
+                setConnectedUsers(users);
+            } else {
                 console.error('Failed to fetch connected users');
-                return;
             }
-            const users = await res.json();
-            console.log('Fetched connected users:', users);
-            setConnectedUsers(users);
         } catch (err) {
             console.error('Error fetching connected users:', err);
         }
@@ -107,11 +136,19 @@ function ChatApp() {
 
     const fetchChatHistory = async () => {
         try {
-            const res = await fetch(`/messages/group`); // Assuming group chat endpoint
+            const res = await fetch(`/messages/ride/${rideId}`);
             if (res.ok) {
                 const history = await res.json();
-                console.log('Fetched chat history:', history);
-                setMessages(history);
+                setMessages((prev) => {
+                    const existingMessages = new Set(
+                        prev.map((msg) => `${msg.senderId}-${normalizeTimestamp(msg.timestamp)}-${msg.content}`)
+                    );
+                    const uniqueHistory = history.filter(
+                        (msg) =>
+                            !existingMessages.has(`${msg.senderId}-${normalizeTimestamp(msg.timestamp)}-${msg.content}`)
+                    );
+                    return [...prev, ...uniqueHistory];
+                });
             }
         } catch (err) {
             console.error('Error fetching chat history:', err);
@@ -132,14 +169,12 @@ function ChatApp() {
         }
 
         const chatMessage = {
-            senderId: parseInt(userId),
+            senderId: userId,
+            rideId,
             content,
             timestamp: new Date().toISOString(),
         };
 
-        console.log('Sending message:', chatMessage);
-
-        // Optimistically add the message to the chat UI without duplication
         setMessages((prev) => {
             const isDuplicate = prev.some(
                 (m) =>
@@ -153,124 +188,89 @@ function ChatApp() {
             return prev;
         });
 
-        stompClientRef.current.send('/app/chat', {}, JSON.stringify(chatMessage));
+        stompClientRef.current.send(`/app/chat/ride/${rideId}`, {}, JSON.stringify(chatMessage));
         messageInputRef.current.value = '';
     };
 
-    const onLogout = () => {
+    const disconnectUser = () => {
         if (stompClientRef.current) {
             stompClientRef.current.send(
                 '/app/user.disconnectUser',
                 {},
                 JSON.stringify({
-                    chatUserId: parseInt(userId),
+                    chatUserId: userId,
                     fullName: fullName,
                     status: 'OFFLINE',
                 })
             );
             stompClientRef.current.disconnect();
+            setConnected(false);
         }
-        console.log('User logged out.');
-        window.location.reload();
     };
+
+    useEffect(() => {
+        return () => {
+            disconnectUser();
+        };
+    }, []);
 
     return (
         <div style={{ width: '80%', margin: '20px auto', fontFamily: 'Arial, sans-serif' }}>
-            {!connected && (
-                <div style={{ border: '1px solid #ccc', padding: 16, borderRadius: 4 }}>
-                    <h2>Enter Chatroom</h2>
-                    <form onSubmit={connect}>
-                        <label>User ID:</label>
-                        <input
-                            type="number"
-                            required
-                            value={userId}
-                            onChange={(e) => setUserId(e.target.value)}
-                            style={{ width: '100%', padding: 8, marginTop: 4 }}
-                        />
-                        <label>Real Name:</label>
-                        <input
-                            type="text"
-                            required
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                            style={{ width: '100%', padding: 8, marginTop: 4 }}
-                        />
-                        <button
-                            type="submit"
-                            style={{ marginTop: 16, width: '100%', padding: 10, cursor: 'pointer' }}
-                        >
-                            Enter Chatroom
-                        </button>
-                    </form>
-                </div>
-            )}
-
-            {connected && (
-                <div
-                    style={{
-                        display: 'flex',
-                        height: '60vh',
-                        border: '1px solid #ccc',
-                        padding: 16,
-                        borderRadius: 4,
-                        marginTop: 20,
-                    }}
-                >
-                    <div style={{ width: '25%', borderRight: '1px solid #ccc', overflowY: 'auto' }}>
+            {connected ? (
+                <div style={{ display: 'flex', height: '80vh', border: '1px solid #ccc', borderRadius: '8px', overflow: 'hidden' }}>
+                    <div style={{ width: '25%', background: '#f7f7f7', padding: '16px', borderRight: '1px solid #ccc', overflowY: 'auto' }}>
                         <h3>Online Users</h3>
-                        <ul style={{ listStyle: 'none', padding: 0 }}>
+                        <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
                             {connectedUsers.map((user) => (
                                 <li
                                     key={user.chatUserId}
                                     style={{
-                                        padding: '8px',
-                                        borderBottom: '1px solid #efefef',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        background: 'transparent',
+                                        padding: '10px',
+                                        borderBottom: '1px solid #ddd',
                                     }}
                                 >
                                     <img
-                                        src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
+                                        src={`https://api.dicebear.com/9.x/pixel-art/svg`}
                                         alt={user.fullName}
-                                        style={{ width: 30, height: 30, marginRight: 8 }}
+                                        style={{ width: '40px', height: '40px', borderRadius: '50%', marginRight: '10px' }}
                                     />
                                     <span>{user.fullName}</span>
                                 </li>
                             ))}
                         </ul>
-
-                        <p style={{ marginTop: 16 }}>{fullName}</p>
                         <button
-                            onClick={onLogout}
+                            onClick={disconnectUser}
                             style={{
+                                marginTop: '16px',
+                                width: '100%',
+                                padding: '10px',
                                 backgroundColor: '#e74c3c',
                                 color: '#fff',
-                                padding: '8px 12px',
                                 border: 'none',
-                                borderRadius: 4,
+                                borderRadius: '4px',
                                 cursor: 'pointer',
                             }}
                         >
-                            Logout
+                            Disconnect
                         </button>
                     </div>
 
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                        <div
-                            id="chat-messages"
-                            style={{ flex: 1, overflowY: 'auto', background: '#fafafa', padding: 16 }}
-                        >
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#fff' }}>
+                        <div id="chat-messages" style={{ flex: 1, overflowY: 'auto', padding: '16px', background: '#fafafa' }}>
                             {messages.map((msg, index) => {
-                                const isMe = msg.senderId === parseInt(userId);
+                                const isMe = msg.senderId === userId;
+                                const senderName = isMe
+                                    ? 'Me'
+                                    : connectedUsers.find((user) => user.chatUserId === msg.senderId)?.fullName || `User ${msg.senderId}`;
                                 return (
                                     <div
                                         key={index}
                                         style={{
-                                            margin: 10,
-                                            padding: 10,
-                                            borderRadius: 8,
+                                            margin: '10px',
+                                            padding: '10px',
+                                            borderRadius: '8px',
                                             maxWidth: '60%',
                                             wordWrap: 'break-word',
                                             backgroundColor: isMe ? '#cce5ff' : '#f2f2f2',
@@ -279,30 +279,57 @@ function ChatApp() {
                                         }}
                                     >
                                         <p>{msg.content}</p>
-                                        <small style={{ fontSize: '10px', color: '#666' }}>
-                                            {isMe ? 'Me' : `User ${msg.senderId}`} | {new Date(msg.timestamp).toLocaleString()}
+                                        <small style={{fontSize: '10px', color: '#666'}}>
+                                            {senderName} | {new Date(msg.timestamp).toLocaleString()}
                                         </small>
                                     </div>
                                 );
                             })}
                         </div>
-
-                        <form
-                            style={{ display: 'flex', borderTop: '1px solid #ccc' }}
-                            onSubmit={sendMessage}
-                        >
+                        <form style={{display: 'flex', padding: '16px', borderTop: '1px solid #ccc' }} onSubmit={sendMessage}>
                             <input
                                 type="text"
                                 ref={messageInputRef}
                                 placeholder="Type your message..."
-                                style={{ flex: 1, padding: 8 }}
+                                style={{
+                                    flex: 1,
+                                    padding: '10px',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '4px',
+                                    marginRight: '10px',
+                                }}
                             />
-                            <button type="submit" style={{ padding: '8px 16px', cursor: 'pointer' }}>
+                            <button
+                                type="submit"
+                                style={{
+                                    padding: '10px 16px',
+                                    backgroundColor: '#4CAF50',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                }}
+                            >
                                 Send
                             </button>
                         </form>
                     </div>
                 </div>
+            ) : (
+                <button
+                    onClick={connect}
+                    style={{
+                        padding: '10px 20px',
+                        fontSize: '16px',
+                        color: '#fff',
+                        backgroundColor: '#007BFF',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer',
+                    }}
+                >
+                    Connect to Ride Chat
+                </button>
             )}
         </div>
     );

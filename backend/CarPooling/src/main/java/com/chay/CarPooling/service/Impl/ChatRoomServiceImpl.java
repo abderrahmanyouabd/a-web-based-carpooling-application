@@ -33,7 +33,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     }
 
     private String createChat(Long senderId, Long recipientId) {
-        var chatId = String.format("%d_%d", senderId, recipientId); // 123_428
+        var chatId = String.format("%d_%d", senderId, recipientId);
         ChatRoom senderRecipient = ChatRoom.builder()
                 .ChatId(chatId)
                 .senderId(senderId)

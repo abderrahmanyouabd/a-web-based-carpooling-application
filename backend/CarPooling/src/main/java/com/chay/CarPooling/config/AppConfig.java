@@ -34,7 +34,7 @@ public class AppConfig {
         http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(Authorize -> Authorize
                                 .requestMatchers("/api/trips/search").permitAll()
-                        .requestMatchers("/ws/**", "/messages/**", "/connected-users/**").permitAll()
+                        .requestMatchers("/ws/**", "/messages/**", "/connected-users/**").permitAll() // TODO Block those later after testing
                         .requestMatchers("/api/**").authenticated()
                                 .anyRequest().permitAll()
                 )

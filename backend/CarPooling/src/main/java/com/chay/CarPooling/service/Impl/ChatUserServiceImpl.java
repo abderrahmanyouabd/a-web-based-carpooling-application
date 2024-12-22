@@ -3,10 +3,10 @@ package com.chay.CarPooling.service.Impl;
 import com.chay.CarPooling.domain.UserStatus;
 import com.chay.CarPooling.model.ChatUser;
 import com.chay.CarPooling.repository.ChatUserRepository;
+import com.chay.CarPooling.service.ChatUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

@@ -12,5 +12,6 @@ public interface ChatMessageService {
     ChatMessage save(ChatMessage chatMessage);
     List<ChatMessage> findChatMessages(Long senderId, Long recipientId);
     List<ChatMessage> findGroupMessages();
+    List<ChatMessage> findMessagesByRideId(Long rideId);
 
 }

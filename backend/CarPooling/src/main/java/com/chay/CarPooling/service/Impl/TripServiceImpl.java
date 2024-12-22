@@ -3,6 +3,7 @@ package com.chay.CarPooling.service.Impl;
 import com.chay.CarPooling.model.Trip;
 import com.chay.CarPooling.model.User;
 import com.chay.CarPooling.model.Vehicle;
+import com.chay.CarPooling.repository.ChatUserRepository;
 import com.chay.CarPooling.repository.TripRepository;
 import com.chay.CarPooling.response.TripResponse;
 import com.chay.CarPooling.service.FareCalculationService;
@@ -34,6 +35,7 @@ public class TripServiceImpl implements TripService {
     private final TripRepository tripRepository;
     private final FareCalculationService fareCalculationService;
     private final PaymentService paymentService;
+    private final ChatUserRepository chatUserRepository;
 
 
     @Override
@@ -74,6 +76,7 @@ public class TripServiceImpl implements TripService {
         // Update trip details: reduce available seats and add the user
         trip.setAvailableSeats(trip.getAvailableSeats() - 1);
         trip.getPassengers().add(user);
+
 
         // Save and return the updated trip
         tripRepository.save(trip);
