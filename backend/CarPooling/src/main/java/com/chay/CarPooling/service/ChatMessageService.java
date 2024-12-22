@@ -11,4 +11,6 @@ import java.util.List;
 public interface ChatMessageService {
     ChatMessage save(ChatMessage chatMessage);
     List<ChatMessage> findChatMessages(Long senderId, Long recipientId);
+    List<ChatMessage> findGroupMessages();
+
 }

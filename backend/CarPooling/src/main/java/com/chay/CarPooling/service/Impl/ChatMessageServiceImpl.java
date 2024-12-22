@@ -41,4 +41,11 @@ public class ChatMessageServiceImpl implements ChatMessageService {
                 false);
         return chatId.map(chatMessageRepository::findByChatId).orElse(new ArrayList<>());
     }
+
+    @Override
+    public List<ChatMessage> findGroupMessages() {
+        // Assuming you have a repository or DAO to fetch messages
+        return chatMessageRepository.findByRecipientIdIsNull(); // Implement this method in your repository
+    }
+
 }
