@@ -23,14 +23,15 @@ public class ChatUserController {
     private final ChatUserService chatUserService;
 
     @MessageMapping("/user.addUser")
-    @SendTo("/user/topic")
+    @SendTo("/topic/public")
     public ChatUser addChatUser(@Payload ChatUser user) {
+        System.out.println("User added: " + user);
         chatUserService.saveChatUser(user);
         return user;
     }
 
     @MessageMapping("/user.disconnectUser")
-    @SendTo("/user/topic")
+    @SendTo("/topic/public")
     public ChatUser disconnectChatUser(@Payload ChatUser user) {
         chatUserService.disconnectChatUser(user);
         return user;
