@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import SockJS from 'sockjs-client';
 import { over } from 'stompjs';
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 function ChatApp() {
     const { rideId } = useParams();
@@ -78,6 +78,7 @@ function ChatApp() {
     const onConnected = () => {
         setConnected(true);
 
+        // Subscribe to ride-specific chat topic
         stompClientRef.current.subscribe(`/topic/ride/${rideId}`, (payload) => {
             const msg = JSON.parse(payload.body);
             setMessages((prev) => {
@@ -94,10 +95,12 @@ function ChatApp() {
             });
         });
 
+        // Subscribe to public topic for user status updates
         stompClientRef.current.subscribe('/topic/public', () => {
             fetchConnectedUsers();
         });
 
+        // Notify server of user connection
         stompClientRef.current.send(
             '/app/user.addUser',
             {},
@@ -218,6 +221,7 @@ function ChatApp() {
         <div style={{ width: '80%', margin: '20px auto', fontFamily: 'Arial, sans-serif' }}>
             {connected ? (
                 <div style={{ display: 'flex', height: '80vh', border: '1px solid #ccc', borderRadius: '8px', overflow: 'hidden' }}>
+                    {/* Sidebar */}
                     <div style={{ width: '25%', background: '#f7f7f7', padding: '16px', borderRight: '1px solid #ccc', overflowY: 'auto' }}>
                         <h3>Online Users</h3>
                         <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
@@ -257,6 +261,7 @@ function ChatApp() {
                         </button>
                     </div>
 
+                    {/* Main Chat */}
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#fff' }}>
                         <div id="chat-messages" style={{ flex: 1, overflowY: 'auto', padding: '16px', background: '#fafafa' }}>
                             {messages.map((msg, index) => {
@@ -279,14 +284,14 @@ function ChatApp() {
                                         }}
                                     >
                                         <p>{msg.content}</p>
-                                        <small style={{fontSize: '10px', color: '#666'}}>
+                                        <small style={{ fontSize: '10px', color: '#666' }}>
                                             {senderName} | {new Date(msg.timestamp).toLocaleString()}
                                         </small>
                                     </div>
                                 );
                             })}
                         </div>
-                        <form style={{display: 'flex', padding: '16px', borderTop: '1px solid #ccc' }} onSubmit={sendMessage}>
+                        <form style={{ display: 'flex', padding: '16px', borderTop: '1px solid #ccc' }} onSubmit={sendMessage}>
                             <input
                                 type="text"
                                 ref={messageInputRef}

@@ -21,6 +21,7 @@ import YourRides from "./components/YourRides";
 import ChatPage from "./components/communication/ChatPage";
 import RegisterVehicle from "./components/RegisterVehicle";
 import ChatApp from "./components/communication/ChatApp";
+import NotificationListener from "./components/communication/NotificationListener";
 
 
 const stripePromise = loadStripe('pk_test_51QIWPCEaMiQXGjyX1GMqULAWqRw5tdO5wxBQIuJ3sJyn6IJWlHx7W3qAIeBQrWepCH2hyMsP9mpJBSY617w7htKU003fDfYVGj');
@@ -32,7 +33,8 @@ const App = () => {
         <div>
             <Elements stripe={stripePromise}>
                 <BrowserRouter>
-                    <MenuBar setUser={setUser} user={user} />
+                    <NotificationListener user={user} />
+                    <MenuBar setUser={setUser} user={user}  />
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/create-ride" element={<CreateRide user={user}/>} />

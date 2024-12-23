@@ -2,6 +2,7 @@ package com.chay.CarPooling.controller;
 
 import com.chay.CarPooling.model.ChatMessage;
 import com.chay.CarPooling.service.ChatMessageService;
+import com.chay.CarPooling.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -25,6 +26,7 @@ public class ChatController {
     private final ChatMessageService chatMessageService;
     private final SimpMessagingTemplate messagingTemplate;
     private final SimpUserRegistry simpUserRegistry;
+    private final NotificationService notificationService;
 
     @MessageMapping("/chat")
     public void processGroupMessage(@Payload ChatMessage chatMessage) {
@@ -60,6 +62,11 @@ public class ChatController {
         System.out.println("Message content: " + savedMessage);
         messagingTemplate.convertAndSend("/topic/ride/" + rideId, savedMessage);
         System.out.println("Broadcasted message to /topic/ride/" + rideId);
+
+        // Send a notification to all users in the ride
+        String notificationMessage = "New message in ride " + rideId + ": " + savedMessage.getContent();
+        notificationService.sendNotificationToRide(rideId, notificationMessage, savedMessage.getSenderId());
+        System.out.println("Notification sent to /topic/notification/" + rideId);
     }
 
 
