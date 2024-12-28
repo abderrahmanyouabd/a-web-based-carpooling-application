@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
+// Your imports
 import Home from "./components/Home";
 import SignIn from "./components/SignIn";
 import SignUp from "./components/SignUp";
@@ -18,13 +19,14 @@ import TripConfirmation from "./components/TripConfirmation";
 import DriverLocationTracker from "./components/DriverLocationTracker";
 import ViewDriverLocation from "./components/ViewDriverLocation";
 import YourRides from "./components/YourRides";
-import ChatPage from "./components/communication/ChatPage";
 import RegisterVehicle from "./components/RegisterVehicle";
 import ChatApp from "./components/communication/ChatApp";
 import NotificationListener from "./components/communication/NotificationListener";
 
+// 1) Import your WebSocketProvider
+import { WebSocketProvider } from "./components/communication/WebSocketProvider";
 
-const stripePromise = loadStripe('pk_test_51QIWPCEaMiQXGjyX1GMqULAWqRw5tdO5wxBQIuJ3sJyn6IJWlHx7W3qAIeBQrWepCH2hyMsP9mpJBSY617w7htKU003fDfYVGj');
+const stripePromise = loadStripe("pk_test_51QIWPCEaMiQXGjyX1GMqULAWqRw5tdO5wxBQIuJ3sJyn6IJWlHx7W3qAIeBQrWepCH2hyMsP9mpJBSY617w7htKU003fDfYVGj");
 
 const App = () => {
     const [user, setUser] = useState(null);
@@ -33,34 +35,36 @@ const App = () => {
         <div>
             <Elements stripe={stripePromise}>
                 <BrowserRouter>
-                    <NotificationListener user={user} />
-                    <MenuBar setUser={setUser} user={user}  />
-                    <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/create-ride" element={<CreateRide user={user}/>} />
-                        <Route path="/rides" element={<Rides />} />
-                        <Route path="/ride-detail/:rideId" element={<RideDetail user={user} />} />
-                        <Route path="/signin" element={<SignIn setUser={setUser} />} />
-                        <Route path="/signin/forgot-password" element={<ForgotPassword />} />
-                        <Route path="/account/reset-password" element={<ResetPassword />} />
-                        <Route path="/signup" element={<SignUp setUser={setUser} />} />
-                        <Route path="/profile" element={<Profile setUser={setUser}/>} />
-                        <Route path="/track-driver-location/:rideId" element={<DriverLocationTracker /> } />
-                        <Route path="/view-driver-location/:rideId" element={<ViewDriverLocation />} />
-                        <Route path="/payment" element={<PaymentForm /> } />
-                        <Route path="/confirmation/ride/:rideId" element={<TripConfirmation user={user}/>} />
-                        <Route path="/your-rides" element={<YourRides />} />
-                        <Route path="/chat/:rideId" element={<ChatApp />} />
-                        <Route path="/register-vehicle" element={<RegisterVehicle /> } />
-                    </Routes>
+                    {/* 2) Wrap your app in WebSocketProvider to have ONE connection */}
+                    <WebSocketProvider user={user}>
+                        {/* 3) If you want ride notifications system-wide, keep NotificationListener */}
+                        <NotificationListener user={user} />
+
+                        <MenuBar setUser={setUser} user={user} />
+
+                        <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/create-ride" element={<CreateRide user={user} />} />
+                            <Route path="/rides" element={<Rides />} />
+                            <Route path="/ride-detail/:rideId" element={<RideDetail user={user} />} />
+                            <Route path="/signin" element={<SignIn setUser={setUser} />} />
+                            <Route path="/signin/forgot-password" element={<ForgotPassword />} />
+                            <Route path="/account/reset-password" element={<ResetPassword />} />
+                            <Route path="/signup" element={<SignUp setUser={setUser} />} />
+                            <Route path="/profile" element={<Profile setUser={setUser} />} />
+                            <Route path="/track-driver-location/:rideId" element={<DriverLocationTracker />} />
+                            <Route path="/view-driver-location/:rideId" element={<ViewDriverLocation />} />
+                            <Route path="/payment" element={<PaymentForm />} />
+                            <Route path="/confirmation/ride/:rideId" element={<TripConfirmation user={user} />} />
+                            <Route path="/your-rides" element={<YourRides />} />
+                            <Route path="/chat/:rideId" element={<ChatApp />} />
+                            <Route path="/register-vehicle" element={<RegisterVehicle />} />
+                        </Routes>
+                    </WebSocketProvider>
                 </BrowserRouter>
             </Elements>
         </div>
     );
-}
+};
 
 export default App;
-
-
-
-

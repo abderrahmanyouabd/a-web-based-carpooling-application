@@ -1,20 +1,22 @@
+// ChatApp.js
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import SockJS from 'sockjs-client';
-import { over } from 'stompjs';
-import { jwtDecode } from 'jwt-decode';
+import { useWebSocket } from './WebSocketProvider';
+import {jwtDecode} from 'jwt-decode';
 
 function ChatApp() {
     const { rideId } = useParams();
     const token = localStorage.getItem('jwtToken');
+    const { stompClient, isConnected } = useWebSocket();
+
     const [userId, setUserId] = useState(null);
     const [fullName, setFullName] = useState('');
-    const [connected, setConnected] = useState(false);
-    const [connectedUsers, setConnectedUsers] = useState([]);
     const [messages, setMessages] = useState([]);
-    const messageInputRef = useRef(null);
-    const stompClientRef = useRef(null);
+    const [connectedUsers, setConnectedUsers] = useState([]);
 
+    const messageInputRef = useRef(null);
+
+    // Keep chat scrolled to bottom on new messages
     useEffect(() => {
         const chatMessages = document.getElementById('chat-messages');
         if (chatMessages) {
@@ -22,17 +24,56 @@ function ChatApp() {
         }
     }, [messages]);
 
+    // 1. Fetch user details (from the ride) when rideId or token changes
     useEffect(() => {
         if (rideId && token) {
             fetchUserDetails(rideId);
         }
     }, [rideId, token]);
 
+    // 2. Once connected to WebSocket, subscribe to the ride topic & fetch chat history
     useEffect(() => {
-        if (connected) {
+        if (isConnected && stompClient && rideId && userId) {
+            // Subscribe to ride specific chat topic
+            const subscription = stompClient.subscribe(`/topic/ride/${rideId}`, (payload) => {
+                const msg = JSON.parse(payload.body);
+                setMessages((prev) => {
+                    const isDuplicate = prev.some(
+                        (m) =>
+                            m.senderId === msg.senderId &&
+                            normalizeTimestamp(m.timestamp) === normalizeTimestamp(msg.timestamp) &&
+                            m.content === msg.content
+                    );
+                    return isDuplicate ? prev : [...prev, msg];
+                });
+            });
+
+            // Fetch current list of connected users
+            fetchConnectedUsers();
+
+            // Fetch chat history
             fetchChatHistory();
+
+            // Cleanup subscription when unmounting
+            return () => {
+                subscription.unsubscribe();
+            };
         }
-    }, [connected]);
+    }, [isConnected, stompClient, rideId, userId]);
+
+    // 3. Subscribe to /topic/public so we refresh connected users
+    //    whenever someone logs in or out globally.
+    useEffect(() => {
+        if (isConnected && stompClient) {
+            const publicSub = stompClient.subscribe('/topic/public', () => {
+                // Whenever the server announces a user add/remove, re-fetch
+                fetchConnectedUsers();
+            });
+            return () => publicSub.unsubscribe();
+        }
+    }, [isConnected, stompClient]);
+
+    const normalizeTimestamp = (timestamp) => new Date(timestamp).getTime();
 
     const fetchUserDetails = async (rideId) => {
         try {
@@ -41,11 +82,10 @@ function ChatApp() {
                     Authorization: `Bearer ${token}`,
                 },
             });
-
             if (res.ok) {
                 const trip = await res.json();
-                const decodedToken = jwtDecode(token);
-                const user = trip.passengers.find((p) => p.email === decodedToken.email);
+                const decoded = jwtDecode(token);
+                const user = trip.passengers.find((p) => p.email === decoded.email);
                 if (user) {
                     setUserId(user.id);
                     setFullName(user.fullName);
@@ -60,64 +100,6 @@ function ChatApp() {
         }
     };
 
-    const normalizeTimestamp = (timestamp) => new Date(timestamp).getTime();
-
-    const connect = () => {
-        if (!rideId || !userId) {
-            console.error('Ride ID or User ID is missing!');
-            return;
-        }
-
-        const socket = new SockJS('/ws');
-        const stompClient = over(socket);
-        stompClientRef.current = stompClient;
-
-        stompClient.connect({}, onConnected, onError);
-    };
-
-    const onConnected = () => {
-        setConnected(true);
-
-        // Subscribe to ride-specific chat topic
-        stompClientRef.current.subscribe(`/topic/ride/${rideId}`, (payload) => {
-            const msg = JSON.parse(payload.body);
-            setMessages((prev) => {
-                const isDuplicate = prev.some(
-                    (m) =>
-                        m.senderId === msg.senderId &&
-                        normalizeTimestamp(m.timestamp) === normalizeTimestamp(msg.timestamp) &&
-                        m.content === msg.content
-                );
-                if (!isDuplicate) {
-                    return [...prev, msg];
-                }
-                return prev;
-            });
-        });
-
-        // Subscribe to public topic for user status updates
-        stompClientRef.current.subscribe('/topic/public', () => {
-            fetchConnectedUsers();
-        });
-
-        // Notify server of user connection
-        stompClientRef.current.send(
-            '/app/user.addUser',
-            {},
-            JSON.stringify({
-                chatUserId: userId,
-                fullName: fullName,
-                status: 'ONLINE',
-            })
-        );
-
-        fetchConnectedUsers();
-    };
-
-    const onError = (error) => {
-        console.error('Could not connect to WebSocket server:', error);
-    };
-
     const fetchConnectedUsers = async () => {
         try {
             const res = await fetch('/connected-users', {
@@ -125,9 +107,11 @@ function ChatApp() {
                     Authorization: `Bearer ${token}`,
                 },
             });
-
             if (res.ok) {
                 const users = await res.json();
+                // TODO call the api/trips/id to get passengers and driver of that ride id so I can only include people from that ride in the chat by filtering the 'users'.
+
+                console.log(users);
                 setConnectedUsers(users);
             } else {
                 console.error('Failed to fetch connected users');
@@ -143,12 +127,11 @@ function ChatApp() {
             if (res.ok) {
                 const history = await res.json();
                 setMessages((prev) => {
-                    const existingMessages = new Set(
+                    const existingKeys = new Set(
                         prev.map((msg) => `${msg.senderId}-${normalizeTimestamp(msg.timestamp)}-${msg.content}`)
                     );
                     const uniqueHistory = history.filter(
-                        (msg) =>
-                            !existingMessages.has(`${msg.senderId}-${normalizeTimestamp(msg.timestamp)}-${msg.content}`)
+                        (msg) => !existingKeys.has(`${msg.senderId}-${normalizeTimestamp(msg.timestamp)}-${msg.content}`)
                     );
                     return [...prev, ...uniqueHistory];
                 });
@@ -160,17 +143,15 @@ function ChatApp() {
 
     const sendMessage = (e) => {
         e.preventDefault();
-        if (!stompClientRef.current) {
+        if (!stompClient) {
             console.warn('WebSocket client not connected.');
             return;
         }
-
         const content = messageInputRef.current.value.trim();
         if (!content) {
             console.warn('Cannot send empty message.');
             return;
         }
-
         const chatMessage = {
             senderId: userId,
             rideId,
@@ -178,6 +159,7 @@ function ChatApp() {
             timestamp: new Date().toISOString(),
         };
 
+        // Optimistically add the message
         setMessages((prev) => {
             const isDuplicate = prev.some(
                 (m) =>
@@ -185,41 +167,18 @@ function ChatApp() {
                     normalizeTimestamp(m.timestamp) === normalizeTimestamp(chatMessage.timestamp) &&
                     m.content === chatMessage.content
             );
-            if (!isDuplicate) {
-                return [...prev, chatMessage];
-            }
-            return prev;
+            return isDuplicate ? prev : [...prev, chatMessage];
         });
 
-        stompClientRef.current.send(`/app/chat/ride/${rideId}`, {}, JSON.stringify(chatMessage));
+        // Send to server for DB storage
+        stompClient.send(`/app/chat/ride/${rideId}`, {}, JSON.stringify(chatMessage));
         messageInputRef.current.value = '';
     };
 
-    const disconnectUser = () => {
-        if (stompClientRef.current) {
-            stompClientRef.current.send(
-                '/app/user.disconnectUser',
-                {},
-                JSON.stringify({
-                    chatUserId: userId,
-                    fullName: fullName,
-                    status: 'OFFLINE',
-                })
-            );
-            stompClientRef.current.disconnect();
-            setConnected(false);
-        }
-    };
-
-    useEffect(() => {
-        return () => {
-            disconnectUser();
-        };
-    }, []);
-
+    // TODO: This is not Responsive enough, I need to fix it.
     return (
         <div style={{ width: '80%', margin: '20px auto', fontFamily: 'Arial, sans-serif' }}>
-            {connected ? (
+            {isConnected ? (
                 <div style={{ display: 'flex', height: '80vh', border: '1px solid #ccc', borderRadius: '8px', overflow: 'hidden' }}>
                     {/* Sidebar */}
                     <div style={{ width: '25%', background: '#f7f7f7', padding: '16px', borderRight: '1px solid #ccc', overflowY: 'auto' }}>
@@ -236,7 +195,7 @@ function ChatApp() {
                                     }}
                                 >
                                     <img
-                                        src={`https://api.dicebear.com/9.x/pixel-art/svg`}
+                                        src="https://api.dicebear.com/9.x/pixel-art/svg"
                                         alt={user.fullName}
                                         style={{ width: '40px', height: '40px', borderRadius: '50%', marginRight: '10px' }}
                                     />
@@ -244,31 +203,20 @@ function ChatApp() {
                                 </li>
                             ))}
                         </ul>
-                        <button
-                            onClick={disconnectUser}
-                            style={{
-                                marginTop: '16px',
-                                width: '100%',
-                                padding: '10px',
-                                backgroundColor: '#e74c3c',
-                                color: '#fff',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer',
-                            }}
-                        >
-                            Disconnect
-                        </button>
                     </div>
 
                     {/* Main Chat */}
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#fff' }}>
-                        <div id="chat-messages" style={{ flex: 1, overflowY: 'auto', padding: '16px', background: '#fafafa' }}>
+                        <div
+                            id="chat-messages"
+                            style={{ flex: 1, overflowY: 'auto', padding: '16px', background: '#fafafa' }}
+                        >
                             {messages.map((msg, index) => {
                                 const isMe = msg.senderId === userId;
                                 const senderName = isMe
                                     ? 'Me'
-                                    : connectedUsers.find((user) => user.chatUserId === msg.senderId)?.fullName || `User ${msg.senderId}`;
+                                    : connectedUsers.find((u) => u.chatUserId === msg.senderId)?.fullName ||
+                                    `User ${msg.senderId}`;
                                 return (
                                     <div
                                         key={index}
@@ -321,20 +269,7 @@ function ChatApp() {
                     </div>
                 </div>
             ) : (
-                <button
-                    onClick={connect}
-                    style={{
-                        padding: '10px 20px',
-                        fontSize: '16px',
-                        color: '#fff',
-                        backgroundColor: '#007BFF',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                    }}
-                >
-                    Connect to Ride Chat
-                </button>
+                <div>Loading chat...</div>
             )}
         </div>
     );
