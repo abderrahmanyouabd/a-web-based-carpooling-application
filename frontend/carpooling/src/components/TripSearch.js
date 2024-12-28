@@ -112,8 +112,9 @@ const TripSearch = ({ initialParams = {} }) => {
 
     return (
         <div className="flex justify-center items-center mt-3">
-                <div className="flex flex-col md:flex-row bg-white p-4 space-x-8 rounded-lg w-full shadow-lg md:w-auto">
-                    <div className="relative mb-4 md:mb-0 md:mr-4">
+                <div className="flex flex-col md:flex-row bg-white p-4 gap-4 rounded-lg w-full shadow-lg md:w-auto">
+
+                    <div className="relative mb-4 w-full md:mb-0">
                         <input 
                             type="text"
                             name="leavingFrom"
@@ -121,7 +122,7 @@ const TripSearch = ({ initialParams = {} }) => {
                             value={params.leavingFrom}
                             onChange={handleParamChange}
                             onFocus={() => setActiveField('leavingFrom')}
-                            className="border border-gray-300 rounded-md p-2 md:w-48 w-full"
+                            className="border border-gray-300 rounded-md p-2 w-full md:w-48"
                         />
                         {activeField === 'leavingFrom' && suggestions.length > 0 && (
                             <ul className="absolute z-10 bg-white border border-gray-300 rounded-md w-full md:w-48 max-h-48 overflow-auto mt-1">
@@ -139,7 +140,7 @@ const TripSearch = ({ initialParams = {} }) => {
                         
                     </div>
                     
-                    <div className="relative mb-4 w-full md:mb-0 md:w-auto md:mr-4">
+                    <div className="relative mb-4 w-full md:mb-0">
                         <input 
                             type="text"
                             name="goingTo"
@@ -162,8 +163,6 @@ const TripSearch = ({ initialParams = {} }) => {
                                 ))}
                             </ul>
                         )}
-                        
-
                     </div>
                     
 
@@ -193,6 +192,7 @@ const TripSearch = ({ initialParams = {} }) => {
                     >
                         Search
                     </button>
+                    
                 </div>
                 
         </div>

@@ -55,11 +55,12 @@ const YourRides = () => {
     return (
 
         <div>
+
             <div className="flex justify-center bg-white">
-                <div className="flex py-4">
+                <div className="flex flex-col md:flex-row py-4">
                     <button
-                        className={`text-lg font-semibold px-[167px] ${
-                            selectedTab === "created" ? "text-teal-700 border-b-4 border-teal-700" : "text-gray-500"
+                        className={`text-lg font-semibold px-4 py-2 md:px-[167px] ${
+                            selectedTab === "created" ? "text-teal-700 border-b-4 border-teal-700 bg-yellow-500 rounded-lg" : "text-gray-500"
                         }`}
                         onClick={() => setSelectedTab("created")}
                     >
@@ -67,8 +68,8 @@ const YourRides = () => {
                     </button>
 
                     <button
-                        className={`text-lg font-semibold px-[167px] ${
-                            selectedTab === "joined" ? "text-teal-700 border-b-4 border-teal-700" : "text-gray-500"
+                        className={`text-lg font-semibold px-4 py-2 md:px-[167px] ${
+                            selectedTab === "joined" ? "text-teal-700 border-b-4 border-teal-700 bg-yellow-500 rounded-lg" : "text-gray-500"
                         }`}
                         onClick={() => setSelectedTab("joined")}
                     >   
@@ -78,10 +79,10 @@ const YourRides = () => {
             </div>
 
 
-            <div className="flex justify-center py-8">
+            <div className="flex justify-center py-8 px-4 md:px-0">
 
                 {rides.length > 0 ? (
-                    <div className="w-full max-w-4xl">
+                    <div className="w-full max-w-lg md:max-w-4xl">
 
                         <h1 className="text-2xl font-bold text-center mb-6">
                             {selectedTab === "created" ? "Your Created Rides" : "Your Joined Rides"}
@@ -128,7 +129,7 @@ const YourRides = () => {
                                         </p>
                                         <p className="text-sm text-gray-500">
                                             Price: {ride.farePerSeat != null ?
-                                                `${ride.farePerSeat.toFixed(2)} per seat`
+                                                `€${ride.farePerSeat.toFixed(2)} per seat`
                                                 : 'Price not available'} 
                                         </p>
                                     </div>
@@ -167,6 +168,7 @@ const YourRides = () => {
                     </div>
                 )}    
             </div>
+
         </div>
     );
 }
