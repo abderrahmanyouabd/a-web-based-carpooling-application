@@ -11,6 +11,7 @@ import { Icon, Style, Stroke } from 'ol/style';
 import GeoJSON from 'ol/format/GeoJSON';
 
 const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition, journeyInfoUpdate }) => {
+
   const mapRef = useRef();
   const [map, setMap] = useState(null);
   const [baseLayer, setBaseLayer] = useState('esri');
@@ -85,11 +86,21 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition, jou
   };
 
   useEffect(() => {
+    if (!startCoordinates || !endCoordinates) {
+      console.warn("Skipping map initialization due to invalid coordinates:", { startCoordinates, endCoordinates });
+      return;
+    }
+
     if (initializedRef.current) return;
     initializedRef.current = true;
 
     const initializeMap = () => {
       if (!mapRef.current) return;
+
+      if (!startCoordinates || !endCoordinates) {
+        console.error("Invalid start or end coordinates:", { startCoordinates, endCoordinates });
+        return;
+      }
 
       const vectorSource = new VectorSource();
       const vectorLayer = new VectorLayer({
@@ -242,10 +253,11 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition, jou
     return `${hours}:${minutes}:${seconds}`;
   }
 
+  
   return (
     <div>
       <div className="mb-6 space-y-6">
-        <div className="flex items-center space-x-8">
+        <div className="flex items-center space-x-8 justify-center md:justify-start">
           <label className="flex items-center cursor-pointer">
             <input
               type="radio"
@@ -270,7 +282,7 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition, jou
         </div>
         
 
-        <div className="flex items-center justify-between rounded-lg">
+        <div className="flex flex-col md:flex-row items-center justify-between rounded-lg">
           <p className="font-semibold">Total Distance: <span className="font-normal">{journeyInfo.distance} km</span></p>
           <p className="font-semibold">Total Duration: <span className="font-normal">{journeyInfo.duration} </span></p>
         </div>

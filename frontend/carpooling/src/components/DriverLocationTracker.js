@@ -68,7 +68,7 @@ const DriverLocationTracker = () => {
                 (error) => {
                     console.error("Error retriving location: ", error);
                 },
-                { enableHighAccuracy: true}
+                { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000}
             );
 
             return () => navigator.geolocation.clearWatch(watchId);
@@ -104,9 +104,18 @@ const DriverLocationTracker = () => {
                 ) : (
                     <p className="text-gray-500">Please enable your location tracking to view your current location.</p>
                 )}
+
+                {tracking && !position.latitude && !position.longitude && (
+                    <p className="text-gray-500">Fetching your current location...</p>
+                )}
+
+                {!tracking && position.latitude && position.longitude && (
+                    <p className="text-gray-500">Tracking has been stopped</p>
+                )}
+
             </div>
 
-            <div className="space-x-4 mt-4">
+            <div className="space-y-4 mt-4 flex flex-col items-center md:justify-center md:flex-row md:space-x-4 md:space-y-0">
                 <button
                     onClick={handleStartTracking}
                     className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-6 rounded-lg transition duration-200"

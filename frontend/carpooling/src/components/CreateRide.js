@@ -2,7 +2,7 @@ import React, { useState, Fragment, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import MapRouteDrawing from "./MapRouteDrawing";
-import { IconButton, Snackbar, TextField, MenuItem} from "@mui/material";
+import { IconButton, Snackbar, TextField, MenuItem, useMediaQuery } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 
 const CreateRide = () => {
@@ -34,6 +34,7 @@ const CreateRide = () => {
     const [tripId, setTripId] = useState(null);
     const navigate = useNavigate();
     const token = localStorage.getItem('jwtToken');
+    const isMobile = useMediaQuery("(max-width:600px)");
 
     useEffect(() => {
         if (token) {
@@ -370,7 +371,7 @@ const CreateRide = () => {
 
             {step === 1 && (
                 <>
-                    <h1 className="text-xl md:text-3xl font-extrabold text-gray-700">Where would you like to pick up passengers?</h1>
+                    <h1 className="text-xl md:text-3xl text-center font-extrabold text-gray-700">Where would you like to pick up passengers?</h1>
 
                     <input 
                         type="text"
@@ -522,7 +523,7 @@ const CreateRide = () => {
 
             {step === 5 && (
                 <>
-                    <h1 className="text-xl md:text-3xl font-extrabold text-gray-700 ml-12">How many passengers would you like to take?</h1>
+                    <h1 className="text-xl md:text-3xl font-extrabold text-gray-700 text-center">How many passengers would you like to take?</h1>
 
                     <div className="flex items-center mt-10 space-x-28">
                         <button
@@ -628,7 +629,7 @@ const CreateRide = () => {
                 <>
                     <h1 className="text-xl md:text-3xl font-extrabold text-gray-700">Set your price per seat</h1>
 
-                    <div className="flex items-center mt-10 space-x-28">
+                    <div className="flex items-center mt-10 space-x-12">
                         <button
                             onClick={handlePriceDecrease}
                             className="text-blue-500 border border-blue-500 w-12 h-12 flex items-center justify-center rounded-full text-2xl border-2"
@@ -672,10 +673,14 @@ const CreateRide = () => {
                 onClose={() => setOpen(false)}
                 message="Ride has been created successfully"
                 action={action}
-                anchorOrigin={{ vertical: 'top', horizontal: 'center'}}
+                anchorOrigin={{
+                    vertical: 'top', 
+                    horizontal: 'center'
+                }}
                 ContentProps={{
                     sx: {
-                        fontSize: '1rem'
+                        fontSize: '1rem',
+                        padding: isMobile ? '4px 8px' : '8px 16px',
                     },
                 }}
             />

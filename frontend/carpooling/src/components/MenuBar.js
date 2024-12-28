@@ -152,9 +152,12 @@ const MenuBar = ({ setUser, user }) => {
                                         <Link to="/signup" onClick={toggleMobileMenu} className="text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-700 hover:shadow-md transition-all duration-200 ease-in-out">Sign Up</Link>
                                     </>
                                 ) : (
-                                    <Link to="/profile" onClick={toggleMobileMenu} className="text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-700 hover:shadow-md transition-all duration-200 ease-in-out">
-                                        Profile ({user.fullName})
-                                    </Link>
+                                        
+                                            <Link to="/profile" onClick={toggleMobileMenu} className="text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-700 hover:shadow-md transition-all duration-200 ease-in-out">
+                                                Profile ({user.fullName})
+                                            </Link>
+                                    
+                                    
                                 )}
                             </div>
                         </div>
