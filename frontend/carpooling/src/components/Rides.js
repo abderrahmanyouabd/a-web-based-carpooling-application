@@ -91,12 +91,12 @@ const Rides = () => {
                 <TripSearch initialParams={{ leavingFrom, goingTo, date, numberOfAvailableSeat }}/>
             </div>
             
-            <div className="flex justify-center space-x-8">
+            <div className="flex flex-col md:flex-row justify-center md:space-x-8">
                 <Sidebar setSoryBy={setSoryBy} setPickUpFilter={setPickUpFilter} />
 
-                <div className="w-auto">
+                <div className="w-full md:w-auto">
                     
-                    <div className="flex justify-between items-center p-4 ml-4 mb-6">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 md:ml-4 mb-6">
                         <div>
                             <h2 className="text-lg font-semibold">{date}</h2>
                             <p className="text-gray-600">{leavingFrom} → {goingTo}</p>
@@ -104,10 +104,8 @@ const Rides = () => {
                         </div>
                         
                     </div>
-                       
 
-
-                    <div className="overflow-auto h-auto w-[50rem]">
+                    <div className="overflow-auto h-auto w-full md:w-[50rem]">
                         {sortedRides.map((ride) => (
                             <div
                                 key={ride.id}
@@ -121,9 +119,9 @@ const Rides = () => {
                                             FULL
                                         </div>
                                 )}
-                                <div className="flex justify-between items-center">
+                                <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
                                     
-                                    <div className="flex items-center">  
+                                    <div className="flex items-center justify-between w-full md:w-auto">  
                                         <div>
                                             <p className="text-lg font-semibold">{getTimePart(ride.leavingFrom.departureTime)}</p>
                                         </div>
@@ -159,7 +157,7 @@ const Rides = () => {
                                     </div>
 
 
-                                    <div className="text-right">
+                                    <div className="flex flex-col items-center md:text-right md:block">
                                         <p className="text-lg font-semibold">{ride.leavingFrom.name}</p>
                                         <p className="text-lg font-semibold">{ride.goingTo.name}</p>
                                     </div>
