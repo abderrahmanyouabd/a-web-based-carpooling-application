@@ -18,7 +18,7 @@ const Home = () => {
                     alt="Commerical Car"
                     className="w-full h-72 object-cover brightness-75"
                 />
-                <h1 className="absolute inset-0 md:text-4xl text-2xl font-bold text-white mt-10 md:mt-20">
+                <h1 className="absolute inset-0 md:text-4xl text-2xl font-bold text-white mt-20 md:mt-20">
                     Carpool to thousands of destinations <br/> at low prices
                 </h1>
                

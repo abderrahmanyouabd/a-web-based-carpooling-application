@@ -112,7 +112,7 @@ const TripSearch = ({ initialParams = {} }) => {
 
     return (
         <div className="flex justify-center items-center mt-3">
-                <div className="flex flex-col md:flex-row bg-white p-4 gap-4 rounded-lg w-full shadow-lg md:w-auto">
+                <div className="flex flex-col md:flex-row bg-white p-4 gap-2 md:gap-4 rounded-lg w-full shadow-lg md:w-auto">
 
                     <div className="relative mb-4 w-full md:mb-0">
                         <input 

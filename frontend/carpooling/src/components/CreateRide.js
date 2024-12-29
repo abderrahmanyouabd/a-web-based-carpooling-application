@@ -469,17 +469,17 @@ const CreateRide = () => {
                         />
                     </div>
 
-                    <div className="flex space-x-16 mt-5">
+                    <div className="flex space-x-16 mt-2 md:mt-5">
                         <button 
                             onClick={handlePrevious}
-                            className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
+                            className="px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
                         >
                             Previous
                         </button>
 
                         <button 
                             onClick={handleContinue}
-                            className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
+                            className="px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
                         >
                             Continue
                         </button>
@@ -525,7 +525,7 @@ const CreateRide = () => {
                 <>
                     <h1 className="text-xl md:text-3xl font-extrabold text-gray-700 text-center">How many passengers would you like to take?</h1>
 
-                    <div className="flex items-center mt-10 space-x-28">
+                    <div className="flex items-center mt-10 space-x-14 md:space-x-28">
                         <button
                             onClick={handlePassengersDecrease}
                             className="text-blue-500 border border-blue-500 w-12 h-12 flex items-center justify-center rounded-full text-2xl border-2"
@@ -629,7 +629,7 @@ const CreateRide = () => {
                 <>
                     <h1 className="text-xl md:text-3xl font-extrabold text-gray-700">Set your price per seat</h1>
 
-                    <div className="flex items-center mt-10 space-x-12">
+                    <div className="flex items-center mt-10 space-x-8 md:space-x-12">
                         <button
                             onClick={handlePriceDecrease}
                             className="text-blue-500 border border-blue-500 w-12 h-12 flex items-center justify-center rounded-full text-2xl border-2"
