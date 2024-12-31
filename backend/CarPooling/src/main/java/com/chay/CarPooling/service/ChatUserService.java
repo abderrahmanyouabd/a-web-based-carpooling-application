@@ -12,4 +12,6 @@ public interface ChatUserService {
     void saveChatUser(ChatUser user);
     void disconnectChatUser(ChatUser user);
     List<ChatUser> findConnectedUsers();
+    List<ChatUser> findConnectedUsersByPassengerIds(List<Long> passengerIds);
+    List<ChatUser> findConnectedUsersByRideId(Long rideId);
 }

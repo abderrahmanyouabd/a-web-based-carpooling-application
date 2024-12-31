@@ -102,16 +102,14 @@ function ChatApp() {
 
     const fetchConnectedUsers = async () => {
         try {
-            const res = await fetch('/connected-users', {
+            const res = await fetch(`/connected-users?rideId=${rideId}`, {
+                method: 'GET',
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
                 },
             });
             if (res.ok) {
                 const users = await res.json();
-                // TODO call the api/trips/id to get passengers and driver of that ride id so I can only include people from that ride in the chat by filtering the 'users'.
-
-                console.log(users);
                 setConnectedUsers(users);
             } else {
                 console.error('Failed to fetch connected users');
