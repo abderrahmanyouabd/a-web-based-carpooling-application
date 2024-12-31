@@ -26,7 +26,9 @@ import NotificationListener from "./components/communication/NotificationListene
 // 1) Import your WebSocketProvider
 import { WebSocketProvider } from "./components/communication/WebSocketProvider";
 
-const stripePromise = loadStripe("pk_test_51QIWPCEaMiQXGjyX1GMqULAWqRw5tdO5wxBQIuJ3sJyn6IJWlHx7W3qAIeBQrWepCH2hyMsP9mpJBSY617w7htKU003fDfYVGj");
+const stripePromise = loadStripe(
+    "pk_test_51QIWPCEaMiQXGjyX1GMqULAWqRw5tdO5wxBQIuJ3sJyn6IJWlHx7W3qAIeBQrWepCH2hyMsP9mpJBSY617w7htKU003fDfYVGj"
+);
 
 const App = () => {
     const [user, setUser] = useState(null);
@@ -55,7 +57,10 @@ const App = () => {
                             <Route path="/track-driver-location/:rideId" element={<DriverLocationTracker />} />
                             <Route path="/view-driver-location/:rideId" element={<ViewDriverLocation />} />
                             <Route path="/payment" element={<PaymentForm />} />
-                            <Route path="/confirmation/ride/:rideId" element={<TripConfirmation user={user} />} />
+                            <Route
+                                path="/confirmation/ride/:rideId"
+                                element={<TripConfirmation user={user} />}
+                            />
                             <Route path="/your-rides" element={<YourRides />} />
                             <Route path="/chat/:rideId" element={<ChatApp />} />
                             <Route path="/register-vehicle" element={<RegisterVehicle />} />

@@ -1,4 +1,3 @@
-// ChatApp.js
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useWebSocket } from './WebSocketProvider';
@@ -47,8 +46,6 @@ function ChatApp() {
                     return isDuplicate ? prev : [...prev, msg];
                 });
             });
-
-            // Fetch current list of connected users
             fetchConnectedUsers();
 
             // Fetch chat history

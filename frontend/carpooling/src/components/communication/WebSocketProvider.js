@@ -2,7 +2,6 @@ import React, { createContext, useContext, useEffect, useRef, useState } from "r
 import SockJS from "sockjs-client";
 import { over } from "stompjs";
 
-// context to share the client and connection state
 const WebSocketContext = createContext(null);
 
 export const useWebSocket = () => useContext(WebSocketContext);
@@ -11,34 +10,52 @@ export const WebSocketProvider = ({ user, children }) => {
     const stompClientRef = useRef(null);
     const [isConnected, setIsConnected] = useState(false);
 
-    // Connect/disconnect once user logs in or logs out
+    const oldUserRef = useRef(null);
+
     useEffect(() => {
-        if (user && localStorage.getItem("jwtToken")) {
-            connectWebSocket();
-            return () => {
-                disconnectWebSocket();
-            };
+        const token = localStorage.getItem("jwtToken");
+
+        if (user) {
+            oldUserRef.current = user;
         }
-        // disc If user is null or no token up there
-        disconnectWebSocket();
-    }, [user]);
+
+        if (!user || !token) {
+            console.log("WebSocketProvider: No user or token => disconnect if needed.");
+            disconnectWebSocket();
+            return;
+        }
+
+        if (!isConnected) {
+            console.log("WebSocketProvider: We have user + token => connect if not connected.");
+            connectWebSocket();
+        }
+
+    }, [user, isConnected]);
 
     const connectWebSocket = () => {
-        // disconnect existng connection first before creating a new one
+        const token = localStorage.getItem("jwtToken");
+        if (!user || !token) {
+            console.log("WebSocketProvider: connectWebSocket called but no user/token - skipping.");
+            return;
+        }
+
         if (stompClientRef.current && stompClientRef.current.connected) {
+            console.log("WebSocketProvider: Already connected, disconnecting old client...");
             stompClientRef.current.disconnect(() => {
                 console.log("Previous WebSocket disconnected.");
             });
         }
 
+        console.log("WebSocketProvider: Attempting to open SockJS('/ws')...");
         const socket = new SockJS("/ws");
         const stompClient = over(socket);
         stompClientRef.current = stompClient;
 
+        console.log("WebSocketProvider: Calling stompClient.connect()...");
         stompClient.connect(
             {},
             () => {
-                console.log("Global WebSocket connected");
+                console.log("WebSocketProvider: Global WebSocket connected!");
                 setIsConnected(true);
 
                 // Mark user "online" globally
@@ -53,33 +70,45 @@ export const WebSocketProvider = ({ user, children }) => {
                 );
             },
             (error) => {
-                console.error("Error connecting to WebSocket:", error);
+                console.error("WebSocketProvider: Error connecting to WebSocket:", error);
+                setIsConnected(false);
                 retryConnection();
             }
         );
     };
 
     const retryConnection = () => {
+        const token = localStorage.getItem("jwtToken");
+        if (!user || !token) {
+            console.log("WebSocketProvider: Skipping WebSocket retry; user/token missing.");
+            return;
+        }
         setTimeout(() => {
-            console.log("Retrying WebSocket connection...");
+            console.log("WebSocketProvider: Retrying WebSocket connection...");
             connectWebSocket();
         }, 5000);
     };
 
     const disconnectWebSocket = () => {
+        const offlineUser = user || oldUserRef.current;
         if (stompClientRef.current && stompClientRef.current.connected) {
-            // Mark user "offline" globally
-            stompClientRef.current.send(
-                "/app/user.disconnectUser",
-                {},
-                JSON.stringify({
-                    chatUserId: user?.id,
-                    fullName: user?.fullName,
-                    status: "OFFLINE",
-                })
-            );
+            if (offlineUser) {
+                console.log("WebSocketProvider: Disconnecting, marking user offline =>", offlineUser);
+                stompClientRef.current.send(
+                    "/app/user.disconnectUser",
+                    {},
+                    JSON.stringify({
+                        chatUserId: offlineUser.id,
+                        fullName: offlineUser.fullName,
+                        status: "OFFLINE",
+                    })
+                );
+            } else {
+                console.log("WebSocketProvider: No known user to mark offline.");
+            }
+
             stompClientRef.current.disconnect(() => {
-                console.log("Global WebSocket disconnected.");
+                console.log("WebSocketProvider: Global WebSocket disconnected.");
             });
         }
         setIsConnected(false);
@@ -96,4 +125,3 @@ export const WebSocketProvider = ({ user, children }) => {
         </WebSocketContext.Provider>
     );
 };
-

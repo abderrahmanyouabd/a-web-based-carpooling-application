@@ -24,8 +24,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ChatUserController {
     private final ChatUserService chatUserService;
-    private final UserService userService;
-    private final TripService tripService;
 
     @MessageMapping("/user.addUser")
     @SendTo("/topic/public")

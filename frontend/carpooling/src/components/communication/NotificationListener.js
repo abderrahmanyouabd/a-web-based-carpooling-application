@@ -8,19 +8,40 @@ const NotificationListener = ({ user }) => {
     const subscribedRides = useRef(new Set());
 
     useEffect(() => {
-        if (user && localStorage.getItem("jwtToken")) {
+        console.log("NotificationListener: user changed to", user);
+
+        // Clear out old subscriptions
+        subscribedRides.current = new Set();
+        setRideIds([]);
+
+        const token = localStorage.getItem("jwtToken");
+        if (user && token) {
+            console.log("NotificationListener: calling fetchUserRides()");
             fetchUserRides();
+        } else {
+            console.log("NotificationListener: skipping fetchUserRides (no user or no token)");
         }
     }, [user]);
 
-    // Once we know which rides the user has joined, subscribe to those notifications
+
     useEffect(() => {
+        console.log(
+            "NotificationListener: rideIds changed:",
+            rideIds,
+            "| isConnected=",
+            isConnected
+        );
+
         if (isConnected && stompClient && rideIds.length > 0) {
+            console.log("NotificationListener: subscribing to rides now...", rideIds);
             subscribeToRideNotifications();
+        } else {
+            console.log("NotificationListener: conditions not met for subscribe (or rideIds empty)");
         }
     }, [isConnected, stompClient, rideIds]);
 
     const fetchUserRides = async () => {
+        console.log("NotificationListener: fetchUserRides() called");
         try {
             const res = await fetch("/api/trips/joined", {
                 headers: {
@@ -29,24 +50,30 @@ const NotificationListener = ({ user }) => {
             });
             if (res.ok) {
                 const rides = await res.json();
+                console.log("NotificationListener: fetched rides:", rides);
                 const ids = rides.map((ride) => ride.id);
                 setRideIds(ids);
             } else {
-                console.error("Failed to fetch joined rides");
+                console.error("NotificationListener: Failed to fetch joined rides, status:", res.status);
             }
         } catch (error) {
-            console.error("Error fetching joined rides:", error);
+            console.error("NotificationListener: Error fetching joined rides:", error);
         }
     };
 
     const subscribeToRideNotifications = () => {
+        console.log("NotificationListener: subscribeToRideNotifications() called with rideIds:", rideIds);
+
         rideIds.forEach((rideId) => {
             if (!subscribedRides.current.has(rideId)) {
+                console.log(`NotificationListener: Subscribing to /topic/notification/${rideId}`);
                 try {
                     stompClient.subscribe(`/topic/notification/${rideId}`, (payload) => {
                         const notification = JSON.parse(payload.body);
                         if (notification.senderId !== user?.id) {
                             showNotification(notification.rideId, notification.message);
+                        } else {
+                            console.log("NotificationListener: ignoring own notification", notification);
                         }
                     });
                     subscribedRides.current.add(rideId);
@@ -58,6 +85,7 @@ const NotificationListener = ({ user }) => {
     };
 
     const showNotification = (rideId, message) => {
+        console.log("NotificationListener: showNotification ->", { rideId, message });
         setAlert(`Ride ${rideId}: ${message}`);
         setTimeout(() => {
             setAlert(null);

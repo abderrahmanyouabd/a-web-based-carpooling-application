@@ -28,30 +28,12 @@ public class ChatController {
     private final SimpUserRegistry simpUserRegistry;
     private final NotificationService notificationService;
 
-    @MessageMapping("/chat")
-    public void processGroupMessage(@Payload ChatMessage chatMessage) {
-        System.out.println("Broadcasting message to group: " + chatMessage);
-        chatMessageService.save(chatMessage);
-        messagingTemplate.convertAndSend("/topic/public", chatMessage);
-    }
-
-    @GetMapping("/messages/group")
-    public ResponseEntity<List<ChatMessage>> getGroupChatMessages() {
-        List<ChatMessage> groupMessages = chatMessageService.findGroupMessages();
-        return ResponseEntity.ok(groupMessages);
-    }
-
     @GetMapping("/messages/ride/{rideId}")
     public ResponseEntity<List<ChatMessage>> getMessagesByRideId(@PathVariable Long rideId) {
         List<ChatMessage> messages = chatMessageService.findMessagesByRideId(rideId);
         return ResponseEntity.ok(messages);
     }
 
-
-    @GetMapping("/messages/{senderId}/{recipientId}")
-    public ResponseEntity<List<ChatMessage>> getChatMessages(@PathVariable Long senderId, @PathVariable Long recipientId) {
-        return ResponseEntity.ok(chatMessageService.findChatMessages(senderId, recipientId));
-    }
 
 
     @MessageMapping("/chat/ride/{rideId}")
