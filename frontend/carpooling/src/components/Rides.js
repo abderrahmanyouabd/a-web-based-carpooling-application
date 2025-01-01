@@ -171,8 +171,7 @@ const Rides = () => {
                                     </div>
 
                                     <div className="flex items-center">
-                                        <MdAttachMoney className="text-xl text-green-500" />
-                                        <p className="text-2xl font-bold">{ride.farePerSeat}</p>
+                                        <p className="text-2xl font-bold">€{ride.farePerSeat}</p>
                                     </div>
                                 </div>
 

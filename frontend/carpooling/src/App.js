@@ -12,7 +12,7 @@ import Rides from "./components/Rides";
 import ForgotPassword from "./components/ForgotPassword";
 import ResetPassword from "./components/ResetPassword";
 import RideDetail from "./components/RideDetail";
-import CreateRide from "./components/CreateRide";
+import CreateRide from "./components/ride_creation/CreateRide";
 import PaymentForm from "./components/PaymentForm";
 import TripConfirmation from "./components/TripConfirmation";
 import DriverLocationTracker from "./components/DriverLocationTracker";

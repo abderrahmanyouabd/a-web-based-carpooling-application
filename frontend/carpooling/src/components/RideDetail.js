@@ -367,7 +367,7 @@ const RideDetail = () => {
 
                 <div className="bg-white rounded-lg shadow-lg p-5 mt-4">
                     <div className="flex justify-between">
-                        <p className="text-xl font-semibold mr-2"> ${ride.farePerSeat}</p>
+                        <p className="text-xl font-semibold mr-2"> €{ride.farePerSeat}</p>
                         <p className="text-xl font-bold">1 seat</p>
                     </div>
                 </div>
