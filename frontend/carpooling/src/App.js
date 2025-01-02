@@ -4,13 +4,13 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
 import Home from "./components/Home";
-import SignIn from "./components/SignIn";
-import SignUp from "./components/SignUp";
+import SignIn from "./components/authentication/SignIn";
+import SignUp from "./components/authentication/account_creation/SignUp";
 import MenuBar from "./components/MenuBar";
-import Profile from "./components/Profile";
+import Profile from "./components/profile_management/Profile";
 import Rides from "./components/Rides";
-import ForgotPassword from "./components/ForgotPassword";
-import ResetPassword from "./components/ResetPassword";
+import ForgotPassword from "./components/authentication/ForgotPassword";
+import ResetPassword from "./components/authentication/ResetPassword";
 import RideDetail from "./components/RideDetail";
 import CreateRide from "./components/ride_creation/CreateRide";
 import PaymentForm from "./components/PaymentForm";
