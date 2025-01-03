@@ -5,6 +5,7 @@ import com.chay.CarPooling.service.SqlExecutionService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.InMemoryChatMemory;
+import org.springframework.ai.chat.messages.Message;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,8 +14,13 @@ import reactor.core.publisher.Flux;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.lang.Integer.MAX_VALUE;
 
 /**
  * @author: Abderrahman Youabd aka: A1ST
@@ -33,6 +39,7 @@ public class ChatbotController {
     Convert the user's Natural Language query into an accurate PostgreSQL query based solely on this schema.
     Always Look for similar stuff for locations and user your better judgment since user can make typos in addresses.
     Avoid unnecessary complexity and focus only on the user's request given your READ ACCESS. Return the SQL query enclosed in triple backticks (```).
+    if user asks about a query that requires extra privileges, refuse respectfully and do not provide any sql code at all.
     
     PS: Today's Date is %s.
     """;
@@ -58,6 +65,8 @@ public class ChatbotController {
     private final SchemaService schemaService;
     private final SqlExecutionService sqlExecutionService;
     private final ChatClient.Builder chatClientBuilder;
+    private static final String CHAT_ID = UUID.randomUUID().toString();
+    private final InMemoryChatMemory chatMemory = new InMemoryChatMemory();
 
 
     public ChatbotController(SchemaService schemaService, ChatClient.Builder chatClientBuilder, SqlExecutionService sqlExecutionService) {
@@ -65,7 +74,7 @@ public class ChatbotController {
         this.schemaService = schemaService;
         this.sqlExecutionService = sqlExecutionService;
         this.chatClient = chatClientBuilder
-                .defaultAdvisors(new MessageChatMemoryAdvisor(new InMemoryChatMemory()))
+                .defaultAdvisors(new MessageChatMemoryAdvisor(chatMemory)).defaultAdvisors(adv -> adv.param("chat_memory_conversation_id", CHAT_ID))
                 .build();
     }
 
@@ -95,10 +104,19 @@ public class ChatbotController {
         System.out.println("Extracted SQL Query: " + sqlQuery);
 
         if (sqlQuery == null || isModifyingQuery(sqlQuery)) {
+//            try{
+//                System.out.println("before\n");
+//                System.out.println(chatMemory.get(CHAT_ID, MAX_VALUE));
+//                removeLastMessages(CHAT_ID);
+//                System.out.println("after\n");
+//                System.out.println(chatMemory.get(CHAT_ID, MAX_VALUE));
+//            }catch (Exception e){
+//                System.out.println("Error: " + e);
+//            }
             return chatClient
                     .prompt()
-                    .system(DEFAULT_PROMPT)
                     .user(message)
+                    .system(DEFAULT_PROMPT)
                     .stream()
                     .content();
         }
@@ -148,18 +166,36 @@ public class ChatbotController {
         return matcher.find();
     }
 
+    public void removeLastMessages(String chatId) {
+        List<Message> messages = chatMemory.get(chatId, MAX_VALUE);
 
-    private void resetChatClient() {
-        this.chatClient = chatClientBuilder
-                .defaultAdvisors(new MessageChatMemoryAdvisor(new InMemoryChatMemory()))
-                .build().mutate().build();
+        if (messages != null && !messages.isEmpty()) {
+            System.out.println("Size before modification: " + messages.size());
+
+            // Create a modifiable copy of the list
+            List<Message> modifiableMessages = new ArrayList<>(messages);
+
+            if (modifiableMessages.size() >= 2) {
+                // Remove the last two messages
+                modifiableMessages.remove(modifiableMessages.size() - 1); // Remove the last message
+                modifiableMessages.remove(modifiableMessages.size() - 1); // Remove the second-to-last message
+            }
+
+            // Update the chatMemory with the modified list
+            chatMemory.clear(chatId);
+            chatMemory.add(chatId, modifiableMessages);
+
+            System.out.println("Size after modification: " + modifiableMessages.size());
+        } else {
+            System.out.println("No messages to remove or list is null.");
+        }
     }
 
 
 
     @PostMapping("/stream/clear")
     public void clearMemory() {
-        resetChatClient(); // TODO: No working as expected I think I will just remove the memory.
+        chatMemory.clear(CHAT_ID);
     }
 
 }
