@@ -22,6 +22,8 @@ import YourRides from "./components/YourRides";
 import RegisterVehicle from "./components/RegisterVehicle";
 import ChatApp from "./components/communication/ChatApp";
 import NotificationListener from "./components/communication/NotificationListener";
+import ChatBubble from "./components/ChatBubble";
+import ChatbotComponent from "./components/ChatbotComponent";
 
 // 1) Import your WebSocketProvider
 import { WebSocketProvider } from "./components/communication/WebSocketProvider";
@@ -32,6 +34,7 @@ const stripePromise = loadStripe(
 
 const App = () => {
     const [user, setUser] = useState(null);
+    const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
     return (
         <div>
@@ -65,6 +68,11 @@ const App = () => {
                             <Route path="/chat/:rideId" element={<ChatApp />} />
                             <Route path="/register-vehicle" element={<RegisterVehicle />} />
                         </Routes>
+                        {/* Chat Bubble and Chatbot */}
+                        <ChatBubble onClick={() => setIsChatbotOpen(true)} />
+                        {isChatbotOpen && (
+                            <ChatbotComponent onClose={() => setIsChatbotOpen(false)} />
+                        )}
                     </WebSocketProvider>
                 </BrowserRouter>
             </Elements>
