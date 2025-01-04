@@ -4,7 +4,7 @@ import { FaWalking } from 'react-icons/fa';
 import { AiOutlineArrowRight } from 'react-icons/ai';
 import { MdAttachMoney } from 'react-icons/md';
 import { FaCar } from "react-icons/fa";
-import TripSearch from "./TripSearch";
+import TripSearch from "../TripSearch";
 import Sidebar from "./Sidebar";
 import { useNavigate } from "react-router-dom";
 

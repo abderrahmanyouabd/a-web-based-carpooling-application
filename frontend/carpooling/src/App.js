@@ -8,18 +8,18 @@ import SignIn from "./components/authentication/SignIn";
 import SignUp from "./components/authentication/account_creation/SignUp";
 import MenuBar from "./components/MenuBar";
 import Profile from "./components/profile_management/Profile";
-import Rides from "./components/Rides";
+import Rides from "./components/rides/Rides";
 import ForgotPassword from "./components/authentication/ForgotPassword";
 import ResetPassword from "./components/authentication/ResetPassword";
-import RideDetail from "./components/RideDetail";
+import RideDetail from "./components/rides/RideDetail";
 import CreateRide from "./components/ride_creation/CreateRide";
-import PaymentForm from "./components/PaymentForm";
-import TripConfirmation from "./components/TripConfirmation";
-import DriverLocationTracker from "./components/DriverLocationTracker";
-import ViewDriverLocation from "./components/ViewDriverLocation";
-import YourRides from "./components/YourRides";
+import PaymentForm from "./components/booking/PaymentForm";
+import TripConfirmation from "./components/booking/TripConfirmation";
+import DriverLocationTracker from "./components/gps_tracking/DriverLocationTracker";
+import ViewDriverLocation from "./components/gps_tracking/ViewDriverLocation";
+import YourRides from "./components/profile_management/YourRides";
 import ChatPage from "./components/communication/ChatPage";
-import RegisterVehicle from "./components/RegisterVehicle";
+import RegisterVehicle from "./components/profile_management/RegisterVehicle";
 
 
 const stripePromise = loadStripe('pk_test_51QIWPCEaMiQXGjyX1GMqULAWqRw5tdO5wxBQIuJ3sJyn6IJWlHx7W3qAIeBQrWepCH2hyMsP9mpJBSY617w7htKU003fDfYVGj');

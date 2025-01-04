@@ -1,5 +1,5 @@
 import React from "react";
-import MapRouteDrawing from "../../components/MapRouteDrawing";
+import MapRouteDrawing from "../gps_tracking/MapRouteDrawing";
 
 const Step3 = ({ startCoordinates, endCoordinates, handleJourneyInfoUpdate, handleContinue, handlePrevious}) => {
     return (
