@@ -61,16 +61,14 @@ public class ChatbotController {
     """;
 
 
-    private ChatClient chatClient;
+    private final ChatClient chatClient;
     private final SchemaService schemaService;
     private final SqlExecutionService sqlExecutionService;
-    private final ChatClient.Builder chatClientBuilder;
     private static final String CHAT_ID = UUID.randomUUID().toString();
     private final InMemoryChatMemory chatMemory = new InMemoryChatMemory();
 
 
     public ChatbotController(SchemaService schemaService, ChatClient.Builder chatClientBuilder, SqlExecutionService sqlExecutionService) {
-        this.chatClientBuilder = chatClientBuilder;
         this.schemaService = schemaService;
         this.sqlExecutionService = sqlExecutionService;
         this.chatClient = chatClientBuilder

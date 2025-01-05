@@ -1,20 +1,17 @@
 package com.chay.CarPooling.controller;
 
 import com.chay.CarPooling.model.ChatUser;
-import com.chay.CarPooling.model.Trip;
-import com.chay.CarPooling.model.User;
 import com.chay.CarPooling.service.ChatUserService;
-import com.chay.CarPooling.service.TripService;
-import com.chay.CarPooling.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author: Abderrahman Youabd aka: A1ST
