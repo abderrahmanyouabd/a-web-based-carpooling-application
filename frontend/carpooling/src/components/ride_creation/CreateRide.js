@@ -51,7 +51,7 @@ const CreateRide = () => {
             console.log("No user")
             setStep(0);
         }
-    }, [])
+    }, [token])
 
     const isUserHasVehicle = async () => {
         try {
@@ -197,6 +197,7 @@ const CreateRide = () => {
 
             const { totalFare, farePerSeat } = fareResponse.data;
             console.log("Fare calaculated: ", fareResponse.data);
+            console.log("Totalfare: ", totalFare);
 
             setParams((prevParams) => ({
                 ...prevParams,

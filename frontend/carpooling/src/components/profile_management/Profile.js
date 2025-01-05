@@ -171,7 +171,7 @@ const Profile = ({ setUser }) => {
                             {profileData.profilePicture ? (
                                 <img 
                                     src={`data:image/jpeg;base64,${profileData.profilePicture}`} 
-                                    alt="Profile Picture" 
+                                    alt="Profile" 
                                     className="w-full h-full object-cover rounded-full" 
                                 />
                             ) : (
@@ -183,7 +183,7 @@ const Profile = ({ setUser }) => {
                                                 ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
                                                 : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
                                     }
-                                    alt="Default Profile Picture"
+                                    alt="Default Profile"
                                     className="w-full h-full object-cover rounded-full"
                                 />
 

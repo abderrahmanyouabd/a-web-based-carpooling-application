@@ -47,7 +47,7 @@ const ViewDriverLocation = ( ) => {
         };
 
         fetchTripDetails();
-    }, [rideId, token]);
+    }, [rideId, token, navigate]);
 
     useEffect(() => {
         socket.emit("joinDriverRoom", rideId)

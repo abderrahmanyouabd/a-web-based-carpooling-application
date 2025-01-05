@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { FaWalking } from 'react-icons/fa';
 import { AiOutlineArrowRight } from 'react-icons/ai';
-import { MdAttachMoney } from 'react-icons/md';
 import { FaCar } from "react-icons/fa";
 import TripSearch from "../TripSearch";
 import Sidebar from "./Sidebar";
@@ -77,7 +76,7 @@ const Rides = () => {
     }
 
     const formatDuration = (duration) => {
-        const [hours, minutes, seconds] = duration.split(':').map(Number);
+        const [hours, minutes, ] = duration.split(':').map(Number);
         const formattedHours = hours > 0 ? `${hours} hour${hours > 1 ? 's': ''} `: '';
         const formattedMinutes = minutes > 0 ? `${minutes} minute${minutes > 1 ? 's': ''} `: '';
 
@@ -183,7 +182,7 @@ const Rides = () => {
                                             {ride.driver?.profilePicture ? ( 
                                                 <img 
                                                     src={`data:image/jpeg;base64,${ride.driver.profilePicture}`} 
-                                                    alt="Profile Picture" 
+                                                    alt="Profile" 
                                                     className="w-full h-full object-cover rounded-full" 
                                                 />
                                             ) : (
@@ -195,7 +194,7 @@ const Rides = () => {
                                                                 ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
                                                                 : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
                                                     }
-                                                    alt="Default Profile Picture"
+                                                    alt="Default Profile"
                                                     className="w-full h-full object-cover rounded-full"
                                                 />
                                             )}

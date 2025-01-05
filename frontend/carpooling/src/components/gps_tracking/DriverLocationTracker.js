@@ -49,7 +49,7 @@ const DriverLocationTracker = () => {
 
 
         fetchTripDetails();
-    }, [rideId, token]);
+    }, [rideId, token, navigate]);
 
     useEffect(() => {
         if (tracking && navigator.geolocation) {
@@ -74,7 +74,7 @@ const DriverLocationTracker = () => {
             return () => navigator.geolocation.clearWatch(watchId);
             
         }
-    }, [tracking])
+    }, [tracking, rideId])
 
     const handleStartTracking = () => setTracking(true);
     const handleStopTracking = () => setTracking(false);

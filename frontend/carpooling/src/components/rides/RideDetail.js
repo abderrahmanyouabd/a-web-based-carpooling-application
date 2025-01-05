@@ -1,5 +1,5 @@
 import React, { useEffect, useState, Fragment } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { useLocation, useNavigate} from "react-router-dom";
 import { FaCar, FaCheckCircle, FaBan, FaUserFriends, FaClock, FaShieldAlt } from "react-icons/fa";
 import { IconButton, Button, Snackbar} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
@@ -8,7 +8,6 @@ const RideDetail = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [profileData, setProfileData] = useState(null);
-    const [clientSecret, setClientSecret] = useState(null);
     const [paymentInitiated, setPaymentInitiated] = useState(false);
     const [snackbar, setSnackbar] = useState({ open: false, message: "" });
     const ride = location.state?.ride;
@@ -38,7 +37,7 @@ const RideDetail = () => {
         };
 
         fetchProfileData();
-    }, []);
+    }, [token]);
 
     const fetchClientSecret = async () => {
         try {
@@ -61,7 +60,6 @@ const RideDetail = () => {
 
             if (response.ok) {
                 const clientSecret = await response.text();
-                setClientSecret(clientSecret);
 
                 navigate("/payment", {state: { clientSecret, rideId: ride.id, token } });
             } else if (response.status === 409) {
@@ -156,11 +154,6 @@ const RideDetail = () => {
         return formatter.format(date);
     };
 
-    const getTimePart = (datetime) =>{
-        if(!datetime) return "";
-        const timePart = datetime.split("T")[1];
-        return timePart;
-    }
 
     return (
         <div className="p-6 pt-2 md:pt-6 bg-gray-100 flex flex-col min-h-screen justify-center md:flex-row md:space-x-16">
@@ -190,7 +183,7 @@ const RideDetail = () => {
                             {ride.driver?.profilePicture ? ( 
                                 <img 
                                     src={`data:image/jpeg;base64,${ride.driver.profilePicture}`} 
-                                    alt="Profile Picture" 
+                                    alt="Profile" 
                                     className="w-full h-full object-cover rounded-full" 
                                 />
                             ) : (
@@ -202,7 +195,7 @@ const RideDetail = () => {
                                                 ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
                                                 : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
                                     }
-                                    alt="Default Profile Picture"
+                                    alt="Default Profile"
                                     className="w-full h-full object-cover rounded-full"
                                 />
                             )}
@@ -279,7 +272,7 @@ const RideDetail = () => {
                                         {passenger.profilePicture ? ( 
                                             <img 
                                                 src={`data:image/jpeg;base64,${passenger.profilePicture}`} 
-                                                alt="Profile Picture" 
+                                                alt="Profile" 
                                                 className="w-full h-full object-cover rounded-full" 
                                             />
                                         ) : (
@@ -291,7 +284,7 @@ const RideDetail = () => {
                                                             ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
                                                             : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
                                                 }
-                                                alt="Default Profile Picture"
+                                                alt="Default Profile"
                                                 className="w-full h-full object-cover rounded-full"
                                             />
                                         )}
@@ -337,7 +330,7 @@ const RideDetail = () => {
                             {ride.driver?.profilePicture ? ( 
                                 <img 
                                     src={`data:image/jpeg;base64,${ride.driver.profilePicture}`} 
-                                    alt="Profile Picture" 
+                                    alt="Profile" 
                                     className="w-full h-full object-cover rounded-full" 
                                 />
                             ) : (
@@ -349,7 +342,7 @@ const RideDetail = () => {
                                                 ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
                                                 : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
                                     }
-                                    alt="Default Profile Picture"
+                                    alt="Default Profile"
                                     className="w-full h-full object-cover rounded-full"
                                 />
 

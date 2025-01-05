@@ -44,7 +44,7 @@ const TripConfirmation = ({ user }) => {
         };
 
         fetchTripDetails();
-    }, [rideId, token]);
+    }, [rideId, token, navigate]);
 
     const handleDownloadReceipt = async () => {
         const element = document.getElementById("receipt");
@@ -123,7 +123,7 @@ const TripConfirmation = ({ user }) => {
                                                 ? "/images/default_male.png"
                                                 : "/images/default_user.png"
                                 }
-                                alt="Profile Picture"
+                                alt="Profile"
                                 className="w-full h-full object-cover rounded-full"
                             />
                         </div>

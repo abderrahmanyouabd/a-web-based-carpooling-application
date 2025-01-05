@@ -13,7 +13,6 @@ const TripSearch = ({ initialParams = {} }) => {
 
     const [suggestions, setSuggestions] = useState([]);
     const [activeField, setActiveField] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
 
     const navigate = useNavigate();
@@ -87,7 +86,6 @@ const TripSearch = ({ initialParams = {} }) => {
                 }
             });
 
-            setSearchResults(response.data);
             setErrorMessage("");
             console.log("Result: ", response.data);
 

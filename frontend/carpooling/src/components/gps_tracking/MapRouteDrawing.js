@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import 'ol/ol.css';
 import { Map as OLMap, View } from 'ol';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
@@ -24,7 +24,7 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition, jou
   const routeLayerRef = useRef();
   const driverMarkerRef = useRef();
 
-  const getBaseLayer = () => {
+  const getBaseLayer = useCallback(() => {
     const esriLayer = new TileLayer({
       source: new XYZ({
         url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -37,9 +37,9 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition, jou
     });
 
     return baseLayer === 'esri' ? esriLayer : osmLayer;
-  };
+  }, [baseLayer]);
 
-  const fetchRoute = async () => {
+  const fetchRoute = useCallback(async () => {
     console.log('Fetching route with coordinates:', startCoordinates, endCoordinates);
 
     try {
@@ -64,9 +64,9 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition, jou
     } catch (error) {
       console.error('Error occurred while fetching route: ', error);
     }
-  };
+  }, [endCoordinates, startCoordinates]);
 
-  const addMarkers = (vectorSource) => {
+  const addMarkers = useCallback((vectorSource) => {
     vectorSource.clear();
 
     const startMarker = new Feature({ geometry: new Point(fromLonLat(startCoordinates)) });
@@ -83,7 +83,7 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition, jou
     endMarker.setStyle(markerStyle);
 
     vectorSource.addFeatures([startMarker, endMarker]);
-  };
+  }, [endCoordinates, startCoordinates]);
 
   useEffect(() => {
     if (!startCoordinates || !endCoordinates) {
@@ -198,7 +198,7 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition, jou
         map.setTarget(null);
       }
     };
-  }, [startCoordinates, endCoordinates]);
+  }, [startCoordinates, endCoordinates, addMarkers, fetchRoute, getBaseLayer, journeyInfoUpdate, map]);
 
   useEffect(() => {
     if (!map || !driverPosition) return;
@@ -232,7 +232,7 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition, jou
     map.getLayers().setAt(0, newLayer);
     baseLayerRef.current = newLayer;
     
-  }, [baseLayer, map]);
+  }, [baseLayer, map, getBaseLayer]);
 
   const handleLayerChange = (event) => {
     setBaseLayer(event.target.value);
