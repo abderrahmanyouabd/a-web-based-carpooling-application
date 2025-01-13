@@ -94,25 +94,25 @@ public class FareCalculationServiceImpl implements FareCalculationService {
 
 //    @Override
     private Double getGasPrice(String latitude, String longitude, String gasolineOrDiesel) {
-        String apiUrl = String.format("https://api.collectapi.com/gasPrice/fromCoordinates?lng=%s&lat=%s", longitude, latitude);
-        String response = webClient.post()
-                .uri(apiUrl)
-                .header("authorization", gasPriceApiKey)
-                .header("Content-Type", "application/json; charset=utf-8")
-                .retrieve()
-                .bodyToMono(String.class)
-                .block();
+//        String apiUrl = String.format("https://api.collectapi.com/gasPrice/fromCoordinates?lng=%s&lat=%s", longitude, latitude);
+//        String response = webClient.post()
+//                .uri(apiUrl)
+//                .header("authorization", gasPriceApiKey)
+//                .header("Content-Type", "application/json; charset=utf-8")
+//                .retrieve()
+//                .bodyToMono(String.class)
+//                .block();
 
         // Parse the response using Jackson
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            JsonNode jsonResponse = objectMapper.readTree(response);
-            JsonNode result = jsonResponse.get("result");
+//            JsonNode jsonResponse = objectMapper.readTree(response);
+//            JsonNode result = jsonResponse.get("result");
 
             if ("gasoline".equalsIgnoreCase(gasolineOrDiesel)) {
-                return result.get("gasoline").asDouble();
+                return 45.2;
             } else if ("diesel".equalsIgnoreCase(gasolineOrDiesel)) {
-                return result.get("diesel").asDouble();
+                return 53.3;
             } else {
                 throw new IllegalArgumentException("Invalid fuel type. Please provide either 'gasoline' or 'diesel'.");
             }
@@ -235,12 +235,16 @@ public class FareCalculationServiceImpl implements FareCalculationService {
 
     @Override
     public BigDecimal calculateFareOnxx(Trip trip) {
+        String modelPath = "backend/CarPooling/src/main/java/com/chay/CarPooling/utils/optimized_driving_cost_model.onnx";
         double fuelEfficiency = 8.0;
         double fuelPrice = getGasPrice(trip.getLeavingFrom().getLatitude(), trip.getLeavingFrom().getLongitude(), trip.getVehicle().getGasType().name());
         double distance = trip.getDistance();
 
         try {
-            float[][] inputData = {{(float) distance, (float) fuelPrice, (float) fuelEfficiency}};
+            OrtEnvironment env = OrtEnvironment.getEnvironment();
+            OrtSession session = OrtSessionManager.getSession(modelPath, env);
+
+            float[][] inputData = {{(float)distance, (float)fuelPrice, (float)fuelEfficiency}};
             try (OnnxTensor tensor = OnnxTensor.createTensor(env, inputData)) {
                 Map<String, OnnxTensor> inputs = Collections.singletonMap("float_input", tensor);
 

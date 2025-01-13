@@ -14,13 +14,14 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "ai": "^4.0.25",
     "axios": "^1.7.7",
     "date-fns": "^4.1.0",
     "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.10.2",
     "jspdf": "^2.5.2",
     "jwt-decode": "^4.0.0",
-    "lucide-react": "^0.471.0",
+    "lucide-react": "^0.469.0",
     "net": "^1.0.2",
     "ol": "^10.2.1",
     "react": "^18.3.1",
@@ -43,6 +44,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
+  "proxy": "http://localhost:8080",
   "eslintConfig": {
     "extends": [
       "react-app",
