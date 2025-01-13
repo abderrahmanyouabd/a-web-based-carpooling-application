@@ -19,6 +19,9 @@
     "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.10.2",
     "jspdf": "^2.5.2",
+    "jwt-decode": "^4.0.0",
+    "lucide-react": "^0.471.0",
+    "net": "^1.0.2",
     "ol": "^10.2.1",
     "react": "^18.3.1",
     "react-datepicker": "^7.3.0",
@@ -29,6 +32,8 @@
     "react-spinners": "^0.14.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
+    "sockjs-client": "^1.6.1",
+    "stompjs": "^2.3.3",
     "stripe": "^17.3.1",
     "web-vitals": "^2.1.4"
   },
