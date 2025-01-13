@@ -9,6 +9,7 @@ import com.chay.CarPooling.model.Vehicle;
 import com.chay.CarPooling.service.FareCalculationService;
 import com.chay.CarPooling.utils.OrtSessionManager;
 import com.fasterxml.jackson.databind.util.JSONPObject;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author: Abderrahman Youabd aka: A1ST
@@ -32,6 +34,7 @@ import java.util.Map;
  */
 
 @Service
+@Slf4j
 public class FareCalculationServiceImpl implements FareCalculationService {
 
 
@@ -46,8 +49,24 @@ public class FareCalculationServiceImpl implements FareCalculationService {
     @Value("${gasprice.api.key}")
     private String gasPriceApiKey;
 
+    private OrtEnvironment env;
+    private OrtSession session;
+
+    @Value("${onnx.model.path}")
+    private String MODEL_PATH;
+
     public FareCalculationServiceImpl(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.build();
+        CompletableFuture.runAsync(() -> {
+            try {
+                log.info("Initializing ONNX Runtime session asynchronously...");
+                this.env = OrtEnvironment.getEnvironment();
+                this.session = env.createSession(MODEL_PATH);
+                log.info("ONNX Runtime session initialized successfully.");
+            } catch (OrtException e) {
+                throw new RuntimeException("Failed to initialize ONNX Runtime session", e);
+            }
+        });
     }
 
 
@@ -75,25 +94,25 @@ public class FareCalculationServiceImpl implements FareCalculationService {
 
 //    @Override
     private Double getGasPrice(String latitude, String longitude, String gasolineOrDiesel) {
-//        String apiUrl = String.format("https://api.collectapi.com/gasPrice/fromCoordinates?lng=%s&lat=%s", longitude, latitude);
-//        String response = webClient.post()
-//                .uri(apiUrl)
-//                .header("authorization", gasPriceApiKey)
-//                .header("Content-Type", "application/json; charset=utf-8")
-//                .retrieve()
-//                .bodyToMono(String.class)
-//                .block();
+        String apiUrl = String.format("https://api.collectapi.com/gasPrice/fromCoordinates?lng=%s&lat=%s", longitude, latitude);
+        String response = webClient.post()
+                .uri(apiUrl)
+                .header("authorization", gasPriceApiKey)
+                .header("Content-Type", "application/json; charset=utf-8")
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
 
         // Parse the response using Jackson
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-//            JsonNode jsonResponse = objectMapper.readTree(response);
-//            JsonNode result = jsonResponse.get("result");
+            JsonNode jsonResponse = objectMapper.readTree(response);
+            JsonNode result = jsonResponse.get("result");
 
             if ("gasoline".equalsIgnoreCase(gasolineOrDiesel)) {
-                return 45.2;
+                return result.get("gasoline").asDouble();
             } else if ("diesel".equalsIgnoreCase(gasolineOrDiesel)) {
-                return 53.3;
+                return result.get("diesel").asDouble();
             } else {
                 throw new IllegalArgumentException("Invalid fuel type. Please provide either 'gasoline' or 'diesel'.");
             }
@@ -216,16 +235,12 @@ public class FareCalculationServiceImpl implements FareCalculationService {
 
     @Override
     public BigDecimal calculateFareOnxx(Trip trip) {
-        String modelPath = "backend/CarPooling/src/main/java/com/chay/CarPooling/utils/optimized_driving_cost_model.onnx";
         double fuelEfficiency = 8.0;
         double fuelPrice = getGasPrice(trip.getLeavingFrom().getLatitude(), trip.getLeavingFrom().getLongitude(), trip.getVehicle().getGasType().name());
         double distance = trip.getDistance();
 
         try {
-            OrtEnvironment env = OrtEnvironment.getEnvironment();
-            OrtSession session = OrtSessionManager.getSession(modelPath, env);
-
-            float[][] inputData = {{(float)distance, (float)fuelPrice, (float)fuelEfficiency}};
+            float[][] inputData = {{(float) distance, (float) fuelPrice, (float) fuelEfficiency}};
             try (OnnxTensor tensor = OnnxTensor.createTensor(env, inputData)) {
                 Map<String, OnnxTensor> inputs = Collections.singletonMap("float_input", tensor);
 

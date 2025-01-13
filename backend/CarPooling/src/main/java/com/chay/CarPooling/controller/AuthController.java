@@ -191,28 +191,4 @@ public class AuthController {
 
 
 
-//    @PostMapping("/calculate")
-//    public ResponseEntity<Double> calculateFare(@RequestBody Trip trip) {
-//        return  new ResponseEntity<>(fareCalculationService.calculateFare(trip), HttpStatus.OK);
-//    }
-//
-//
-//    @PostMapping("reset-password-request")
-//    public ResponseEntity<ApiResponse> resetPassword(@RequestParam("email") String email) throws Exception {
-//        User user = userService.findUserByEmail(email);
-//
-//        if(user == null){
-//            throw new ExpressionException("User not found");
-//        }
-//
-//        userService.sendPasswordResetEmail(user);
-//
-//        ApiResponse apiResponse = new ApiResponse();
-//        apiResponse.setMessage("Password Reset email set successfully");
-//        apiResponse.setStatus(true);
-//        return ResponseEntity.ok(apiResponse);
-//    }
-
-
-
 }
