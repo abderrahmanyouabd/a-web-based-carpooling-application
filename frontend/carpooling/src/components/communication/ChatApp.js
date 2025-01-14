@@ -2,8 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useWebSocket } from './WebSocketProvider';
 import {jwtDecode} from 'jwt-decode';
+import Message from './Message';
 
-function ChatApp() {
+const ChatApp = () => {
     const { rideId } = useParams();
     const token = localStorage.getItem('jwtToken');
     const { stompClient, isConnected } = useWebSocket();
@@ -170,29 +171,23 @@ function ChatApp() {
         messageInputRef.current.value = '';
     };
 
-    // TODO: This is not Responsive enough, I need to fix it.
     return (
-        <div style={{ width: '80%', margin: '20px auto', fontFamily: 'Arial, sans-serif' }}>
+        <div className="w-4/5 mx-auto mt-5 font-sans">
             {isConnected ? (
-                <div style={{ display: 'flex', height: '80vh', border: '1px solid #ccc', borderRadius: '8px', overflow: 'hidden' }}>
+                <div className="flex h-[80vh] border border-gray-300 rounded-lg overflow-hidden">
                     {/* Sidebar */}
-                    <div style={{ width: '25%', background: '#f7f7f7', padding: '16px', borderRight: '1px solid #ccc', overflowY: 'auto' }}>
-                        <h3>Online Users</h3>
-                        <ul style={{ listStyleType: 'none', padding: 0, margin: 0 }}>
+                    <div className="w-1/4 bg-gray-100 p-4 border-r border-gray-300 overflow-y-auto">
+                        <h3 className="text-lg font-semibold mb-4">Online Users</h3>
+                        <ul className="space-y-3">
                             {connectedUsers.map((user) => (
                                 <li
                                     key={user.chatUserId}
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        padding: '10px',
-                                        borderBottom: '1px solid #ddd',
-                                    }}
+                                    className="flex items-center p-2 border-b border-gray-200"
                                 >
                                     <img
                                         src="https://api.dicebear.com/9.x/pixel-art/svg"
                                         alt={user.fullName}
-                                        style={{ width: '40px', height: '40px', borderRadius: '50%', marginRight: '10px' }}
+                                        className="w-10 h-10 rounded-full mr-3"
                                     />
                                     <span>{user.fullName}</span>
                                 </li>
@@ -201,62 +196,35 @@ function ChatApp() {
                     </div>
 
                     {/* Main Chat */}
-                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#fff' }}>
+                    <div className="flex flex-col flex-1 bg-white">
                         <div
                             id="chat-messages"
-                            style={{ flex: 1, overflowY: 'auto', padding: '16px', background: '#fafafa' }}
+                            className="flex-1 overflow-y-auto p-4 bg-gray-50"
                         >
-                            {messages.map((msg, index) => {
-                                const isMe = msg.senderId === userId;
-                                const senderName = isMe
-                                    ? 'Me'
-                                    : connectedUsers.find((u) => u.chatUserId === msg.senderId)?.fullName ||
-                                    `User ${msg.senderId}`;
-                                return (
-                                    <div
-                                        key={index}
-                                        style={{
-                                            margin: '10px',
-                                            padding: '10px',
-                                            borderRadius: '8px',
-                                            maxWidth: '60%',
-                                            wordWrap: 'break-word',
-                                            backgroundColor: isMe ? '#cce5ff' : '#f2f2f2',
-                                            marginLeft: isMe ? 'auto' : '',
-                                            marginRight: !isMe ? 'auto' : '',
-                                        }}
-                                    >
-                                        <p>{msg.content}</p>
-                                        <small style={{ fontSize: '10px', color: '#666' }}>
-                                            {senderName} | {new Date(msg.timestamp).toLocaleString()}
-                                        </small>
-                                    </div>
-                                );
-                            })}
+                            {messages.map((msg, index) => (
+                                <Message 
+                                    key={index}
+                                    message={msg.content}
+                                    senderId={msg.senderId}
+                                    userId={userId}
+                                    connectedUsers={connectedUsers}
+                                    timestamp={msg.timestamp}
+                                />
+                            ))}
                         </div>
-                        <form style={{ display: 'flex', padding: '16px', borderTop: '1px solid #ccc' }} onSubmit={sendMessage}>
+                        <form 
+                            className="flex p-4 border-t border-gray-300" 
+                            onSubmit={sendMessage}
+                        >
                             <input
                                 type="text"
                                 ref={messageInputRef}
                                 placeholder="Type your message..."
-                                style={{
-                                    flex: 1,
-                                    padding: '10px',
-                                    border: '1px solid #ccc',
-                                    borderRadius: '4px',
-                                    marginRight: '10px',
-                                }}
+                                className="flex-1 p-2 border border-gray-300 rounded-md mr-2"
                             />
                             <button
                                 type="submit"
-                                style={{
-                                    padding: '10px 16px',
-                                    backgroundColor: '#4CAF50',
-                                    color: '#fff',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    cursor: 'pointer',
-                                }}
+                                className="px-4 py-2 bg-green-500 text-white rounded-md"
                             >
                                 Send
                             </button>

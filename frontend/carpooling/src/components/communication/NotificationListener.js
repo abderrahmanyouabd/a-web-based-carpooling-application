@@ -94,17 +94,8 @@ const NotificationListener = ({ user }) => {
 
     return alert ? (
         <div
-            style={{
-                position: "fixed",
-                top: "20px",
-                right: "20px",
-                backgroundColor: "#f0ad4e",
-                color: "#fff",
-                padding: "10px 20px",
-                borderRadius: "4px",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                zIndex: 1000,
-            }}
+            className="fixed top-5 right-5 bg-yellow-500 text-white py-2 px-4 
+                rounded shadow-md z-50"
         >
             {alert}
         </div>

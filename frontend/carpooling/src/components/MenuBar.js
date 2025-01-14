@@ -15,12 +15,26 @@ const MenuBar = ({ setUser, user }) => {
         setIsDesktopMenuOpen(!isDesktopMenuOpen);
     };
 
-    // 1) Handle logout (no manual disconnect, just remove token & set user=null)
-    const handleLogout = () => {
-        setIsDesktopMenuOpen(!isDesktopMenuOpen);
-        localStorage.removeItem("jwtToken");
-        setUser(null);
-        navigate("/");
+    const handleLogout = async () => {
+        try {
+            const response = await fetch("http://localhost:8080/stream/clear", {
+                method: "POST",
+            });
+
+            if (!response.ok) {
+                console.error(`Failed to clear chatbot message during logout: ${response.status}`);
+            } else {
+                console.log("Cleared chatbot message")
+            }
+
+            setIsDesktopMenuOpen(!isDesktopMenuOpen);
+            localStorage.removeItem("jwtToken");
+            localStorage.removeItem("chatbotMessages")
+            setUser(null);
+            navigate("/");
+        } catch (error) {
+            console.error("Error during logout: ", error);
+        }
     };
 
     // 2) (Unchanged) Fetch the user profile data if we have a token

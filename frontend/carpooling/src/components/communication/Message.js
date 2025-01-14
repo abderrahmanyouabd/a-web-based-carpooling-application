@@ -1,14 +1,22 @@
 import React from "react";
 
-const Message = ({ message, isUser }) => {
+const Message = ({ message, senderId, userId, connectedUsers, timestamp }) => {
+    const isMe = senderId === userId;
+    const senderName = isMe
+            ? 'Me'
+            : connectedUsers.find((u) => u.chatUserId === senderId)?.fullName ||
+            `User ${senderId}`;
     return (
-        <div className={`flex mb-4 ${ isUser ? "justify-end" : "justify-start"}`}>
-            <div className={`px-4 py-2 rounded-lg max-w-xs 
-                ${isUser ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-800"}`}>
-                    {message}
-            </div>
-        </div>
-    );
+        <div
+            className={`my-2 p-3 rounded-lg max-w-[60%] break-words 
+             ${isMe ? 'bg-blue-100 ml-auto' : 'bg-gray-200 mr-auto'}`}
+        >
+            <p>{message}</p>
+            <small className="text-xs text-gray-500">
+                {senderName} | {new Date(timestamp).toLocaleString()}
+            </small>
+         </div>
+        );
 };
 
 export default Message;
