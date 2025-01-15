@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Send, X } from "lucide-react";
 
 const ChatbotComponent = ({ onClose }) => {
@@ -8,26 +8,34 @@ const ChatbotComponent = ({ onClose }) => {
     });
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
+    const messageEndRef = useRef(null);
+
+    // Keep chat scrolled to bottom on new messages
+    useEffect(() => {
+        if(messageEndRef.current){
+            messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [messages]);
 
     useEffect(() => {
         localStorage.setItem("chatbotMessages", JSON.stringify(messages));
     }, [messages]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!input.trim()) return;
+    const addMessage = (role, content) => {
+        setMessages((prev) => [...prev, { role, content}]);
+    }
 
-        const userMessage = { role: "user", content: input };
-        const botMessagePlaceholder = { role: "assistant", content: "" };
+    const updateBotMessage = (index, content) => {
+        setMessages((prev) => {
+            const updatedMessages = [...prev];
+            updatedMessages[index] = { role: "assistant", content};
+            return updatedMessages;
+        });
+    };
 
-        setMessages((prev) => [...prev, userMessage, botMessagePlaceholder]);
-
-        const botMessageIndex = messages.length + 1;
-        setInput("");
-
+    const fetchBotResponse = async (userInput, botMessageIndex) => {
         try {
             setLoading(true);
-
             const response = await fetch(
                 `http://localhost:8080/stream?message=${encodeURIComponent(input)}`,
                 {
@@ -44,37 +52,35 @@ const ChatbotComponent = ({ onClose }) => {
             const decoder = new TextDecoder("utf-8");
             let botMessageContent = "";
 
-
             while (true) {
                 const { value, done } = await reader.read();
                 if (done) break;
 
-                const chunk = decoder.decode(value, { stream: true });
+                const chunk = decoder.decode(value, {stream: true});
                 botMessageContent += chunk;
-
-
-                setMessages((prev) => {
-                    const updatedMessages = [...prev];
-                    updatedMessages[botMessageIndex] = {
-                        role: "assistant",
-                        content: botMessageContent,
-                    };
-                    return updatedMessages;
-                });
+                updateBotMessage(botMessageIndex, botMessageContent);
             }
+
         } catch (error) {
             console.error("Error streaming chatbot response:", error);
-            setMessages((prev) => {
-                const updatedMessages = [...prev];
-                updatedMessages[botMessageIndex] = {
-                    role: "assistant",
-                    content: "Error: Unable to process your message.",
-                };
-                return updatedMessages;
-            });
+            updateBotMessage(botMessageIndex, "Error: Unable to process your message.");
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!input.trim()) return;
+
+        const userMessage = input.trim();
+        addMessage("user", userMessage);
+
+        const botMessageIndex = messages.length + 1;
+        addMessage("assistant", "");
+
+        setInput("")
+        fetchBotResponse(userMessage, botMessageIndex);
     };
 
     return (
@@ -105,6 +111,7 @@ const ChatbotComponent = ({ onClose }) => {
                     </div>
                 ))}
                 {loading && <p className="text-gray-500">Typing...</p>}
+                <div ref={messageEndRef} />
             </div>
             <form onSubmit={handleSubmit} className="p-4 border-t flex">
                 <input

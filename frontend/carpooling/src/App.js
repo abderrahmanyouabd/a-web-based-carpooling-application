@@ -19,7 +19,7 @@ import DriverLocationTracker from "./components/gps_tracking/DriverLocationTrack
 import ViewDriverLocation from "./components/gps_tracking/ViewDriverLocation";
 import YourRides from "./components/profile_management/YourRides";
 import RegisterVehicle from "./components/profile_management/RegisterVehicle";
-import ChatApp from "./components/communication/ChatApp";
+import ChatPage from "./components/communication/ChatPage";
 import { WebSocketProvider } from "./components/communication/WebSocketProvider";
 import NotificationListener from "./components/communication/NotificationListener";
 import ChatBubble from "./components/communication/ChatBubble";
@@ -62,7 +62,7 @@ const App = () => {
                                 element={<TripConfirmation user={user} />}
                             />
                             <Route path="/your-rides" element={<YourRides />} />
-                            <Route path="/chat/:rideId" element={<ChatApp />} />
+                            <Route path="/chat/:rideId" element={<ChatPage />} />
                             <Route path="/register-vehicle" element={<RegisterVehicle />} />
                         </Routes>
 

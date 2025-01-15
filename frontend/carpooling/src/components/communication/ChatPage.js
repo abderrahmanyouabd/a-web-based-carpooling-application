@@ -10,7 +10,7 @@ const ChatApp = () => {
     const { stompClient, isConnected } = useWebSocket();
 
     const [userId, setUserId] = useState(null);
-    const [fullName, setFullName] = useState('');
+    const [passengers, setPassengers] = useState(null);
     const [messages, setMessages] = useState([]);
     const [connectedUsers, setConnectedUsers] = useState([]);
 
@@ -19,43 +19,24 @@ const ChatApp = () => {
     // Keep chat scrolled to bottom on new messages
     useEffect(() => {
         const chatMessages = document.getElementById('chat-messages');
-        if (chatMessages) {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
+        if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
     }, [messages]);
 
     // 1. Fetch user details (from the ride) when rideId or token changes
     useEffect(() => {
-        if (rideId && token) {
-            fetchUserDetails(rideId);
-        }
+        if (rideId && token) fetchUserDetails(rideId);
     }, [rideId, token]);
 
     // 2. Once connected to WebSocket, subscribe to the ride topic & fetch chat history
     useEffect(() => {
         if (isConnected && stompClient && rideId && userId) {
-            // Subscribe to ride specific chat topic
-            const subscription = stompClient.subscribe(`/topic/ride/${rideId}`, (payload) => {
-                const msg = JSON.parse(payload.body);
-                setMessages((prev) => {
-                    const isDuplicate = prev.some(
-                        (m) =>
-                            m.senderId === msg.senderId &&
-                            normalizeTimestamp(m.timestamp) === normalizeTimestamp(msg.timestamp) &&
-                            m.content === msg.content
-                    );
-                    return isDuplicate ? prev : [...prev, msg];
-                });
-            });
+            const subscription = subscribeToRideChat();
             fetchConnectedUsers();
-
-            // Fetch chat history
             fetchChatHistory();
 
             // Cleanup subscription when unmounting
-            return () => {
-                subscription.unsubscribe();
-            };
+            return () => subscription.unsubscribe();
+            
         }
     }, [isConnected, stompClient, rideId, userId]);
 
@@ -63,35 +44,29 @@ const ChatApp = () => {
     //    whenever someone logs in or out globally.
     useEffect(() => {
         if (isConnected && stompClient) {
-            const publicSub = stompClient.subscribe('/topic/public', () => {
-                // Whenever the server announces a user add/remove, re-fetch
-                fetchConnectedUsers();
-            });
-            return () => publicSub.unsubscribe();
+            const publicSubscription = subscribeToPublicNotifications();
+            return () => publicSubscription.unsubscribe();
         }
     }, [isConnected, stompClient]);
 
     const normalizeTimestamp = (timestamp) => new Date(timestamp).getTime();
 
     const fetchUserDetails = async (rideId) => {
+        const url = `/api/trips/${rideId}`;
+        const headers = { Authorization: `Bearer ${token}` };
+
         try {
-            const res = await fetch(`/api/trips/${rideId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            if (res.ok) {
-                const trip = await res.json();
-                const decoded = jwtDecode(token);
-                const user = trip.passengers.find((p) => p.email === decoded.email);
-                if (user) {
-                    setUserId(user.id);
-                    setFullName(user.fullName);
-                } else {
-                    console.error('Logged-in user is not part of this ride.');
-                }
+            const trip = await fetchApi(url, { headers });
+            const decoded = jwtDecode(token);
+            const user = trip?.passengers?.find((p) => p.email === decoded.email);
+            // console.log("User profile: ", trip.passengers[0].profilePicture)
+            setPassengers(trip?.passengers);
+        
+
+            if (user) {
+                setUserId(user.id);
             } else {
-                console.error('Failed to fetch trip details for ride');
+                console.error('Logged-in user is not part of this ride.');
             }
         } catch (err) {
             console.error('Error fetching trip details:', err);
@@ -99,42 +74,52 @@ const ChatApp = () => {
     };
 
     const fetchConnectedUsers = async () => {
+        const url = `/connected-users?rideId=${rideId}`;
         try {
-            const res = await fetch(`/connected-users?rideId=${rideId}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            if (res.ok) {
-                const users = await res.json();
-                setConnectedUsers(users);
-            } else {
-                console.error('Failed to fetch connected users');
-            }
+            const users = await fetchApi(url);
+            setConnectedUsers(users || []);
         } catch (err) {
             console.error('Error fetching connected users:', err);
         }
     };
 
     const fetchChatHistory = async () => {
+        const url = `/messages/ride/${rideId}`;
         try {
-            const res = await fetch(`/messages/ride/${rideId}`);
-            if (res.ok) {
-                const history = await res.json();
-                setMessages((prev) => {
-                    const existingKeys = new Set(
-                        prev.map((msg) => `${msg.senderId}-${normalizeTimestamp(msg.timestamp)}-${msg.content}`)
-                    );
-                    const uniqueHistory = history.filter(
-                        (msg) => !existingKeys.has(`${msg.senderId}-${normalizeTimestamp(msg.timestamp)}-${msg.content}`)
-                    );
-                    return [...prev, ...uniqueHistory];
-                });
-            }
+            const history = await fetchApi(url);
+            addUniqueMessages(history || []);
         } catch (err) {
             console.error('Error fetching chat history:', err);
         }
+    };
+
+    const subscribeToRideChat = () => {
+        return stompClient.subscribe(`/topic/ride/${rideId}`, (payload) => {
+            const msg = JSON.parse(payload.body);
+            addUniqueMessages([msg])
+        })
+    }
+
+    const subscribeToPublicNotifications = () => {
+        return stompClient.subscribe("/topic/public", fetchConnectedUsers);
+    };
+
+    const addUniqueMessages = (newMessages) => {
+        setMessages((prev) => {
+            const existingKeys = new Set(
+                prev.map((msg) => `${msg.senderId}-${normalizeTimestamp(msg.timestamp)}-${msg.content}`)
+            );
+            const uniqueMessages = newMessages.filter(
+                (msg) =>!existingKeys.has(`${msg.senderId}-${normalizeTimestamp(msg.timestamp)}-${msg.content}`)
+            );
+            return [...prev,...uniqueMessages];
+        });
+    }
+
+    const fetchApi = async (url, options = {}) => {
+        const res = await fetch(url, { method: "GET", ...options});
+        if (res.ok) return res.json();
+        throw new Error(`API request failed for ${url}`);
     };
 
     const sendMessage = (e) => {
@@ -155,18 +140,8 @@ const ChatApp = () => {
             timestamp: new Date().toISOString(),
         };
 
-        // Optimistically add the message
-        setMessages((prev) => {
-            const isDuplicate = prev.some(
-                (m) =>
-                    m.senderId === chatMessage.senderId &&
-                    normalizeTimestamp(m.timestamp) === normalizeTimestamp(chatMessage.timestamp) &&
-                    m.content === chatMessage.content
-            );
-            return isDuplicate ? prev : [...prev, chatMessage];
-        });
-
-        // Send to server for DB storage
+        
+        addUniqueMessages([chatMessage]);
         stompClient.send(`/app/chat/ride/${rideId}`, {}, JSON.stringify(chatMessage));
         messageInputRef.current.value = '';
     };
@@ -183,13 +158,29 @@ const ChatApp = () => {
                                 <li
                                     key={user.chatUserId}
                                     className="flex items-center p-2 border-b border-gray-200"
-                                >
-                                    <img
-                                        src="https://api.dicebear.com/9.x/pixel-art/svg"
-                                        alt={user.fullName}
-                                        className="w-10 h-10 rounded-full mr-3"
-                                    />
+                                > {/* -1 because Id in connected Users is starting from 1 but array index start from 0 */}
+                                    {passengers[user.chatUserId - 1].profilePicture ? ( 
+                                        
+                                        <img 
+                                            src={`data:image/jpeg;base64,${passengers[user.chatUserId - 1].profilePicture}`} 
+                                            alt="Profile" 
+                                            className="w-10 h-10 object-cover rounded-full mr-3" 
+                                        />
+                                    ) : (
+                                        <img 
+                                            src={
+                                                passengers[user.chatUserId - 1].gender === "FEMALE"
+                                                    ? "https://www.pngkey.com/png/detail/297-2978655_profile-picture-default-female.png"
+                                                    : passengers[user.chatUserId - 1].gender === "MALE"
+                                                        ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
+                                                        : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
+                                            }
+                                            alt="Default Profile"
+                                            className="w-10 h-10 object-cover rounded-full"
+                                        />
+                                    )}
                                     <span>{user.fullName}</span>
+                                    {/* Display user profile here getting from fetchUserDetails  */}
                                 </li>
                             ))}
                         </ul>
