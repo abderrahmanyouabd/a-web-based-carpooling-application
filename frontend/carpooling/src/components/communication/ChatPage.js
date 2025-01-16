@@ -146,6 +146,16 @@ const ChatApp = () => {
         messageInputRef.current.value = '';
     };
 
+    const getProfilePictureByUserId = (id) => {
+        const passenger = passengers.find(p => p.id === id);
+        return passenger ? passenger.profilePicture : null;
+    }
+
+    const getGenderByUserId = (id) => {
+        const gender = passengers.find(p => p.id === id);
+        return gender? gender.gender : null;
+    }
+
     return (
         <div className="w-4/5 mx-auto mt-5 font-sans">
             {isConnected ? (
@@ -159,19 +169,19 @@ const ChatApp = () => {
                                     key={user.chatUserId}
                                     className="flex items-center p-2 border-b border-gray-200"
                                 > {/* -1 because Id in connected Users is starting from 1 but array index start from 0 */}
-                                    {passengers[user.chatUserId - 1].profilePicture ? ( 
+                                    {getProfilePictureByUserId(user.chatUserId) ? ( 
                                         
                                         <img 
-                                            src={`data:image/jpeg;base64,${passengers[user.chatUserId - 1].profilePicture}`} 
+                                            src={`data:image/jpeg;base64,${getProfilePictureByUserId(user.chatUserId)}`}
                                             alt="Profile" 
                                             className="w-10 h-10 object-cover rounded-full mr-3" 
                                         />
                                     ) : (
                                         <img 
                                             src={
-                                                passengers[user.chatUserId - 1].gender === "FEMALE"
+                                                getGenderByUserId(user.chatUserId) === "FEMALE"
                                                     ? "https://www.pngkey.com/png/detail/297-2978655_profile-picture-default-female.png"
-                                                    : passengers[user.chatUserId - 1].gender === "MALE"
+                                                    : getGenderByUserId(user.chatUserId) === "MALE"
                                                         ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
                                                         : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
                                             }

@@ -5,76 +5,58 @@ const NotificationListener = ({ user }) => {
     const { stompClient, isConnected } = useWebSocket();
     const [alert, setAlert] = useState(null);
     const [rideIds, setRideIds] = useState([]);
+    const [userJoinedTrips, setUserJoinedTrips] = useState(null);
     const subscribedRides = useRef(new Set());
 
     useEffect(() => {
-        console.log("NotificationListener: user changed to", user);
-
-        // Clear out old subscriptions
-        subscribedRides.current = new Set();
-        setRideIds([]);
+        if (!user) {
+            clearSubscription();
+            return;
+        }
 
         const token = localStorage.getItem("jwtToken");
-        if (user && token) {
-            console.log("NotificationListener: calling fetchUserRides()");
-            fetchUserRides();
+        if (token) {
+            fetchUserRides(token);
         } else {
-            console.log("NotificationListener: skipping fetchUserRides (no user or no token)");
+            console.log("NotificationListener: skipping fetchUserRides (no token)");
         }
     }, [user]);
 
 
     useEffect(() => {
-        console.log(
-            "NotificationListener: rideIds changed:",
-            rideIds,
-            "| isConnected=",
-            isConnected
-        );
-
         if (isConnected && stompClient && rideIds.length > 0) {
-            console.log("NotificationListener: subscribing to rides now...", rideIds);
             subscribeToRideNotifications();
         } else {
             console.log("NotificationListener: conditions not met for subscribe (or rideIds empty)");
         }
+
     }, [isConnected, stompClient, rideIds]);
 
-    const fetchUserRides = async () => {
-        console.log("NotificationListener: fetchUserRides() called");
+    const fetchUserRides = async (token) => {
         try {
-            const res = await fetch("/api/trips/joined", {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
-                },
+            const response = await fetch("/api/trips/joined", {
+                headers: { Authorization: `Bearer ${token}`},
             });
-            if (res.ok) {
-                const rides = await res.json();
-                console.log("NotificationListener: fetched rides:", rides);
-                const ids = rides.map((ride) => ride.id);
-                setRideIds(ids);
-            } else {
-                console.error("NotificationListener: Failed to fetch joined rides, status:", res.status);
+
+            if(!response.ok){
+                console.error("NotificationListener: Failed to fetch joined rides, status:", response.status);
+                return;
             }
+
+            const rides = await response.json();
+            setRideIds(rides.map((ride) =>ride.id));
+            setUserJoinedTrips(rides);
         } catch (error) {
             console.error("NotificationListener: Error fetching joined rides:", error);
         }
     };
 
     const subscribeToRideNotifications = () => {
-        console.log("NotificationListener: subscribeToRideNotifications() called with rideIds:", rideIds);
-
         rideIds.forEach((rideId) => {
             if (!subscribedRides.current.has(rideId)) {
-                console.log(`NotificationListener: Subscribing to /topic/notification/${rideId}`);
                 try {
                     stompClient.subscribe(`/topic/notification/${rideId}`, (payload) => {
-                        const notification = JSON.parse(payload.body);
-                        if (notification.senderId !== user?.id) {
-                            showNotification(notification.rideId, notification.message);
-                        } else {
-                            console.log("NotificationListener: ignoring own notification", notification);
-                        }
+                        handleNotification(payload);
                     });
                     subscribedRides.current.add(rideId);
                 } catch (error) {
@@ -84,12 +66,48 @@ const NotificationListener = ({ user }) => {
         });
     };
 
+    const handleNotification = (payload) => {
+        try {
+            const notification = JSON.parse(payload.body);
+            if (notification.senderId !== user?.id) {
+                showNotification(notification.rideId, notification.message);
+            } else {
+                console.log("NotificationListener: ignoring own notification", notification);
+            }
+        } catch (error) {
+            console.error("Error processing notification payload:", error);
+        }
+    };
+
     const showNotification = (rideId, message) => {
-        console.log("NotificationListener: showNotification ->", { rideId, message });
-        setAlert(`Ride ${rideId}: ${message}`);
-        setTimeout(() => {
-            setAlert(null);
-        }, 7000);
+        const tripLocations = getTripLocationsById(rideId);
+        const lastPartOfMessage = message.split(':').pop().trim(); // Extract last part after colon and trim whitespace
+        
+        if (tripLocations) {
+            const { leavingFrom, goingTo } = tripLocations;
+            setAlert(`Your rip from ${leavingFrom} to ${goingTo} has got a new message: ${lastPartOfMessage}`);
+        } else {
+            setAlert(`Ride ${rideId}: ${lastPartOfMessage}`);
+        }
+
+        setTimeout(() => setAlert(null), 7000);
+    };
+
+    const getTripLocationsById = (rideId) => {
+        const trip = userJoinedTrips.find(t => t.id ===rideId);
+        if (trip) {
+            return {
+                leavingFrom: trip.leavingFrom.name,
+                goingTo: trip.goingTo.name,
+            };
+        } else {
+            return null;
+        }
+    }
+
+    const clearSubscription = () => {
+        subscribedRides.current.clear();
+        setRideIds([]);
     };
 
     return alert ? (
