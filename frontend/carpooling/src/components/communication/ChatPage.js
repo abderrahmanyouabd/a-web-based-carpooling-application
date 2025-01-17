@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { useWebSocket } from './WebSocketProvider';
 import {jwtDecode} from 'jwt-decode';
@@ -16,42 +16,27 @@ const ChatApp = () => {
 
     const messageInputRef = useRef(null);
 
-    // Keep chat scrolled to bottom on new messages
-    useEffect(() => {
-        const chatMessages = document.getElementById('chat-messages');
-        if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
-    }, [messages]);
+    const normalizeTimestamp = useCallback((timestamp) => new Date(timestamp).getTime(), []);
 
-    // 1. Fetch user details (from the ride) when rideId or token changes
-    useEffect(() => {
-        if (rideId && token) fetchUserDetails(rideId);
-    }, [rideId, token]);
+    const fetchApi = useCallback(async (url, options = {}) => {
+        const res = await fetch(url, { method: "GET", ...options});
+        if (res.ok) return res.json();
+        throw new Error(`API request failed for ${url}`);
+    }, []);
 
-    // 2. Once connected to WebSocket, subscribe to the ride topic & fetch chat history
-    useEffect(() => {
-        if (isConnected && stompClient && rideId && userId) {
-            const subscription = subscribeToRideChat();
-            fetchConnectedUsers();
-            fetchChatHistory();
+    const addUniqueMessages = useCallback((newMessages) => {
+        setMessages((prev) => {
+            const existingKeys = new Set(
+                prev.map((msg) => `${msg.senderId}-${normalizeTimestamp(msg.timestamp)}-${msg.content}`)
+            );
+            const uniqueMessages = newMessages.filter(
+                (msg) =>!existingKeys.has(`${msg.senderId}-${normalizeTimestamp(msg.timestamp)}-${msg.content}`)
+            );
+            return [...prev,...uniqueMessages];
+        });
+    }, [normalizeTimestamp]);
 
-            // Cleanup subscription when unmounting
-            return () => subscription.unsubscribe();
-            
-        }
-    }, [isConnected, stompClient, rideId, userId]);
-
-    // 3. Subscribe to /topic/public so we refresh connected users
-    //    whenever someone logs in or out globally.
-    useEffect(() => {
-        if (isConnected && stompClient) {
-            const publicSubscription = subscribeToPublicNotifications();
-            return () => publicSubscription.unsubscribe();
-        }
-    }, [isConnected, stompClient]);
-
-    const normalizeTimestamp = (timestamp) => new Date(timestamp).getTime();
-
-    const fetchUserDetails = async (rideId) => {
+    const fetchUserDetails = useCallback(async (rideId) => {
         const url = `/api/trips/${rideId}`;
         const headers = { Authorization: `Bearer ${token}` };
 
@@ -71,9 +56,9 @@ const ChatApp = () => {
         } catch (err) {
             console.error('Error fetching trip details:', err);
         }
-    };
+    }, [token, fetchApi]);
 
-    const fetchConnectedUsers = async () => {
+    const fetchConnectedUsers = useCallback(async () => {
         const url = `/connected-users?rideId=${rideId}`;
         try {
             const users = await fetchApi(url);
@@ -81,9 +66,9 @@ const ChatApp = () => {
         } catch (err) {
             console.error('Error fetching connected users:', err);
         }
-    };
+    }, [rideId, fetchApi]);
 
-    const fetchChatHistory = async () => {
+    const fetchChatHistory = useCallback(async () => {
         const url = `/messages/ride/${rideId}`;
         try {
             const history = await fetchApi(url);
@@ -91,36 +76,19 @@ const ChatApp = () => {
         } catch (err) {
             console.error('Error fetching chat history:', err);
         }
-    };
+    }, [rideId, fetchApi, addUniqueMessages]);
 
-    const subscribeToRideChat = () => {
+
+    const subscribeToRideChat = useCallback(() => {
         return stompClient.subscribe(`/topic/ride/${rideId}`, (payload) => {
             const msg = JSON.parse(payload.body);
             addUniqueMessages([msg])
         })
-    }
+    }, [rideId, stompClient, addUniqueMessages]);
 
-    const subscribeToPublicNotifications = () => {
+    const subscribeToPublicNotifications = useCallback(() => {
         return stompClient.subscribe("/topic/public", fetchConnectedUsers);
-    };
-
-    const addUniqueMessages = (newMessages) => {
-        setMessages((prev) => {
-            const existingKeys = new Set(
-                prev.map((msg) => `${msg.senderId}-${normalizeTimestamp(msg.timestamp)}-${msg.content}`)
-            );
-            const uniqueMessages = newMessages.filter(
-                (msg) =>!existingKeys.has(`${msg.senderId}-${normalizeTimestamp(msg.timestamp)}-${msg.content}`)
-            );
-            return [...prev,...uniqueMessages];
-        });
-    }
-
-    const fetchApi = async (url, options = {}) => {
-        const res = await fetch(url, { method: "GET", ...options});
-        if (res.ok) return res.json();
-        throw new Error(`API request failed for ${url}`);
-    };
+    }, [stompClient, fetchConnectedUsers]);
 
     const sendMessage = (e) => {
         e.preventDefault();
@@ -155,6 +123,47 @@ const ChatApp = () => {
         const gender = passengers.find(p => p.id === id);
         return gender? gender.gender : null;
     }
+
+    // Keep chat scrolled to bottom on new messages
+    useEffect(() => {
+        const chatMessages = document.getElementById('chat-messages');
+        if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
+    }, [messages]);
+
+    // 1. Fetch user details (from the ride) when rideId or token changes
+    useEffect(() => {
+        if (rideId && token) fetchUserDetails(rideId);
+    }, [rideId, token, fetchUserDetails]);
+
+    // 2. Once connected to WebSocket, subscribe to the ride topic & fetch chat history
+    useEffect(() => {
+        if (isConnected && stompClient && rideId && userId) {
+            const subscription = subscribeToRideChat();
+            fetchConnectedUsers();
+            fetchChatHistory();
+
+            // Cleanup subscription when unmounting
+            return () => subscription.unsubscribe();
+            
+        }
+    }, [
+        isConnected,
+        stompClient,
+        rideId, 
+        userId,
+        subscribeToRideChat,
+        fetchConnectedUsers,
+        fetchChatHistory
+    ]);
+
+    // 3. Subscribe to /topic/public so we refresh connected users
+    //    whenever someone logs in or out globally.
+    useEffect(() => {
+        if (isConnected && stompClient) {
+            const publicSubscription = subscribeToPublicNotifications();
+            return () => publicSubscription.unsubscribe();
+        }
+    }, [isConnected, stompClient, subscribeToPublicNotifications]);
 
     return (
         <div className="w-4/5 mx-auto mt-5 font-sans">
@@ -233,7 +242,12 @@ const ChatApp = () => {
                     </div>
                 </div>
             ) : (
-                <div>Loading chat...</div>
+                <div className="flex justify-center items-center h-[80vh]">
+                    <div className="flex flex-col items-center">
+                        <div className="animate-spin rounded-full border-4 border-t-4 border-gray-200 border-t-blue-500 h-12 w-12"></div>
+                        <span className="mt-2 text-gray-500 text-lg animate-pulse">Connecting to chat...</span>
+                    </div>
+                </div>
             )}
         </div>
     );

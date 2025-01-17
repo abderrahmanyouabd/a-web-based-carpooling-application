@@ -58,7 +58,7 @@ const MenuBar = ({ setUser, user }) => {
             }
         };
         fetchProfileData();
-    }, [token]);
+    }, [token, setUser]);
 
     return (
         <nav className="bg-gradient-to-r from-blue-500 to-indigo-400 p-4 shadow-lg">
