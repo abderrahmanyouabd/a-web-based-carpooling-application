@@ -11,11 +11,13 @@ import Step4 from "./Step4";
 import Step5 from "./Step5";
 import Step6 from "./Step6";
 import Step7 from "./Step7";
+import Step8 from "./Step8";
 
 const CreateRide = () => {
 
     const [step, setStep] = useState(0);
     const [suggestions, setSuggestions] = useState([]);
+    const [preferences, setPreferences] = useState([]);
     const [activeField, setActiveField] = useState('');
     const [startCoordinates, setStartCoordinates] = useState([]);
     const [endCoordinates, setEndCoordinates] = useState([]);
@@ -107,12 +109,17 @@ const CreateRide = () => {
                 console.error("Unable to save the vehicle to the database: ", error);
             }
         }
-        if (step === 7 && params.price) {
+        if (step === 7 && params.price) setStep(8);
+
+        if (step === 8 && preferences) {
+            console.log("Prefenreces: ", preferences);
+            
+            const finalFareData = {
+                totalFare: params.price * params.numberOfAvailableSeat,
+                farePerSeat: params.price,
+            };
+
             try {
-                const finalFareData = {
-                    totalFare: params.price * params.numberOfAvailableSeat,
-                    farePerSeat: params.price,
-                };
 
                 const response = await axios.post(
                     `http://localhost:8080/api/trips/${tripId}/finalize`,
@@ -124,7 +131,7 @@ const CreateRide = () => {
                         }
                     }
                 );
-
+    
                 console.log("Trip finalized successfully: ", response.data);
                 setOpen(true);
                 setTimeout(() =>{
@@ -135,8 +142,8 @@ const CreateRide = () => {
                 console.error("Error creating trip: ", error);
             }
             
-            
-        };
+
+        }
     }
 
     const createTripAndCalculateFare = async () => {
@@ -213,6 +220,12 @@ const CreateRide = () => {
         const { name, value } = e.target;
         setVehicle(prevVehicle => ({ ...prevVehicle, [name]: value }));
     }
+
+    const handlePreferenceChange = (preference) => {
+        setPreferences((prev) =>
+            prev.includes(preference) ? prev.filter((p) => p !== preference) : [...prev, preference]
+        );
+    };
 
     const handlePrevious = async () => {
         if (step === 7 && params.price) {
@@ -386,6 +399,15 @@ const CreateRide = () => {
                     setParams={setParams}
                     handleContinue={handleContinue}
                     handlePrevious={handlePrevious}
+                />
+            )}
+
+            {step === 8 && (
+                <Step8 
+                    preferences={preferences}
+                    handlePreferenceChange={handlePreferenceChange}
+                    handlePrevious={handlePrevious}
+                    handleContinue={handleContinue}
                 />
             )}
 
