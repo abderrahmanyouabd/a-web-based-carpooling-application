@@ -102,15 +102,6 @@ public class ChatbotController {
         System.out.println("Extracted SQL Query: " + sqlQuery);
 
         if (sqlQuery == null || isModifyingQuery(sqlQuery)) {
-//            try{
-//                System.out.println("before\n");
-//                System.out.println(chatMemory.get(CHAT_ID, MAX_VALUE));
-//                removeLastMessages(CHAT_ID);
-//                System.out.println("after\n");
-//                System.out.println(chatMemory.get(CHAT_ID, MAX_VALUE));
-//            }catch (Exception e){
-//                System.out.println("Error: " + e);
-//            }
             return chatClient
                     .prompt()
                     .user(message)
