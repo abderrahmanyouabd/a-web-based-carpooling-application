@@ -1,5 +1,6 @@
 package com.chay.CarPooling.model;
 
+import com.chay.CarPooling.domain.Currency;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -58,6 +59,8 @@ public class Trip {
     private double distance;
 //    @Enumerated(EnumType.STRING)
     private String status;
+    @Enumerated(EnumType.STRING)
+    private Currency currency;
 
     private String comment;
 
