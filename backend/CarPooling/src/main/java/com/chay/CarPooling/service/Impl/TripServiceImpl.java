@@ -1,5 +1,6 @@
 package com.chay.CarPooling.service.Impl;
 
+import com.chay.CarPooling.domain.TripStatus;
 import com.chay.CarPooling.model.Trip;
 import com.chay.CarPooling.model.User;
 import com.chay.CarPooling.model.Vehicle;
@@ -55,7 +56,7 @@ public class TripServiceImpl implements TripService {
             throw new IllegalArgumentException("User does not have a registered vehicle.");
         }
         trip.setVehicle(vehicle);
-        trip.setStatus("PENDING");
+        trip.setStatus(TripStatus.PENDING);
         return tripRepository.save(trip);
 
     }
