@@ -1,6 +1,6 @@
 import React, { useState, Fragment } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { IconButton, Button, Snackbar} from "@mui/material";
+import { IconButton, Snackbar} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 
 
@@ -22,9 +22,6 @@ const ResetPassword = () => {
 
     const action = (
         <Fragment>
-            <Button color="secondary" size="small" onClick={handleClose}>
-                UNDO
-            </Button>
             <IconButton
                 size="small"
                 aria-label="close"

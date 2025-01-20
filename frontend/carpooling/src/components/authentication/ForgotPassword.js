@@ -1,7 +1,7 @@
 import React, { useState, Fragment } from "react";
 import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners"; 
-import { IconButton, Button, Snackbar} from "@mui/material";
+import { IconButton, Snackbar} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 
 const ForgotPassword = () => {
@@ -21,9 +21,6 @@ const ForgotPassword = () => {
 
     const action = (
         <Fragment>
-            <Button color="secondary" size="small" onClick={handleClose}>
-                UNDO
-            </Button>
             <IconButton
                 size="small"
                 aria-label="close"
