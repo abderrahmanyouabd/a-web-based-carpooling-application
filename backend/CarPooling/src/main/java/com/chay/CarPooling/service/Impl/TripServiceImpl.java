@@ -1,5 +1,6 @@
 package com.chay.CarPooling.service.Impl;
 
+import com.chay.CarPooling.domain.TripStatus;
 import com.chay.CarPooling.model.Trip;
 import com.chay.CarPooling.model.User;
 import com.chay.CarPooling.model.Vehicle;
@@ -22,6 +23,9 @@ import org.springframework.web.client.RestTemplate;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Set;
+
+import static com.chay.CarPooling.domain.Currency.USD;
 
 /**
  * @author: Abderrahman Youabd aka: A1ST
@@ -42,13 +46,17 @@ public class TripServiceImpl implements TripService {
     public Trip createTrip(Trip trip, User user) {
         // I should add logic for validation, authentication, etc ...
         trip.setDriver(user);
+        Set<User> passengers = trip.getPassengers();
+        passengers.add(user);
+        trip.setPassengers(passengers);
+        trip.setCurrency(USD);
 
         Vehicle vehicle = user.getVehicle();
         if (vehicle == null) {
             throw new IllegalArgumentException("User does not have a registered vehicle.");
         }
         trip.setVehicle(vehicle);
-        trip.setStatus("PENDING");
+        trip.setStatus(TripStatus.PENDING);
         return tripRepository.save(trip);
 
     }

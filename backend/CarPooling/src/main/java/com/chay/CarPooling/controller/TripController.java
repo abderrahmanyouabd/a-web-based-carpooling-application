@@ -1,5 +1,6 @@
 package com.chay.CarPooling.controller;
 
+import com.chay.CarPooling.domain.TripStatus;
 import com.chay.CarPooling.model.PaymentTransaction;
 import com.chay.CarPooling.model.Trip;
 import com.chay.CarPooling.model.User;
@@ -191,7 +192,7 @@ public class TripController {
             BigDecimal newFarePerSeat = requestBody.get("farePerSeat");
             trip.setFarePerSeat(newFarePerSeat);
         }
-        trip.setStatus("CONFIRMED");
+        trip.setStatus(TripStatus.PLANNED);
         Trip updatedTrip = tripRepository.save(trip);
 
         return ResponseEntity.ok(updatedTrip);
