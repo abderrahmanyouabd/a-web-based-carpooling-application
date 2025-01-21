@@ -4,13 +4,15 @@ import { IconButton, Snackbar} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 
 
+const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
+
 const ResetPassword = () => {
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
 
-    const navigate = useNavigate();
+    const navigate = useNavigate(); 
     const location = useLocation();
 
     const handleClose = (event, reason) => {
@@ -59,7 +61,7 @@ const ResetPassword = () => {
         try {
             setLoading(true);
 
-            const response = await fetch('http://localhost:8080/auth/reset-password', {
+            const response = await fetch(`${BACKEND_API_BASE_URL}/auth/reset-password`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

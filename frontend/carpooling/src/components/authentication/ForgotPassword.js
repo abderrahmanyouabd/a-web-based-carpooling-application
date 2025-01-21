@@ -4,6 +4,9 @@ import { ClipLoader } from "react-spinners";
 import { IconButton, Snackbar} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 
+
+const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
+
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
@@ -42,7 +45,7 @@ const ForgotPassword = () => {
 
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8080/reset?email=${email}`, {
+            const response = await fetch(`${BACKEND_API_BASE_URL}/reset?email=${email}`, { 
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

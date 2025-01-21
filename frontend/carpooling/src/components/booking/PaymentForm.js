@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
+
+const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
+
 const PaymentForm = () => {
     const stripe = useStripe();
     const elements = useElements();
@@ -53,7 +56,7 @@ const PaymentForm = () => {
 
         try {
             console.log("Joining trip with ride ID:", rideId);
-            const joinResponse = await fetch(`http://localhost:8080/api/trips/${rideId}/join`,
+            const joinResponse = await fetch(`${BACKEND_API_BASE_URL}/api/trips/${rideId}/join`,
                 {   
                     method: 'PUT',
                     headers: {

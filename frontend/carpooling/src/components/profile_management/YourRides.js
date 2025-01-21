@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+
+const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
+
 const YourRides = () => {
     const [selectedTab, setSelectedTab] = useState("created");
     const [rides, setRides] = useState([]);
@@ -14,8 +17,8 @@ const YourRides = () => {
     useEffect(() => {
         const fetchRides = async () => {
             const apiUrl = selectedTab === "created" 
-                ? "http://localhost:8080/api/trips/created" 
-                : "http://localhost:8080/api/trips/joined";
+                ? `${BACKEND_API_BASE_URL}/api/trips/created` 
+                : `${BACKEND_API_BASE_URL}/api/trips/joined`;
 
             try {
 

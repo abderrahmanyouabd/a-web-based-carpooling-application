@@ -13,6 +13,8 @@ import Step6 from "./Step6";
 import Step7 from "./Step7";
 import Step8 from "./Step8";
 
+const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
+
 const CreateRide = () => {
 
     const [step, setStep] = useState(0);
@@ -58,7 +60,7 @@ const CreateRide = () => {
     const isUserHasVehicle = async () => {
         try {
             const token = localStorage.getItem('jwtToken');
-            const vehicleResponse = await axios.get('http://localhost:8080/api/vehicle', 
+            const vehicleResponse = await axios.get(`${BACKEND_API_BASE_URL}/api/vehicle`, 
                 {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -92,7 +94,7 @@ const CreateRide = () => {
         if (step === 6 && vehicle) {
             try {
                 const token = localStorage.getItem('jwtToken');
-                const vehicleResponse = await axios.post('http://localhost:8080/api/vehicle', 
+                const vehicleResponse = await axios.post(`${BACKEND_API_BASE_URL}/api/vehicle`, 
                     vehicle,
                     {
                         headers: {
@@ -122,7 +124,7 @@ const CreateRide = () => {
             try {
 
                 const response = await axios.post(
-                    `http://localhost:8080/api/trips/${tripId}/finalize`,
+                    `${BACKEND_API_BASE_URL}/api/trips/${tripId}/finalize`,
                     finalFareData,
                     {
                         headers: {
@@ -179,7 +181,7 @@ const CreateRide = () => {
 
         try {
             
-            const createTripResponse = await axios.post('http://localhost:8080/api/trips/create', tripData, {
+            const createTripResponse = await axios.post(`${BACKEND_API_BASE_URL}/api/trips/create`, tripData, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -192,7 +194,7 @@ const CreateRide = () => {
 
             
             const fareResponse = await axios.post(
-                `http://localhost:8080/api/trips/calculate-fare?tripId=${tripId}`,
+                `${BACKEND_API_BASE_URL}/api/trips/calculate-fare?tripId=${tripId}`,
                 {}, // empty object as the request body
                 {
                     headers: {

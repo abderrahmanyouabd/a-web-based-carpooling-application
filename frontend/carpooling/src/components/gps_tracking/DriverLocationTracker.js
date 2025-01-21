@@ -5,6 +5,8 @@ import MapRouteDrawing from "./MapRouteDrawing";
 
 const socket = io("http://localhost:3001");
 
+const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
+
 const DriverLocationTracker = () => {
     const [position, setPosition] = useState({ latitude: null, longitude: null });
     const [tracking, setTracking] = useState(false);
@@ -24,7 +26,7 @@ const DriverLocationTracker = () => {
 
                 console.log("Ride Id: ", rideId);
 
-                let url = `http://localhost:8080/api/trips/${rideId}`;
+                let url = `${BACKEND_API_BASE_URL}/api/trips/${rideId}`;
 
                 console.log("Fetched backend Url: " + url);
 

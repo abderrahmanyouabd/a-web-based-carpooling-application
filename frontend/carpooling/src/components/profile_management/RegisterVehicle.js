@@ -4,6 +4,9 @@ import { IconButton, TextField, MenuItem, Snackbar } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 
 
+
+const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
+
 const RegisterVehicle = () => {
     const [open, setOpen] = useState(false);
     const [hasVehicle, setHasVehicle] = useState(false);
@@ -20,7 +23,7 @@ const RegisterVehicle = () => {
         const checkUserVehicle = async () => {
             try {
                 const token = localStorage.getItem('jwtToken');
-                const vehicleResponse = await axios.get('http://localhost:8080/api/vehicle', 
+                const vehicleResponse = await axios.get(`${BACKEND_API_BASE_URL}/api/vehicle`, 
                     {
                         headers: {
                             'Authorization': `Bearer ${token}`,
@@ -52,7 +55,7 @@ const RegisterVehicle = () => {
     const handleSubmit = async () => {
         try {
             const token = localStorage.getItem('jwtToken');
-            const vehicleResponse = await axios.post('http://localhost:8080/api/vehicle', 
+            const vehicleResponse = await axios.post(`${BACKEND_API_BASE_URL}/api/vehicle`, 
                 vehicle,
                 {
                     headers: {

@@ -3,6 +3,10 @@ import { useLocation, useNavigate} from "react-router-dom";
 import { FaCar, FaCheckCircle, FaBan, FaUserFriends, FaClock, FaShieldAlt } from "react-icons/fa";
 import { IconButton, Button, Snackbar} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
+import {jwtDecode} from "jwt-decode";
+
+
+const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
 
 const RideDetail = () => {
     const location = useLocation();
@@ -13,12 +17,33 @@ const RideDetail = () => {
     const ride = location.state?.ride;
     const isDriver = profileData?.id === ride.driver.id;
     const token = localStorage.getItem("jwtToken");
-    
+
+
+    const isPassenger = () => {
+        if (!token) {
+            return false;
+        }
+
+        const decodedToken = jwtDecode(token);
+        const userEmail = decodedToken?.email;
+
+        console.log("User email: " + userEmail);
+
+        if (!userEmail) {
+            return false;
+        }
+
+        return ride.passengers.some(
+            (passenger) => passenger.email === userEmail
+        );
+    }
+
+
     useEffect(() => {
         const fetchProfileData = async () => {
             try {
 
-                const response = await fetch(`http://localhost:8080/api/users/profile`, {
+                const response = await fetch(`${BACKEND_API_BASE_URL}/api/users/profile`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -47,7 +72,7 @@ const RideDetail = () => {
                 return;
             }
 
-            const response = await fetch(`http://localhost:8080/api/trips/${ride.id}/pay`, {
+            const response = await fetch(`${BACKEND_API_BASE_URL}/api/trips/${ride.id}/pay`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -236,28 +261,28 @@ const RideDetail = () => {
                         <p className="text-lg text-gray-500">{ride.driver.vehicle.model} - {ride.driver.vehicle.color} - {ride.driver.vehicle.licensePlateNumber}</p>
                     </div>
                     
-
-                    <div className="mt-4 w-full flex flex-col text-center space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-                        <button onClick={handleContactDriver} className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-50">
-                            Contact {ride.driver.fullName}
-                        </button>
-                        {isDriver ? (
-                            <button
-                                onClick={() => navigate(`/track-driver-location/${ride.id}`)}
-                                className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-50"
-                            >
-                                Share My Driver Location
+                    {isPassenger() && (
+                        <div className="mt-4 w-full flex flex-col text-center space-y-4 md:flex-row md:space-y-0 md:space-x-4">
+                            <button onClick={handleContactDriver} className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-50">
+                                Contact {ride.driver.fullName}
                             </button>
-                        ): (
-                            <button
-                                onClick={handleViewDriverLocation}
-                                className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-50"
-                            >
-                                View Driver Location
-                            </button>
-                        )}
-
-                    </div>
+                            {isDriver ? (
+                                <button
+                                    onClick={() => navigate(`/track-driver-location/${ride.id}`)}
+                                    className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-50"
+                                >
+                                    Share My Driver Location
+                                </button>
+                            ): (
+                                <button
+                                    onClick={handleViewDriverLocation}
+                                    className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-50"
+                                >
+                                    View Driver Location
+                                </button>
+                            )}
+                        </div>
+                    )}
                     
                 </div>
                 

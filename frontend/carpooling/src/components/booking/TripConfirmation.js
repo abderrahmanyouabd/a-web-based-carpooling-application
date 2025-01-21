@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
+const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
+
 const TripConfirmation = ({ user }) => {
     const navigate = useNavigate();
     const { rideId } = useParams();
@@ -21,7 +23,7 @@ const TripConfirmation = ({ user }) => {
 
                 console.log("Ride Id: ", rideId);
 
-                let url = `http://localhost:8080/api/trips/${rideId}`;
+                let url = `${BACKEND_API_BASE_URL}/api/trips/${rideId}`;
 
                 console.log("Fetched backend Url: " + url);
 

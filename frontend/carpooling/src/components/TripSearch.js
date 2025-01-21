@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+
+const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
+
 const TripSearch = ({ initialParams = {} }) => {
 
     const [params, setParams] = useState({
@@ -70,7 +73,7 @@ const TripSearch = ({ initialParams = {} }) => {
             if (params.date) requestParams.date = params.date;
             if (params.numberOfAvailableSeat) requestParams.numberOfAvailableSeat = params.numberOfAvailableSeat;
             
-            let url = 'http://localhost:8080/api/trips/search?';
+            let url = `${BACKEND_API_BASE_URL}/api/trips/search?`;
             if(requestParams.leavingFrom){
                 url += `leavingFrom=${requestParams.leavingFrom.replace(/,\s+/g, ',+')}&`;
             }

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
+
 const MenuBar = ({ setUser, user }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isDesktopMenuOpen, setIsDesktopMenuOpen] = useState(false);
@@ -17,7 +19,7 @@ const MenuBar = ({ setUser, user }) => {
 
     const handleLogout = async () => {
         try {
-            const response = await fetch("http://localhost:8080/stream/clear", {
+            const response = await fetch(`${BACKEND_API_BASE_URL}/stream/clear`, {
                 method: "POST",
             });
 
@@ -41,7 +43,7 @@ const MenuBar = ({ setUser, user }) => {
     useEffect(() => {
         const fetchProfileData = async () => {
             if (token) {
-                const profileResponse = await fetch("http://localhost:8080/api/users/profile", {
+                const profileResponse = await fetch(`${BACKEND_API_BASE_URL}/api/users/profile`, {
                     method: "GET",
                     headers: {
                         Authorization: `Bearer ${token}`,

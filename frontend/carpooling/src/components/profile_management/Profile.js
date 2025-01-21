@@ -8,6 +8,9 @@ import EditDateOfBirth from "./EditDateOfBirth";
 import EditEmailAddress from "./EditEmailAddress";
 import EditPhoneNumber from "./EditPhoneNumber";
 
+
+const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
+
 const Profile = ({ setUser }) => {
     const [profileData, setProfileData] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
@@ -30,7 +33,7 @@ const Profile = ({ setUser }) => {
             }
 
             try {
-                const response = await fetch('http://localhost:8080/api/users/profile', {
+                const response = await fetch(`${BACKEND_API_BASE_URL}/api/users/profile`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -123,7 +126,7 @@ const Profile = ({ setUser }) => {
             console.log("Saving Object: ", [...savingObject]); 
     
             if (savingObject.has('fullName') || savingObject.has('email') || savingObject.has('mobile') || savingObject.has('dateOfBirth') || savingObject.has('profilePicture')) {
-                const response = await fetch('http://localhost:8080/api/users', {
+                const response = await fetch(`${BACKEND_API_BASE_URL}/api/users`, {
                     method: 'PATCH',
                     headers: {
                         'Authorization': `Bearer ${token}`,

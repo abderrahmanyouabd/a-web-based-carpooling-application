@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Send, X } from "lucide-react";
 
+
+const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
+
 const ChatbotComponent = ({ onClose }) => {
     const [messages, setMessages] = useState(() => {
         const savedMessages = localStorage.getItem("chatbotMessages");
@@ -37,7 +40,7 @@ const ChatbotComponent = ({ onClose }) => {
         try {
             setLoading(true);
             const response = await fetch(
-                `http://localhost:8080/stream?message=${encodeURIComponent(input)}`,
+                `${BACKEND_API_BASE_URL}/stream?message=${encodeURIComponent(input)}`,
                 {
                     method: "GET",
                     headers: {

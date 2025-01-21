@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+
+const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
+
 const SignIn = ({ setUser }) => {
     const [params, setParams] = useState({
         email: '',
@@ -16,7 +19,7 @@ const SignIn = ({ setUser }) => {
 
     const handleLogin = async () => {
         try {
-            const response = await fetch('http://localhost:8080/auth/signin', {
+            const response = await fetch(`${BACKEND_API_BASE_URL}/auth/signin`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -33,7 +36,7 @@ const SignIn = ({ setUser }) => {
                 localStorage.setItem('jwtToken', data.jwt);
     
                 const token = data.jwt;
-                const profileResponse = await fetch('http://localhost:8080/api/users/profile', {
+                const profileResponse = await fetch(`${BACKEND_API_BASE_URL}/api/users/profile`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,

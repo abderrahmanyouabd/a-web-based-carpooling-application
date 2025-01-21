@@ -7,6 +7,8 @@ import Step4 from "./Step4";
 import Step5 from "./Step5";
 
 
+const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
+
 const SignUp = ({ setUser }) => {
     const [step, setStep] = useState(1);
     const [params, setParams] = useState({
@@ -82,7 +84,7 @@ const SignUp = ({ setUser }) => {
         const userData = {...params, fullName};
 
         try {
-            const response = await fetch('http://localhost:8080/auth/signup', {
+            const response = await fetch(`${BACKEND_API_BASE_URL}/auth/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -99,7 +101,7 @@ const SignUp = ({ setUser }) => {
                 localStorage.setItem('jwtToken', data.jwt);
 
                 const token = data.jwt;
-                const profileResponse = await fetch('http://localhost:8080/api/users/profile', {
+                const profileResponse = await fetch(`${BACKEND_API_BASE_URL}/api/users/profile`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
