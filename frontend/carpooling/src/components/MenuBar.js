@@ -33,7 +33,7 @@ const MenuBar = ({ setUser, user }) => {
             localStorage.removeItem("jwtToken");
             localStorage.removeItem("chatbotMessages")
             setUser(null);
-            navigate("/");
+            navigate("/", { state: { snackbarMessage: "Logout sucessfully!" } });
         } catch (error) {
             console.error("Error during logout: ", error);
         }

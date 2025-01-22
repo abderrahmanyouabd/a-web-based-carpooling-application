@@ -1,16 +1,42 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Snackbar, Alert } from "@mui/material";
 import TripSearch from "./TripSearch";
 import CarPoolCommercial from "../CarPoolingPictures/carpool_commercial2.png"
 import BigCarSharing from "../CarPoolingPictures/big_carsharing.png";
 
 const Home = () => {
 
-
+    const location = useLocation();
     const navigate = useNavigate();
+
+    const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [showSnackbar, setShowSnackbar] = useState(false);
+
+    useEffect(() => {
+        if (location.state?.snackbarMessage) {
+            setSnackbarMessage(location.state.snackbarMessage);
+            setShowSnackbar(true);
+        }
+    }, [location.state]);
 
     return (
         <div className="font-sans">
+
+            <Snackbar
+                open={showSnackbar}
+                autoHideDuration={4000}
+                onClose={() => setShowSnackbar(false)}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+                <Alert
+                    onClose={() => setShowSnackbar(false)}
+                    severity="success"
+                    sx={{ width: '100%'}}
+                >
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
 
             <div className="relative text-center">
                 <img 

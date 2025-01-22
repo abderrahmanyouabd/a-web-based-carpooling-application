@@ -8,12 +8,11 @@ const ChatApp = () => {
     const { rideId } = useParams();
     const token = localStorage.getItem('jwtToken');
     const { stompClient, isConnected } = useWebSocket();
-
     const [userId, setUserId] = useState(null);
     const [passengers, setPassengers] = useState(null);
     const [messages, setMessages] = useState([]);
     const [connectedUsers, setConnectedUsers] = useState([]);
-
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Sidebar toggle for mobile user
     const messageInputRef = useRef(null);
 
     const normalizeTimestamp = useCallback((timestamp) => new Date(timestamp).getTime(), []);
@@ -168,11 +167,33 @@ const ChatApp = () => {
     return (
         <div className="w-4/5 mx-auto mt-5 font-sans">
             {isConnected ? (
-                <div className="flex h-[80vh] border border-gray-300 rounded-lg overflow-hidden">
+                <div className="flex flex-col md:flex-row h-[80vh] border border-gray-300 rounded-lg overflow-hidden">
+                    <div className="md:hidden">
+                        <button
+                            className="w-full text-blue-500 underline py-2 bg-gray-200 border-b border-gray-300"
+                            onClick={() => setIsSidebarOpen((prev) => !prev)}
+                        >
+                            See online users
+                        </button>
+                    </div>
+
                     {/* Sidebar */}
-                    <div className="w-1/4 bg-gray-100 p-4 border-r border-gray-300 overflow-y-auto">
-                        <h3 className="text-lg font-semibold mb-4">Online Users</h3>
-                        <ul className="space-y-3">
+                    <div
+                        className={`fixed inset-0 bg-gray-100 z-50 p-4 border-r border-gray-300 ${
+                            isSidebarOpen ? "block" : "hidden"
+                        } md:static md:z-auto md:block md:w-1/4`}
+                    >   
+                        <div className="md:hidden flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold">Online Users</h3>
+                            <button
+                                className="bg-red-500 pr-2 pl-2 text-white rounded-md block md:hidden"
+                                onClick={() => setIsSidebarOpen((prev) =>!prev)}
+                            >
+                                X
+                            </button>
+                        </div>
+
+                        <ul className="space-y-3 overflow-y-auto h-full">
                             {connectedUsers.map((user) => (
                                 <li
                                     key={user.chatUserId}
@@ -206,10 +227,10 @@ const ChatApp = () => {
                     </div>
 
                     {/* Main Chat */}
-                    <div className="flex flex-col flex-1 bg-white">
+                    <div className="flex flex-col flex-1 bg-white h-full">
                         <div
                             id="chat-messages"
-                            className="flex-1 overflow-y-auto p-4 bg-gray-50"
+                            className="flex-1 overflow-y-auto p-2 bg-gray-50 md:max-h-full max-h-[85%]"
                         >
                             {messages.map((msg, index) => (
                                 <Message 

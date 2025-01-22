@@ -60,7 +60,7 @@ const Profile = ({ setUser }) => {
     const handleLogout = () => {
         localStorage.removeItem('jwtToken');
         setUser(null);
-        navigate('/');
+        navigate('/', { state: { snackbarMessage: "Logout sucessfully!" } });
     }
 
     const toggleAddProfilePicturePopup = () => {

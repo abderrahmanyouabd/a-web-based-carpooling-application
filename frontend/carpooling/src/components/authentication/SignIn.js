@@ -47,12 +47,12 @@ const SignIn = ({ setUser }) => {
                 if (profileResponse.ok) {
                     const profileData = await profileResponse.json();
                     setUser(profileData);
-                    navigate('/'); 
+                    navigate('/', { state: { snackbarMessage: `Welcome back, ${profileData.fullName} to CarPooling!` }}); 
                 } else {
                     setErrorMessage("Failed to fetch profile data after login.");
                 }
             } else {
-                setErrorMessage(data.message || 'Login failed');
+                setErrorMessage(data.message || 'Login failed: Invalid email or password');
             }
         } catch (error) {
             setErrorMessage("An error occurred while logging in. Please check your credentials.");
