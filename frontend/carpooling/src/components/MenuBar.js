@@ -198,13 +198,50 @@ const MenuBar = ({ setUser, user }) => {
                                         </Link>
                                     </>
                                 ) : (
-                                    <Link
-                                        to="/profile"
-                                        onClick={toggleMobileMenu}
-                                        className="text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-700 hover:shadow-md transition-all duration-200 ease-in-out"
-                                    >
-                                        Profile ({user.fullName})
-                                    </Link>
+                                    <>
+                                        <ul>
+                                            <li>
+                                                <Link 
+                                                    to="/profile" 
+                                                    onClick={toggleMobileMenu}
+                                                    className="block text-white px-4 py-2 rounded"
+                                                >
+                                                    Profile ({user.fullName})
+                                                </Link>
+                                            </li>
+
+                                            <li>
+                                                <Link
+                                                    to="your-rides"
+                                                    onClick={toggleMobileMenu}
+                                                    className="block text-white px-4 py-2 rounded"
+                                                >
+                                                    Your Rides
+                                                </Link>
+                                            </li>
+
+                                            <li>
+                                                <Link
+                                                    to="/register-vehicle"
+                                                    onClick={toggleMobileMenu}
+                                                    className="block text-white px-4 py-2 rounded"
+                                                >
+                                                    Register Vehicle
+                                                </Link>
+                                            </li>
+
+                                            <li>
+                                                <button
+                                                    onClick={handleLogout}
+                                                    className="w-full text-white text-left px-4 py-2 rounded"
+                                                >
+                                                    Log Out
+                                                </button>
+                                            </li>
+
+                                        </ul>
+                                    
+                                    </>
                                 )}
                             </div>
                         </div>

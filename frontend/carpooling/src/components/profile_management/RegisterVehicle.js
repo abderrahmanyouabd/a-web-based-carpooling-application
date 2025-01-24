@@ -88,11 +88,11 @@ const RegisterVehicle = () => {
     
 
     return (
-        <div className="flex flex-col items-center mt-10">
+        <div className="flex flex-col items-center mt-32 md:mt-20">
             {hasVehicle ? (
-                <div className="w-1/2 h-2/3 bg-white shadow-lg rounded-lg">
+                <div className="w-3/4 md:w-1/3 h-2/3 bg-white shadow-lg rounded-lg">
                     <div className="bg-blue-500 text-white px-6 py-4 rounded-t-lg">
-                        <h1 className="text-2xl font-bold text-center">You already have a registered vehicle</h1>
+                        <h1 className="text-xl md:text-2xl font-bold text-center">You already have a registered vehicle</h1>
                     </div>
                     <div className="px-6 py-4">
                         <div className="flex flex-col space-y-2 text-gray-700">

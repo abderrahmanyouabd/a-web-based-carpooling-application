@@ -87,7 +87,7 @@ const ChatbotComponent = ({ onClose }) => {
     };
 
     return (
-        <div className="fixed bottom-4 right-4 w-96 h-[32rem] bg-white rounded-lg shadow-xl flex flex-col">
+        <div className="fixed bottom-4 right-4 w-72 md:w-96 h-[32rem] bg-white rounded-lg shadow-xl flex flex-col">
             <div className="flex justify-between items-center p-4 border-b">
                 <h2 className="text-lg font-semibold">Chatbot</h2>
                 <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
@@ -122,11 +122,11 @@ const ChatbotComponent = ({ onClose }) => {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="Type your message..."
-                    className="flex-1 p-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 p-2 border border-gray-300 rounded-l-lg "
                 />
                 <button
                     type="submit"
-                    className="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="bg-blue-500 text-white px-4 py-2 rounded-r-lg hover:bg-blue-600"
                 >
                     <Send size={20} />
                 </button>

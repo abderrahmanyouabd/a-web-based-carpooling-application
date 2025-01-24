@@ -79,15 +79,52 @@ const ChatApp = () => {
 
 
     const subscribeToRideChat = useCallback(() => {
+        console.log(`Subscribing to /topic/ride/${rideId}`);
         return stompClient.subscribe(`/topic/ride/${rideId}`, (payload) => {
             const msg = JSON.parse(payload.body);
-            addUniqueMessages([msg])
+
+            addUniqueMessages([msg]);
         })
     }, [rideId, stompClient, addUniqueMessages]);
 
+
     const subscribeToPublicNotifications = useCallback(() => {
-        return stompClient.subscribe("/topic/public", fetchConnectedUsers);
-    }, [stompClient, fetchConnectedUsers]);
+        return stompClient.subscribe("/topic/public", async (payload) => {
+            const msg = JSON.parse(payload.body);
+            console.log("Public notification received:", msg);
+
+            if (msg.status === "OFFLINE") {
+                setConnectedUsers((prev) =>
+                    prev.filter((user) => user.chatUserId !== msg.chatUserId)
+                );
+            }
+        });
+    }, [stompClient]);
+
+    const subscribeToNewPassengerNotifications = useCallback(() => {
+        return stompClient.subscribe(`/topic/trip/${rideId}`, async (payload) => {
+            const msg = JSON.parse(payload.body);
+            console.log("Ride notification received:", msg); // Check if the message is received here
+    
+            if (msg.type === "NEW_PARTICIPANT") {
+                setConnectedUsers((prev) => {
+                    const exists = prev.some((user) => user.chatUserId === msg.userId);
+                    if (!exists) {
+                        return [
+                            ...prev,
+                            {
+                                chatUserId: msg.userId,
+                                fullName: msg.userName,
+                                gender: msg.gender,
+                                profilePicture: msg.profilePicture,
+                            },
+                        ];
+                    }
+                    return prev;
+                });
+            }
+        });
+    }, [stompClient, rideId])
 
     const sendMessage = (e) => {
         e.preventDefault();
@@ -155,14 +192,19 @@ const ChatApp = () => {
         fetchChatHistory
     ]);
 
-    // 3. Subscribe to /topic/public so we refresh connected users
+    // 3. Subscribe to /topic/public so we refresh newly connected passengers
     //    whenever someone logs in or out globally.
     useEffect(() => {
         if (isConnected && stompClient) {
             const publicSubscription = subscribeToPublicNotifications();
-            return () => publicSubscription.unsubscribe();
+            const newPassengerSubscription = subscribeToNewPassengerNotifications();
+
+            return () => {
+                publicSubscription.unsubscribe();
+                newPassengerSubscription.unsubscribe();
+            };
         }
-    }, [isConnected, stompClient, subscribeToPublicNotifications]);
+    }, [isConnected, stompClient, subscribeToPublicNotifications, subscribeToNewPassengerNotifications]);
 
     return (
         <div className="w-4/5 mx-auto mt-5 font-sans">
@@ -230,7 +272,7 @@ const ChatApp = () => {
                     <div className="flex flex-col flex-1 bg-white h-full">
                         <div
                             id="chat-messages"
-                            className="flex-1 overflow-y-auto p-2 bg-gray-50 md:max-h-full max-h-[85%]"
+                            className="flex-1 overflow-y-auto p-2 bg-gray-50 min-h-0"
                         >
                             {messages.map((msg, index) => (
                                 <Message 
@@ -243,23 +285,29 @@ const ChatApp = () => {
                                 />
                             ))}
                         </div>
-                        <form 
-                            className="flex p-4 border-t border-gray-300" 
-                            onSubmit={sendMessage}
+
+                        <div 
+                            className="flex-shrink-0 sticky bg-white bottom-0 border-t border-gray-300"
                         >
-                            <input
-                                type="text"
-                                ref={messageInputRef}
-                                placeholder="Type your message..."
-                                className="flex-1 p-2 border border-gray-300 rounded-md mr-2"
-                            />
-                            <button
-                                type="submit"
-                                className="px-4 py-2 bg-green-500 text-white rounded-md"
+                            <form 
+                                className="flex p-4 " 
+                                onSubmit={sendMessage}
                             >
-                                Send
-                            </button>
-                        </form>
+                                <input
+                                    type="text"
+                                    ref={messageInputRef}
+                                    placeholder="Type your message..."
+                                    className="flex-1 p-2 border border-gray-300 rounded-md mr-2"
+                                />
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-green-500 text-white rounded-md"
+                                >
+                                    Send
+                                </button>
+                            </form>
+                        </div>
+                        
                     </div>
                 </div>
             ) : (
