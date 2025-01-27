@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-
+const GEO_AUTOCOMPLETE_API_KEY = process.env.REACT_APP_GEO_AUTOCOMPLETE_API_KEY;
 const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
 
 const TripSearch = ({ initialParams = {} }) => {
@@ -32,7 +32,7 @@ const TripSearch = ({ initialParams = {} }) => {
                     const response = await axios.get(
                         'https://api.openrouteservice.org/geocode/autocomplete', {
                             params: { 
-                                api_key: '5b3ce3597851110001cf6248e4896a13b7cd44c988adeba2a1f425b4',
+                                api_key: GEO_AUTOCOMPLETE_API_KEY,
                                 text: query,
                                 layers: 'address,locality,country,region,county'
                             }

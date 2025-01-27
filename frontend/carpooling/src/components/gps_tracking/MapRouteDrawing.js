@@ -10,6 +10,8 @@ import { fromLonLat } from 'ol/proj';
 import { Icon, Style, Stroke } from 'ol/style';
 import GeoJSON from 'ol/format/GeoJSON';
 
+const GEO_ROUTE_API_KEY = process.env.REACT_APP_GEO_ROUTE_API_KEY;
+
 const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition, journeyInfoUpdate }) => {
 
   const mapRef = useRef();
@@ -47,7 +49,7 @@ const MapRouteDrawing = ({ startCoordinates, endCoordinates, driverPosition, jou
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: '5b3ce3597851110001cf6248e4896a13b7cd44c988adeba2a1f425b4',
+          Authorization: GEO_ROUTE_API_KEY,
         },
         body: JSON.stringify({
           coordinates: [startCoordinates, endCoordinates],

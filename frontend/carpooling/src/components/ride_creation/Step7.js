@@ -1,64 +1,71 @@
 import React from "react";
+import { TextField, MenuItem } from "@mui/material";
 
-const Step7 = ({ setParams, params, handlePrevious, handleContinue}) => {
-
-    const handlePriceIncrease = () => {
-        setParams(prevParams => ({
-            ...prevParams,
-            price: prevParams.price + 1
-        }));
-    };
-    
-    const handlePriceDecrease = () => {
-        if (params.price > 0) {
-          setParams(prevParams => ({
-            ...prevParams,
-            price: prevParams.price - 1
-          }));
-        }
-    };
-
+const Step6 = ({vehicle, handleVehicleChange, handlePrevious, handleContinue}) => {
     return (
         <>
-            <h1 className="text-xl md:text-3xl font-extrabold text-gray-700">Set your price per seat</h1>
+            <h1 className="text-xl md:text-3xl font-extrabold text-gray-700">Enter Vehicle Details</h1>
 
-            <div className="flex items-center mt-10 space-x-8 md:space-x-12">
-                <button
-                    onClick={handlePriceDecrease}
-                    className="text-blue-500 border border-blue-500 w-12 h-12 flex items-center justify-center rounded-full text-2xl border-2"
+            <div className="flex flex-col space-y-4 mt-5">
+                <TextField
+                    label="Model"
+                    name="model"
+                    value={vehicle.model}
+                    onChange={handleVehicleChange}
+                    variant="outlined"
+                />
+                <TextField
+                    label="Color"
+                    name="color"
+                    value={vehicle.color}
+                    onChange={handleVehicleChange}
+                    variant="outlined"
+                />
+                <TextField
+                    label="License Plate Number"
+                    name="licensePlateNumber"
+                    value={vehicle.licensePlateNumber}
+                    onChange={handleVehicleChange}
+                    variant="outlined"
+                />
+                <TextField
+                    label="Brand"
+                    name="brand"
+                    value={vehicle.brand}
+                    onChange={handleVehicleChange}
+                    variant="outlined"
+                />
+                <TextField
+                    select
+                    label="Gas Type"
+                    name="gasType"
+                    value={vehicle.gasType}
+                    onChange={handleVehicleChange}
+                    variant="outlined"
                 >
-                    -
-                </button>
-                
-                <span className="text-6xl font-bold text-gray-700">
-                    €{params.price}
-                </span>
-
-                <button
-                    onClick={handlePriceIncrease}
-                    className="text-blue-500 border border-blue-500 w-12 h-12 flex items-center justify-center rounded-full text-2xl border-2"
-                >
-                    +
-                </button>
-            </div>
+                    <MenuItem value="GASOLINE">Gasoline</MenuItem>
+                    <MenuItem value="DIESEL">Diesel</MenuItem>
+                </TextField>
+            </div>                
 
             <div className="flex space-x-16 mt-5">
-                <button 
+                <button
                     onClick={handlePrevious}
                     className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
                 >
                     Previous
                 </button>
-
-                <button 
+                <button
                     onClick={handleContinue}
                     className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
                 >
                     Continue
                 </button>
-            </div>
+            </div>                                                
+        
         </>
-    )
+                                       
+    );
 }
 
-export default Step7;
+export default Step6;

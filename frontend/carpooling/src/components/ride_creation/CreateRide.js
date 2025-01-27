@@ -14,6 +14,7 @@ import Step7 from "./Step7";
 import Step8 from "./Step8";
 
 const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
+const GEO_AUTOCOMPLETE_API_KEY = process.env.REACT_APP_GEO_AUTOCOMPLETE_API_KEY;
 
 const CreateRide = () => {
 
@@ -82,16 +83,20 @@ const CreateRide = () => {
         if (step === 2 && params.dropOff) setStep(3);
         if (step === 3 && startCoordinates && endCoordinates) setStep(4);
         if (step === 4 && params.startTime) setStep(5);
-        if (step === 5 && params.numberOfAvailableSeat) {
+        if (step === 5 && preferences) {
+            console.log("Prefenreces: ", preferences);
+            setStep(6);
+        }
+        if (step === 6 && params.numberOfAvailableSeat) {
             const vehicleExists = await isUserHasVehicle();
             if (vehicleExists){
                 await createTripAndCalculateFare();
-                setStep(7)
+                setStep(8); // Proceed to final confirmation
             } else {
-                setStep(6)
+                setStep(7); // Go to vehicle creation step
             }
         };
-        if (step === 6 && vehicle) {
+        if (step === 7 && vehicle) {
             try {
                 const token = localStorage.getItem('jwtToken');
                 const vehicleResponse = await axios.post(`${BACKEND_API_BASE_URL}/api/vehicle`, 
@@ -106,15 +111,13 @@ const CreateRide = () => {
                 console.log("Vehicle created successfully: ", vehicleResponse.data);
                  
                 await createTripAndCalculateFare();
-                setStep(7);
+                setStep(8);
             } catch (error) {
                 console.error("Unable to save the vehicle to the database: ", error);
             }
         }
-        if (step === 7 && params.price) setStep(8);
 
-        if (step === 8 && preferences) {
-            console.log("Prefenreces: ", preferences);
+        if (step === 8 && params.price) {
             
             const finalFareData = {
                 totalFare: params.price * params.numberOfAvailableSeat,
@@ -174,7 +177,8 @@ const CreateRide = () => {
             time: params.startTime.split("T")[1],
             availableSeats: params.numberOfAvailableSeat,
             comment: "",
-            stations: []
+            stations: [],
+            //preferences
         };
 
         console.log("TripData: ", tripData);
@@ -268,7 +272,7 @@ const CreateRide = () => {
                     const response = await axios.get(
                         'https://api.openrouteservice.org/geocode/autocomplete', {
                             params: { 
-                                api_key: '5b3ce3597851110001cf6248e4896a13b7cd44c988adeba2a1f425b4',
+                                api_key: GEO_AUTOCOMPLETE_API_KEY,
                                 text: query,
                                 layers: 'address,locality,country,region,county'
                             }
@@ -379,6 +383,15 @@ const CreateRide = () => {
 
             {step === 5 && (
                 <Step5 
+                    preferences={preferences}
+                    handlePreferenceChange={handlePreferenceChange}
+                    handlePrevious={handlePrevious}
+                    handleContinue={handleContinue}
+                />
+            )}
+
+            {step === 6 && (
+                <Step6 
                     params={params}
                     setParams={setParams}
                     handleContinue={handleContinue}
@@ -386,8 +399,8 @@ const CreateRide = () => {
                 />
             )}
 
-            {step === 6 && (
-                <Step6 
+            {step === 7 && (
+                <Step7 
                     vehicle={vehicle}
                     handleVehicleChange={handleVehicleChange}
                     handlePrevious={handlePrevious}
@@ -395,21 +408,12 @@ const CreateRide = () => {
                 />
             )}
 
-            {step === 7 && (
-                <Step7 
+            {step === 8 && (
+                <Step8 
                     params={params}
                     setParams={setParams}
                     handleContinue={handleContinue}
                     handlePrevious={handlePrevious}
-                />
-            )}
-
-            {step === 8 && (
-                <Step8 
-                    preferences={preferences}
-                    handlePreferenceChange={handlePreferenceChange}
-                    handlePrevious={handlePrevious}
-                    handleContinue={handleContinue}
                 />
             )}
 

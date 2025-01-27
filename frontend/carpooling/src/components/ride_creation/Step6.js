@@ -1,71 +1,64 @@
 import React from "react";
-import { TextField, MenuItem } from "@mui/material";
 
-const Step6 = ({vehicle, handleVehicleChange, handlePrevious, handleContinue}) => {
+const Step5 = ({setParams, params, handlePrevious, handleContinue}) => {
+
+    const handlePassengersIncrease = () => {
+        setParams(prevParams => ({
+            ...prevParams,
+            numberOfAvailableSeat: prevParams.numberOfAvailableSeat + 1
+        }));
+    };
+    
+    const handlePassengersDecrease = () => {
+        if (params.numberOfAvailableSeat > 0) {
+          setParams(prevParams => ({
+            ...prevParams,
+            numberOfAvailableSeat: prevParams.numberOfAvailableSeat - 1
+          }));
+        }
+    };
+
     return (
         <>
-            <h1 className="text-xl md:text-3xl font-extrabold text-gray-700">Enter Vehicle Details</h1>
-
-            <div className="flex flex-col space-y-4 mt-5">
-                <TextField
-                    label="Model"
-                    name="model"
-                    value={vehicle.model}
-                    onChange={handleVehicleChange}
-                    variant="outlined"
-                />
-                <TextField
-                    label="Color"
-                    name="color"
-                    value={vehicle.color}
-                    onChange={handleVehicleChange}
-                    variant="outlined"
-                />
-                <TextField
-                    label="License Plate Number"
-                    name="licensePlateNumber"
-                    value={vehicle.licensePlateNumber}
-                    onChange={handleVehicleChange}
-                    variant="outlined"
-                />
-                <TextField
-                    label="Brand"
-                    name="brand"
-                    value={vehicle.brand}
-                    onChange={handleVehicleChange}
-                    variant="outlined"
-                />
-                <TextField
-                    select
-                    label="Gas Type"
-                    name="gasType"
-                    value={vehicle.gasType}
-                    onChange={handleVehicleChange}
-                    variant="outlined"
+            <h1 className="text-xl md:text-3xl font-extrabold text-gray-700 text-center">How many passengers would you like to take?</h1>
+            
+            <div className="flex items-center mt-10 space-x-14 md:space-x-28">
+                <button
+                    onClick={handlePassengersDecrease}
+                    className="text-blue-500 border border-blue-500 w-12 h-12 flex items-center justify-center rounded-full text-2xl border-2"
                 >
-                    <MenuItem value="GASOLINE">Gasoline</MenuItem>
-                    <MenuItem value="DIESEL">Diesel</MenuItem>
-                </TextField>
-            </div>                
+                    -
+                </button>
+                
+                <span className="text-6xl font-bold text-gray-700">
+                    {params.numberOfAvailableSeat}
+                </span>
+
+                <button
+                    onClick={handlePassengersIncrease}
+                    className="text-blue-500 border border-blue-500 w-12 h-12 flex items-center justify-center rounded-full text-2xl border-2"
+                >
+                    +
+                </button>
+            </div>
 
             <div className="flex space-x-16 mt-5">
-                <button
+                <button 
                     onClick={handlePrevious}
                     className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
                 >
                     Previous
                 </button>
-                <button
+
+                <button 
                     onClick={handleContinue}
                     className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
                 >
                     Continue
                 </button>
-            </div>                                                
-        
+            </div>
         </>
-                                       
-    );
+    )
 }
 
-export default Step6;
+export default Step5;

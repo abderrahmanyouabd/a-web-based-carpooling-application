@@ -1,75 +1,90 @@
-import { Button, Checkbox, FormControlLabel, FormGroup, TextField } from "@mui/material";
 import React, { useState } from "react";
 
-const Step8 = ({ preferences, handlePreferenceChange, handlePrevious, handleContinue }) => {
-    const [customOption, setCustomOption] = useState('');
-    const [preferenceOptions, setPreferenceOptions] = useState([
-        "I am talkative when I am comfortable",
-        "I like to play music during the trip",
-        "I don't mind dropping a person within 5 minutes of drive",
-        "I prefer quiet rides",
-        "I provide charging ports",
-        "I hate listening to music",
-        "People are means nowadays, isn't it?",
-        "We are the best person",
-        "We are gonna have a great time",
-        "I can drive as fast as a speed of light"
-    ]);
+const Step7 = ({ setParams, params, handlePrevious, handleContinue}) => {
 
-    const handleAddCustomOption = (e) => {
-        if (customOption.trim() && !preferenceOptions.includes(customOption)) {
-            setPreferenceOptions((prev) => [...prev, customOption]);
-            handlePreferenceChange(customOption);
-            setCustomOption('');
+    const [isEditing, setIsEditing] = useState(false);
+    const [editValue, setEditValue] = useState(params.price);
+
+    const handlePriceIncrease = () => {
+        setParams(prevParams => ({
+            ...prevParams,
+            price: prevParams.price + 1
+        }));
+    };
+    
+    const handlePriceDecrease = () => {
+        if (params.price > 0) {
+          setParams(prevParams => ({
+            ...prevParams,
+            price: prevParams.price - 1
+          }));
         }
     };
 
+    const handleEditToggle = () => {
+        setEditValue(params.price);
+        setIsEditing((prev) => !prev);
+    };
+
+    const handleEditConfirm = () => {
+        const newPrice = Math.max(0, parseFloat(editValue, 10) || 0); // Ensure a valid number and non-negative
+        setParams((prevParams) => ({
+            ...prevParams,
+            price: newPrice,
+        }));
+        setIsEditing(false);
+    }
+
     return (
         <>
-            <h1 className="text-xl md:text-3xl font-extrabold text-gray-700">What's your ride preferences?</h1>
-            <div className="max-h-[500px] w-full md:w-1/2 overflow-y-auto border border-black border-1 p-8 mt-10 rounded-md shadow-sm bg-white">
-                <FormGroup className="space-y-4">
-                    {preferenceOptions.map((option, index) => (
-                        <FormControlLabel 
-                            key={index}
-                            control={
-                                <Checkbox 
-                                    checked={preferences.includes(option)}
-                                    onChange={() => handlePreferenceChange(option)}
-                                />
-                            }
+            <h1 className="text-xl md:text-3xl font-extrabold text-gray-700">Set your price per seat</h1>
 
-                            label={
-                                <span className="text-lg md:text-xl text-gray-800 font-sans">
-                                    {option}
-                                </span>
-                                
-                            }
-                        />
-                    ))}
-                </FormGroup>
-            </div>
-            
-            <div className="flex flex-col space-y-2 mt-5">
-                <TextField
-                    value={customOption}
-                    onChange={(e) => setCustomOption(e.target.value)}
-                    label="Add custom preference"
-                    variant="outlined"
-                    size="small"
-                    className="mb-4"
-                />
-                <Button
-                    onClick={handleAddCustomOption}
-                    variant="contained"
-                    color="primary"
-                    disabled={!customOption.trim()}
+            <div className="flex items-center mt-10 space-x-8 md:space-x-12">
+                <button
+                    onClick={handlePriceDecrease}
+                    className="text-blue-500 border border-blue-500 w-12 h-12 flex items-center justify-center rounded-full text-2xl border-2"
                 >
-                    Add Preference
-                </Button>
+                    -
+                </button>
+                
+                {isEditing ? (
+                    <input 
+                        type="number"
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        className="w-64 text-6xl font-bold text-gray-700 text-center border border-gray-300 rounded-lg p-2"
+                    />
+
+                ) : (
+                    <span className="text-6xl font-bold text-gray-700">
+                        €{params.price}
+                    </span>
+                )}
+                
+
+                <button
+                    onClick={handlePriceIncrease}
+                    className="text-blue-500 border border-blue-500 w-12 h-12 flex items-center justify-center rounded-full text-2xl border-2"
+                >
+                    +
+                </button>
             </div>
+
+            <div className="flex space-x-4 mt-4">
+                <button
+                    onClick={isEditing ? handleEditConfirm : handleEditToggle}
+                    className={`text-sm px-3 py-1 rounded-lg ${
+                        isEditing
+                            ? "text-white bg-blue-500 hover:bg-blue-600"
+                            : "text-blue-500 border border-blue-500 hover:bg-blue-100"
+                    }`}
+                >   
+                    {isEditing? "Confirm" : "Edit"}
+                </button>
             
-            <div className="flex space-x-16 mt-4">
+            </div>
+
+            <div className="flex space-x-16 mt-5">
                 <button 
                     onClick={handlePrevious}
                     className="mt-5 px-5 py-3 bg-blue-400 text-white rounded-[2rem] hover:bg-blue-600"
@@ -84,9 +99,8 @@ const Step8 = ({ preferences, handlePreferenceChange, handlePrevious, handleCont
                     Continue
                 </button>
             </div>
-            
         </>
-    );
-};
+    )
+}
 
-export default Step8;
+export default Step7;

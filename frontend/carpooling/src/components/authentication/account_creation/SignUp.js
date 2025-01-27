@@ -112,7 +112,7 @@ const SignUp = ({ setUser }) => {
                 if (profileResponse.ok) {
                     const profileData = await profileResponse.json();
                     setUser(profileData);
-                    navigate('/'); 
+                    navigate('/', { state: { snackbarMessage: `Welcome, ${fullName} to CarPooling!` }}); 
                 } else {
                     setErrorMessage("Failed to fetch profile data after login.");
                 }
