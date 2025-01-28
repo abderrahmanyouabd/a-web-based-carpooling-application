@@ -163,6 +163,16 @@ const RideDetail = () => {
         }
     };
 
+    const handleViewReviews = () => {
+        if (!token) {
+            console.log("No token found, ask user to sign in");
+            showSnackbar("Please sign in to view reviews");
+            return;
+        } else {
+            navigate(`/view-reviews/${ride.id}`, {state: { driverName: ride.driver.fullName} });
+        }
+    }
+
     const formattedDate = (date) => date.replace("T", " "); 
 
     const formatDateToDayOfTheWeek = (dateWithTSeparator) => {
@@ -225,7 +235,17 @@ const RideDetail = () => {
                                 />
                             )}
                         </div>
-                        <h3 className="text-md md:text-lg font-semibold pl-2">{ride.driver.fullName}</h3>
+
+                        <div className="flex flex-col pl-2">
+                            <h3 className="text-md md:text-lg font-semibold pl-2">{ride.driver.fullName}</h3>
+                            <button 
+                                onClick={handleViewReviews}
+                                className="mt-2 px-4 py-2 text-sm md:text-base bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200"
+                            >
+                                View Reviews
+                            </button>
+                        </div>
+                        
                     </div>
                     
                     <div className="flex items-center mb-2 md:mb-4">

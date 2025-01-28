@@ -17,6 +17,7 @@ import PaymentForm from "./components/booking/PaymentForm";
 import TripConfirmation from "./components/booking/TripConfirmation";
 import DriverLocationTracker from "./components/gps_tracking/DriverLocationTracker";
 import ViewDriverLocation from "./components/gps_tracking/ViewDriverLocation";
+import ViewReviews from "./components/rides/ViewReviews";
 import YourRides from "./components/profile_management/YourRides";
 import RegisterVehicle from "./components/profile_management/RegisterVehicle";
 import ChatPage from "./components/communication/ChatPage";
@@ -63,6 +64,7 @@ const App = () => {
                             />
                             <Route path="/your-rides" element={<YourRides />} />
                             <Route path="/chat/:rideId" element={<ChatPage />} />
+                            <Route path="/view-reviews/:rideId" element={<ViewReviews />} />
                             <Route path="/register-vehicle" element={<RegisterVehicle />} />
                         </Routes>
 

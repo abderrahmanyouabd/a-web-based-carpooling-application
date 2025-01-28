@@ -272,7 +272,7 @@ const ChatApp = () => {
                     <div className="flex flex-col flex-1 bg-white h-full">
                         <div
                             id="chat-messages"
-                            className="flex-1 overflow-y-auto p-2 bg-gray-50 min-h-0 mb-10"
+                            className="flex-1 overflow-y-auto p-2 bg-gray-50 min-h-0 mb-10 md:mb-0"
                         >
                             {messages.map((msg, index) => (
                                 <Message 
