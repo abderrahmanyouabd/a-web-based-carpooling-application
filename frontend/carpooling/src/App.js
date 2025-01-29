@@ -47,9 +47,9 @@ const App = () => {
 
                         <Routes>
                             <Route path="/" element={<Home />} />
-                            <Route path="/create-ride" element={<CreateRide user={user} />} />
+                            <Route path="/create-ride" element={<CreateRide/>} />
                             <Route path="/rides" element={<Rides />} />
-                            <Route path="/ride-detail/:rideId" element={<RideDetail user={user} />} />
+                            <Route path="/ride-detail/:rideId" element={<RideDetail/>} />
                             <Route path="/signin" element={<SignIn setUser={setUser} />} />
                             <Route path="/signin/forgot-password" element={<ForgotPassword />} />
                             <Route path="/account/reset-password" element={<ResetPassword />} />
@@ -64,7 +64,7 @@ const App = () => {
                             />
                             <Route path="/your-rides" element={<YourRides />} />
                             <Route path="/chat/:rideId" element={<ChatPage />} />
-                            <Route path="/view-reviews/:rideId" element={<ViewReviews />} />
+                            <Route path="/view-reviews/:rideId" element={<ViewReviews user={user} />} />
                             <Route path="/register-vehicle" element={<RegisterVehicle />} />
                         </Routes>
 
