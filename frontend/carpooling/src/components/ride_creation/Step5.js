@@ -1,7 +1,7 @@
 import { Button, Checkbox, FormControlLabel, FormGroup, TextField } from "@mui/material";
 import React, { useState } from "react";
 
-const Step8 = ({ preferences, handlePreferenceChange, handlePrevious, handleContinue }) => {
+const Step5 = ({ preferences, handlePreferenceChange, handlePrevious, handleContinue }) => {
     const [customOption, setCustomOption] = useState('');
     const [preferenceOptions, setPreferenceOptions] = useState([
         "I am talkative when I am comfortable",
@@ -89,4 +89,4 @@ const Step8 = ({ preferences, handlePreferenceChange, handlePrevious, handleCont
     );
 };
 
-export default Step8;
+export default Step5;

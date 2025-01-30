@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import RenderStars from "./RenderStars";
 import { useLocation } from "react-router-dom";
 import { FaRegSadCry } from "react-icons/fa";
+import RatingStars from "./RatingStars";
 
 // Dummy review data
 const dummyReviews = [
@@ -108,14 +109,7 @@ const ViewReviews = ({ user }) => {
                     </div>
                     <div className="mt-4">
                         <label className="block text-gray-700 font-medium">Rating:</label>
-                        <input 
-                            type="number"
-                            min="1" 
-                            max="5"
-                            value={rating}
-                            onChange={(e) => setRating(Number(e.target.value))}
-                            className="mt-1 p-2 w-full border rounded-md"
-                        />
+                        <RatingStars rating={rating} setRating={setRating}/>
                     </div>
                     <div className="mt-4">
                         <label className="block text-gray-700 font-medium">Comment:</label>

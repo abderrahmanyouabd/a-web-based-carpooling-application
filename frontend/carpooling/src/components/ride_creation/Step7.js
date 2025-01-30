@@ -1,7 +1,7 @@
 import React from "react";
 import { TextField, MenuItem } from "@mui/material";
 
-const Step6 = ({vehicle, handleVehicleChange, handlePrevious, handleContinue}) => {
+const Step7 = ({vehicle, handleVehicleChange, handlePrevious, handleContinue}) => {
     return (
         <>
             <h1 className="text-xl md:text-3xl font-extrabold text-gray-700">Enter Vehicle Details</h1>
@@ -68,4 +68,4 @@ const Step6 = ({vehicle, handleVehicleChange, handlePrevious, handleContinue}) =
     );
 }
 
-export default Step6;
+export default Step7;

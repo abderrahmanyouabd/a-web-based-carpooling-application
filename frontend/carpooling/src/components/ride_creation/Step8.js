@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const Step7 = ({ setParams, params, handlePrevious, handleContinue}) => {
+const Step8 = ({ setParams, params, handlePrevious, handleContinue}) => {
 
     const [isEditing, setIsEditing] = useState(false);
     const [editValue, setEditValue] = useState(params.price);
@@ -103,4 +103,4 @@ const Step7 = ({ setParams, params, handlePrevious, handleContinue}) => {
     )
 }
 
-export default Step7;
+export default Step8;
