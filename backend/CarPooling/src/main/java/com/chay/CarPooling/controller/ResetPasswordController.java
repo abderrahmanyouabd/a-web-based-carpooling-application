@@ -1,6 +1,6 @@
 package com.chay.CarPooling.controller;
 
-import com.chay.CarPooling.exception.UserException;
+import com.chay.CarPooling.exception.UserNotFoundException;
 import com.chay.CarPooling.model.PasswordResetToken;
 import com.chay.CarPooling.model.User;
 import com.chay.CarPooling.request.ResetPasswordRequest;
@@ -32,16 +32,16 @@ public class ResetPasswordController {
     @PostMapping
     public ResponseEntity<ApiResponse> resetPassword(
 
-            @RequestBody ResetPasswordRequest req) throws UserException {
+            @RequestBody ResetPasswordRequest req) throws UserNotFoundException {
 
         PasswordResetToken resetToken = passwordResetTokenService.findByToken(req.getToken());
 
         if (resetToken == null ) {
-            throw new UserException("token is required...");
+            throw new UserNotFoundException("token is required...");
         }
         if(resetToken.isExpired()) {
             passwordResetTokenService.delete(resetToken);
-            throw new UserException("token get expired...");
+            throw new UserNotFoundException("token get expired...");
 
         }
 
@@ -60,12 +60,12 @@ public class ResetPasswordController {
     }
 
     @PostMapping("/reset")
-    public ResponseEntity<ApiResponse> resetPassword(@RequestParam("email") String email) throws UserException {
+    public ResponseEntity<ApiResponse> resetPassword(@RequestParam("email") String email) throws UserNotFoundException {
         User user = userService.findUserByEmail(email);
         System.out.println("ResetPasswordController.resetPassword()");
 
         if (user == null) {
-            throw new UserException("user not found");
+            throw new UserNotFoundException("user not found");
         }
 
         userService.sendPasswordResetEmail(user);
