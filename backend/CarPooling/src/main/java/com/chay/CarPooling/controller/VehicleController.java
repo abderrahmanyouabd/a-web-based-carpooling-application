@@ -1,6 +1,6 @@
 package com.chay.CarPooling.controller;
 
-import com.chay.CarPooling.exception.UserException;
+import com.chay.CarPooling.exception.UserNotFoundException;
 import com.chay.CarPooling.model.User;
 import com.chay.CarPooling.model.Vehicle;
 import com.chay.CarPooling.service.UserService;
@@ -26,7 +26,7 @@ public class VehicleController {
 
     @PostMapping
     public ResponseEntity<Vehicle> createOrUpdateVehicle(@RequestBody Vehicle vehicle,
-                                                         Authentication authentication) throws UserException {
+                                                         Authentication authentication) throws UserNotFoundException {
         String email = (String) authentication.getPrincipal();
         User user = userService.findUserByEmail(email);
 
@@ -35,7 +35,7 @@ public class VehicleController {
     }
 
     @GetMapping
-    public ResponseEntity<Vehicle> getUserVehicle(Authentication authentication) throws UserException {
+    public ResponseEntity<Vehicle> getUserVehicle(Authentication authentication) throws UserNotFoundException {
         String email = (String) authentication.getPrincipal();
         User user = userService.findUserByEmail(email);
 
