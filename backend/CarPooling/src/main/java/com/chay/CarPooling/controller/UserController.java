@@ -1,6 +1,6 @@
 package com.chay.CarPooling.controller;
 
-import com.chay.CarPooling.exception.UserException;
+import com.chay.CarPooling.exception.UserNotFoundException;
 import com.chay.CarPooling.model.User;
 import com.chay.CarPooling.request.UpdateUserDto;
 import com.chay.CarPooling.service.UserService;
@@ -31,7 +31,7 @@ public class UserController {
 
     @PatchMapping()
     public ResponseEntity<User> UpdateUserProfileHandler (UpdateUserDto dto,
-            @RequestHeader("Authorization") String jwt) throws UserException {
+            @RequestHeader("Authorization") String jwt) throws UserNotFoundException {
 
         User user = userService.findUserProfileByJwt(jwt);
         User updatedUser = userService.updateUser(dto,user);
