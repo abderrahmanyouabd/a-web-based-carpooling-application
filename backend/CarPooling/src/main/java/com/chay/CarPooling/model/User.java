@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.Fetch;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -58,7 +59,11 @@ public class User {
 
     private String currentIpAddress;
 
+    private Double averageRating = 0.0;
+    private Integer totalReviews = 0;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Review> reviews;
 
     @Override
     public boolean equals(Object o) {
