@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
+
 const MenuBar = ({ setUser, user }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isDesktopMenuOpen, setIsDesktopMenuOpen] = useState(false);
@@ -15,19 +17,33 @@ const MenuBar = ({ setUser, user }) => {
         setIsDesktopMenuOpen(!isDesktopMenuOpen);
     };
 
-    // 1) Handle logout (no manual disconnect, just remove token & set user=null)
-    const handleLogout = () => {
-        setIsDesktopMenuOpen(!isDesktopMenuOpen);
-        localStorage.removeItem("jwtToken");
-        setUser(null);
-        navigate("/");
+    const handleLogout = async () => {
+        try {
+            const response = await fetch(`${BACKEND_API_BASE_URL}/stream/clear`, {
+                method: "POST",
+            });
+
+            if (!response.ok) {
+                console.error(`Failed to clear chatbot message during logout: ${response.status}`);
+            } else {
+                console.log("Cleared chatbot message")
+            }
+
+            setIsDesktopMenuOpen(!isDesktopMenuOpen);
+            localStorage.removeItem("jwtToken");
+            localStorage.removeItem("chatbotMessages")
+            setUser(null);
+            navigate("/", { state: { snackbarMessage: "Logout sucessfully!" } });
+        } catch (error) {
+            console.error("Error during logout: ", error);
+        }
     };
 
     // 2) (Unchanged) Fetch the user profile data if we have a token
     useEffect(() => {
         const fetchProfileData = async () => {
             if (token) {
-                const profileResponse = await fetch("http://localhost:8080/api/users/profile", {
+                const profileResponse = await fetch(`${BACKEND_API_BASE_URL}/api/users/profile`, {
                     method: "GET",
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -44,7 +60,7 @@ const MenuBar = ({ setUser, user }) => {
             }
         };
         fetchProfileData();
-    }, [token]);
+    }, [token, setUser]);
 
     return (
         <nav className="bg-gradient-to-r from-blue-500 to-indigo-400 p-4 shadow-lg">
@@ -182,13 +198,50 @@ const MenuBar = ({ setUser, user }) => {
                                         </Link>
                                     </>
                                 ) : (
-                                    <Link
-                                        to="/profile"
-                                        onClick={toggleMobileMenu}
-                                        className="text-white px-4 py-2 rounded-md text-lg font-bold hover:bg-blue-700 hover:shadow-md transition-all duration-200 ease-in-out"
-                                    >
-                                        Profile ({user.fullName})
-                                    </Link>
+                                    <>
+                                        <ul>
+                                            <li>
+                                                <Link 
+                                                    to="/profile" 
+                                                    onClick={toggleMobileMenu}
+                                                    className="block text-white px-4 py-2 rounded"
+                                                >
+                                                    Profile ({user.fullName})
+                                                </Link>
+                                            </li>
+
+                                            <li>
+                                                <Link
+                                                    to="your-rides"
+                                                    onClick={toggleMobileMenu}
+                                                    className="block text-white px-4 py-2 rounded"
+                                                >
+                                                    Your Rides
+                                                </Link>
+                                            </li>
+
+                                            <li>
+                                                <Link
+                                                    to="/register-vehicle"
+                                                    onClick={toggleMobileMenu}
+                                                    className="block text-white px-4 py-2 rounded"
+                                                >
+                                                    Register Vehicle
+                                                </Link>
+                                            </li>
+
+                                            <li>
+                                                <button
+                                                    onClick={handleLogout}
+                                                    className="w-full text-white text-left px-4 py-2 rounded"
+                                                >
+                                                    Log Out
+                                                </button>
+                                            </li>
+
+                                        </ul>
+                                    
+                                    </>
                                 )}
                             </div>
                         </div>

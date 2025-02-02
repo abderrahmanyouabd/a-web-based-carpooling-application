@@ -1,16 +1,42 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Snackbar, Alert } from "@mui/material";
 import TripSearch from "./TripSearch";
 import CarPoolCommercial from "../CarPoolingPictures/carpool_commercial2.png"
 import BigCarSharing from "../CarPoolingPictures/big_carsharing.png";
 
 const Home = () => {
 
-
+    const location = useLocation();
     const navigate = useNavigate();
+
+    const [snackbarMessage, setSnackbarMessage] = useState("");
+    const [showSnackbar, setShowSnackbar] = useState(false);
+
+    useEffect(() => {
+        if (location.state?.snackbarMessage) {
+            setSnackbarMessage(location.state.snackbarMessage);
+            setShowSnackbar(true);
+        }
+    }, [location.state]);
 
     return (
         <div className="font-sans">
+
+            <Snackbar
+                open={showSnackbar}
+                autoHideDuration={4000}
+                onClose={() => setShowSnackbar(false)}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+                <Alert
+                    onClose={() => setShowSnackbar(false)}
+                    severity="success"
+                    sx={{ width: '100%'}}
+                >
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
 
             <div className="relative text-center">
                 <img 
@@ -18,7 +44,7 @@ const Home = () => {
                     alt="Commerical Car"
                     className="w-full h-72 object-cover brightness-75"
                 />
-                <h1 className="absolute inset-0 md:text-4xl text-2xl font-bold text-white mt-10 md:mt-20">
+                <h1 className="absolute inset-0 md:text-4xl text-2xl font-bold text-white mt-20 md:mt-20">
                     Carpool to thousands of destinations <br/> at low prices
                 </h1>
                
@@ -95,11 +121,11 @@ const Home = () => {
             <footer className="bg-gray-100 p-6">
                 <div className="container mx-auto flex justify-between items-center">
                     <div className="flex items-center">
-                        <a href="#" className="text-gray-600 hover:text-gray-900">
+                        <a href="/" className="text-gray-600 hover:text-gray-900">
                             Terms and Conditions
                         </a>
                         <span className="mx-2 p-4 text-gray-600">|</span>
-                        <a href="#" className="text-gray-600 hover:text-gray-900">
+                        <a href="/" className="text-gray-600 hover:text-gray-900">
                             Privacy Policy
                         </a>
                     </div>

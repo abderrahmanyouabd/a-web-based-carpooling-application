@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+const GEO_AUTOCOMPLETE_API_KEY = process.env.REACT_APP_GEO_AUTOCOMPLETE_API_KEY;
+const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
+
 const TripSearch = ({ initialParams = {} }) => {
 
     const [params, setParams] = useState({
@@ -13,7 +16,6 @@ const TripSearch = ({ initialParams = {} }) => {
 
     const [suggestions, setSuggestions] = useState([]);
     const [activeField, setActiveField] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
 
     const navigate = useNavigate();
@@ -30,7 +32,7 @@ const TripSearch = ({ initialParams = {} }) => {
                     const response = await axios.get(
                         'https://api.openrouteservice.org/geocode/autocomplete', {
                             params: { 
-                                api_key: '5b3ce3597851110001cf6248e4896a13b7cd44c988adeba2a1f425b4',
+                                api_key: GEO_AUTOCOMPLETE_API_KEY,
                                 text: query,
                                 layers: 'address,locality,country,region,county'
                             }
@@ -71,7 +73,7 @@ const TripSearch = ({ initialParams = {} }) => {
             if (params.date) requestParams.date = params.date;
             if (params.numberOfAvailableSeat) requestParams.numberOfAvailableSeat = params.numberOfAvailableSeat;
             
-            let url = 'http://localhost:8080/api/trips/search?';
+            let url = `${BACKEND_API_BASE_URL}/api/trips/search?`;
             if(requestParams.leavingFrom){
                 url += `leavingFrom=${requestParams.leavingFrom.replace(/,\s+/g, ',+')}&`;
             }
@@ -87,7 +89,6 @@ const TripSearch = ({ initialParams = {} }) => {
                 }
             });
 
-            setSearchResults(response.data);
             setErrorMessage("");
             console.log("Result: ", response.data);
 
@@ -111,9 +112,10 @@ const TripSearch = ({ initialParams = {} }) => {
     }
 
     return (
-        <div className="flex justify-center items-center mt-3">
-                <div className="flex flex-col md:flex-row bg-white p-4 space-x-8 rounded-lg w-full shadow-lg md:w-auto">
-                    <div className="relative mb-4 md:mb-0 md:mr-4">
+        <div className="flex justify-center items-center">
+                <div className="flex flex-col md:flex-row bg-white p-4 gap-2 md:gap-4 rounded-lg w-full shadow-lg md:w-auto">
+
+                    <div className="relative mb-4 w-full md:mb-0">
                         <input 
                             type="text"
                             name="leavingFrom"
@@ -121,7 +123,7 @@ const TripSearch = ({ initialParams = {} }) => {
                             value={params.leavingFrom}
                             onChange={handleParamChange}
                             onFocus={() => setActiveField('leavingFrom')}
-                            className="border border-gray-300 rounded-md p-2 md:w-48 w-full"
+                            className="border border-gray-300 rounded-md p-2 w-full md:w-48"
                         />
                         {activeField === 'leavingFrom' && suggestions.length > 0 && (
                             <ul className="absolute z-10 bg-white border border-gray-300 rounded-md w-full md:w-48 max-h-48 overflow-auto mt-1">
@@ -139,7 +141,7 @@ const TripSearch = ({ initialParams = {} }) => {
                         
                     </div>
                     
-                    <div className="relative mb-4 w-full md:mb-0 md:w-auto md:mr-4">
+                    <div className="relative mb-4 w-full md:mb-0">
                         <input 
                             type="text"
                             name="goingTo"
@@ -162,8 +164,6 @@ const TripSearch = ({ initialParams = {} }) => {
                                 ))}
                             </ul>
                         )}
-                        
-
                     </div>
                     
 
@@ -193,6 +193,7 @@ const TripSearch = ({ initialParams = {} }) => {
                     >
                         Search
                     </button>
+                    
                 </div>
                 
         </div>
