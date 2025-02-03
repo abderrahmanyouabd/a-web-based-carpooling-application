@@ -1,5 +1,6 @@
 package com.chay.CarPooling.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -36,5 +37,6 @@ public class Review implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "reviewer_id")
+    @JsonIgnore
     private User reviewer;
 }
