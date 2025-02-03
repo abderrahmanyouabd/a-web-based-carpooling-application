@@ -178,7 +178,7 @@ const CreateRide = () => {
             availableSeats: params.numberOfAvailableSeat,
             comment: "",
             stations: [],
-            //preferences
+            preferences
         };
 
         console.log("TripData: ", tripData);

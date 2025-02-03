@@ -135,7 +135,8 @@ public class TripServiceImpl implements TripService {
                         trip.getGoingTo(),
                         trip.getFarePerSeat(),
                         trip.getDriver(),
-                        trip.getPassengers()
+                        trip.getPassengers(),
+                        trip.getPreferences()
                 )).toList();
     }
 
@@ -148,7 +149,8 @@ public class TripServiceImpl implements TripService {
                         trip.getGoingTo(),
                         trip.getFarePerSeat(),
                         trip.getDriver(),
-                        trip.getPassengers()
+                        trip.getPassengers(),
+                        trip.getPreferences()
                 )).toList();
     }
 }

@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,7 +39,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class TripController {
 
-    private final SimpMessagingTemplate messagingTemplate;
     private final TripService tripService;
     @Autowired
     private UserService userService;
@@ -116,16 +114,6 @@ public class TripController {
         
         paymentService.updateTransactionStatus(paymentIntent.getId(), "SUCCESS");
         tripService.joinTrip(tripId, user);
-
-        // Broadcast new user join the trip on websocket notification
-        Map<String, Object> notification = new HashMap<>();
-        notification.put("type", "NEW_PARTICIPANT");
-        notification.put("userId", user.getId());
-        notification.put("userName", user.getFullName());
-        notification.put("gender", user.getGender());
-        notification.put("profilePicture", user.getProfilePicture());
-        messagingTemplate.convertAndSend("/topic/trip/" + tripId, notification);
-        System.out.println("Broadcast new user join the trip: " + notification.toString());
 
         return ResponseEntity.ok(new JoinTripResponse(trip, paymentIntent.getClientSecret(), "Successfully joined the trip"));
 

@@ -10,7 +10,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -79,4 +81,9 @@ public class Trip {
     // todo: change after Ling's changes
 //    @Convert(converter = DurationToIntervalConverter.class)
     private String duration;
+
+    @ElementCollection
+    @CollectionTable(name = "trip_preferences", joinColumns = @JoinColumn(name = "trip_id"))
+    @Column(name = "preference")
+    private List<String> preferences = new ArrayList<>();
 }

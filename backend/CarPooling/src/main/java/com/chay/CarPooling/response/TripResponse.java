@@ -25,4 +25,5 @@ public class TripResponse {
     private BigDecimal farePerSeat;
     private User driver;
     private Set<User> passengers;
+    private List<String> preferences;
 }
