@@ -38,5 +38,6 @@ public class Review implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "reviewer_id")
+    @JsonIgnore
     private User reviewer;
 }
