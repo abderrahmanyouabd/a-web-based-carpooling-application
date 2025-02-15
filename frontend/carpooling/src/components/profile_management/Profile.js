@@ -164,7 +164,7 @@ const Profile = ({ setUser }) => {
 
     return (
         
-        <div className="flex justify-center items-center mt-10">
+        <div className="flex justify-center items-center mt-10 mb-10">
             {profileData ? (
                 <div className="bg-white max-w-5xl w-full p-12 rounded-lg shadow-lg">
 

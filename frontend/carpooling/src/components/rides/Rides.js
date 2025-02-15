@@ -85,12 +85,14 @@ const Rides = () => {
        
 
     return (
-        <div>
-            <div className="mx-auto px-6 py-8">
+        <div className="mb-4 relative">
+            <div className="absolute inset-0 bg-[url('https://miro.medium.com/v2/resize:fit:1400/1*n-6mh-5LUdlePB0H1u776Q.jpeg')] opacity-5"></div> {/* Subtle background pattern */}
+
+            <div className="mx-auto px-6 py-8 relative">
                 <TripSearch initialParams={{ leavingFrom, goingTo, date, numberOfAvailableSeat }}/>
             </div>
             
-            <div className="flex flex-col md:flex-row justify-center md:space-x-8">
+            <div className="relative flex flex-col md:flex-row justify-center md:space-x-8">
                 <Sidebar setSoryBy={setSoryBy} setPickUpFilter={setPickUpFilter} />
 
                 <div className="w-full md:w-auto">
@@ -104,7 +106,7 @@ const Rides = () => {
                         
                     </div>
 
-                    <div className="overflow-auto h-auto w-full md:w-[50rem]">
+                    <div className="overflow-y-auto max-h-[800px] w-full md:w-[50rem]">
                         {sortedRides.map((ride) => (
                             <div
                                 key={ride.id}
