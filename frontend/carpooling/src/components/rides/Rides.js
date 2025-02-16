@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
-import { FaWalking } from 'react-icons/fa';
+import { FaRoute } from 'react-icons/fa';
 import { AiOutlineArrowRight } from 'react-icons/ai';
 import { FaCar } from "react-icons/fa";
 import TripSearch from "../TripSearch";
-import Sidebar from "./Sidebar";
+import RideSortBySidebar from "./RideSortBySidebar";
 import { useNavigate } from "react-router-dom";
 
 
 const Rides = () => {
     const location = useLocation();
     const { leavingFrom, goingTo, date, numberOfAvailableSeat, searchResults } = location.state;
-    const [sortBy, setSoryBy] = useState("");
+    const [sortBy, setSortBy] = useState("");
     const [pickUpFilter, setPickUpFilter] = useState("");
     const navigate = useNavigate();
 
@@ -36,7 +36,7 @@ const Rides = () => {
 
         switch (sortBy) {
             case "price":
-                return rides.sort((a, b) => a.farePerSeat.price - b.farePerSeat.price);
+                return rides.sort((a, b) => a.farePerSeat - b.farePerSeat);
             case "departure":
                 return rides.sort((a, b) => {
                     const [hoursA, minutesA] = a.time.split(":").slice(0, 2).map(Number);
@@ -53,10 +53,10 @@ const Rides = () => {
                 
             case "duration":
                 return rides.sort((a, b) => parseInt(a.duration) - parseInt(b.duration));
-            case "departurePoint":
-                return rides.sort((a, b) => a.departureDistance - b.departureDistance);
-            case "arrivalPoint":
-                return rides.sort((a, b) => a.arrivalDistance - b.arrivalDistance);
+            case "distance":
+                return rides.sort((a, b) => a.distance - b.distance);
+            case "availableSeats":
+                return rides.sort((a, b) => b.availableSeats - a.availableSeats); // Descending orders
 
             default:
                 return rides;
@@ -67,7 +67,7 @@ const Rides = () => {
         navigate(`/ride-detail/${ride.id}`, {state: {ride} });
     }
 
-    const sortedRides = sortRides(searchResults);
+    const sortedRides = sortRides(searchResults.filter(ride => ride.status === "PLANNED"));
 
     const getTimePart = (datetime) =>{
         if(!datetime) return "";
@@ -77,10 +77,10 @@ const Rides = () => {
 
     const formatDuration = (duration) => {
         const [hours, minutes, ] = duration.split(':').map(Number);
-        const formattedHours = hours > 0 ? `${hours} hour${hours > 1 ? 's': ''} `: '';
-        const formattedMinutes = minutes > 0 ? `${minutes} minute${minutes > 1 ? 's': ''} `: '';
+        const formattedHours = hours ? `${hours}h`: '';
+        const formattedMinutes = minutes ? ` ${minutes}m `: '';
 
-        return `${formattedHours}${formattedMinutes}`;
+        return `${formattedHours}${formattedMinutes}`.trim();
     }
        
 
@@ -93,7 +93,7 @@ const Rides = () => {
             </div>
             
             <div className="relative flex flex-col md:flex-row justify-center md:space-x-8">
-                <Sidebar setSoryBy={setSoryBy} setPickUpFilter={setPickUpFilter} />
+                <RideSortBySidebar setSortBy={setSortBy} setPickUpFilter={setPickUpFilter} />
 
                 <div className="w-full md:w-auto">
                     
@@ -111,7 +111,7 @@ const Rides = () => {
                             <div
                                 key={ride.id}
                                 onClick={ride.availableSeats > 0 ? () => handleRideClick(ride) : null}
-                                className={`bg-white border rounded-lg p-4 mb-4 shadow-lg flex flex-col space-y-4 hover:shadow-2xl transition-shadow duration-200
+                                className={`bg-white border rounded-2xl p-5 mb-5 shadow-md flex flex-col space-y-5 transition duration-200 cursor-pointer
                                     ${ride.availableSeats === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:shadow-2xl'}`}
                             >   
 
@@ -122,7 +122,7 @@ const Rides = () => {
                                 )}
                                 <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
                                     
-                                    <div className="flex items-center justify-between w-full md:w-auto">  
+                                    <div className="flex items-center justify-center w-full md:w-auto space-x-5">  
                                         <div>
                                             <p className="text-lg font-semibold">{getTimePart(ride.leavingFrom.departureTime)}</p>
                                         </div>
@@ -167,8 +167,8 @@ const Rides = () => {
 
                                 <div className="flex justify-between items-center">
                                     <div className="flex items-center space-x-1">
-                                        <FaWalking className="text-green-500" />
-                                        <span>{ride.walking} walking</span>
+                                        <FaRoute className="text-green-500" />
+                                        <span>{ride.distance} km</span>
                                     </div>
 
                                     <div className="flex items-center">

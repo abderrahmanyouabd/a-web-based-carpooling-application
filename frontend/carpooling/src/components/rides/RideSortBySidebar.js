@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { FaClock, FaCoins, FaWalking, FaHourglass } from "react-icons/fa";
+import { FaClock, FaCoins, FaHourglass, FaUsers, FaRoute } from "react-icons/fa";
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 
 
-const Sidebar = ({ setSoryBy, setPickUpFilter}) => {
+const RideSortBySidebar = ({ setSortBy, setPickUpFilter}) => {
 
     const [selectedSort, setSelectedSort] = useState("");
     const [selectedPickUpTime, setSelectedPickUpTime] = useState("");
@@ -12,14 +12,16 @@ const Sidebar = ({ setSoryBy, setPickUpFilter}) => {
 
     const handleSortChange = (event) => {
         const { value } = event.target;
-        setSelectedSort(value);
-        setSoryBy(value);
+        const newValue = selectedSort === value ? "" : value;
+        setSelectedSort(newValue);
+        setSortBy(newValue);
     };
 
     const handlePickUpTimeChange = (event) => {
         const { value } = event.target;
-        setSelectedPickUpTime(value);
-        setPickUpFilter(value);
+        const newValue = selectedPickUpTime === value? "" : value;
+        setSelectedPickUpTime(newValue);
+        setPickUpFilter(newValue);
     };
 
     return (
@@ -47,7 +49,7 @@ const Sidebar = ({ setSoryBy, setPickUpFilter}) => {
                     <div className="flex flex-col bg-white border rounded-lg space-y-2 p-2 mb-6">
                         <label className="flex items-center space-x-2">
                             <input 
-                                type="radio"
+                                type="checkbox"
                                 name="sort"
                                 value="departure"
                                 checked={selectedSort === "departure"}
@@ -60,7 +62,7 @@ const Sidebar = ({ setSoryBy, setPickUpFilter}) => {
 
                         <label className="flex items-center space-x-2">
                             <input 
-                                type="radio"
+                                type="checkbox"
                                 name="sort"
                                 value="price"
                                 checked={selectedSort === "price"}
@@ -73,34 +75,34 @@ const Sidebar = ({ setSoryBy, setPickUpFilter}) => {
 
                         <label className="flex items-center space-x-2">
                             <input 
-                                type="radio"
+                                type="checkbox"
                                 name="sort"
-                                value="departurePoint"
-                                checked={selectedSort === "departurePoint"}
+                                value="distance"
+                                checked={selectedSort === "distance"}
                                 onChange={handleSortChange}
                                 className="mr-2"
                             />
-                            <span>Close to</span>
-                            <FaWalking />
+                            <span>Shortest Distance</span>
+                            <FaRoute />
                         </label>
 
                         <label className="flex items-center space-x-2">
                             <input 
-                                type="radio"
+                                type="checkbox"
                                 name="sort"
-                                value="arrivalPoint"
-                                checked={selectedSort === "arrivalPoint"}
+                                value="availableSeats"
+                                checked={selectedSort === "availableSeats"}
                                 onChange={handleSortChange}
                                 className="mr-2"
                             />
-                            <span>Close to</span>
-                            <FaWalking />
+                            <span>Available Seats</span>
+                            <FaUsers />
                         </label>
 
 
                         <label className="flex items-center space-x-2">
                             <input 
-                                type="radio"
+                                type="checkbox"
                                 name="sort"
                                 value="duration"
                                 checked={selectedSort === "duration"}
@@ -143,7 +145,7 @@ const Sidebar = ({ setSoryBy, setPickUpFilter}) => {
                     <div className="flex flex-col bg-white border rounded-lg space-y-4 p-2">
                         <label className="flex items-center space-x-2">
                             <input 
-                                type="radio"
+                                type="checkbox"
                                 name="pickUpTime"
                                 value="before6"
                                 className="mr-2"
@@ -155,7 +157,7 @@ const Sidebar = ({ setSoryBy, setPickUpFilter}) => {
 
                         <label className="flex items-center space-x-2">
                             <input 
-                                type="radio"
+                                type="checkbox"
                                 name="pickUpTime"
                                 value="6to12"
                                 className="mr-2"
@@ -167,7 +169,7 @@ const Sidebar = ({ setSoryBy, setPickUpFilter}) => {
 
                         <label className="flex items-center space-x-2">
                             <input 
-                                type="radio"
+                                type="checkbox"
                                 name="pickUpTime"
                                 value="12to18"
                                 className="mr-2"
@@ -179,7 +181,7 @@ const Sidebar = ({ setSoryBy, setPickUpFilter}) => {
 
                         <label className="flex items-center space-x-2">
                             <input 
-                                type="radio"
+                                type="checkbox"
                                 name="pickUpTime"
                                 value="after18"
                                 className="mr-2"
@@ -198,4 +200,4 @@ const Sidebar = ({ setSoryBy, setPickUpFilter}) => {
     );
 };
 
-export default Sidebar;
+export default RideSortBySidebar;
