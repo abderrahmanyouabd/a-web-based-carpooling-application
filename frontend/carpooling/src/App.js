@@ -27,9 +27,7 @@ import ChatBubble from "./components/communication/ChatBubble";
 import ChatbotComponent from "./components/communication/ChatbotComponent";
 import Footer from "./components/Footer";
 
-const stripePromise = loadStripe(
-    "pk_test_51QIWPCEaMiQXGjyX1GMqULAWqRw5tdO5wxBQIuJ3sJyn6IJWlHx7W3qAIeBQrWepCH2hyMsP9mpJBSY617w7htKU003fDfYVGj"
-);
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PK_API_KEY);
 
 const App = () => {
     const [user, setUser] = useState(null);

@@ -101,7 +101,7 @@ const Home = () => {
                         </h2>
                         <p className="text-gray-600 mb-6">
                             Sharing a carpool is a great way to travel. It's affordable, comfortable and eco-friendly! 
-                            If you're driving with an empty car, consider publishing a carpool ride on BlaBlaCar to 
+                            If you're driving with an empty car, consider publishing a carpool ride on CarPooling to 
                             save costs and travel with some company. Our community of carpoolers is the most trustworthy 
                             in the world.
                         </p>
