@@ -29,7 +29,7 @@ const RideSortBySidebar = ({ setSortBy, setPickUpFilter}) => {
 
             <div>
                 <div className="flex justify-center md:justify-start">
-                    <h2 className="font-bold text-lg md:mb-4">
+                    <h2 className="font-bold text-2xl md:mb-4">
                         Sort by
                     </h2>
                     <button
@@ -44,9 +44,9 @@ const RideSortBySidebar = ({ setSortBy, setPickUpFilter}) => {
                     </button>
                 </div>
                 
-
+                {/* Sort By Options */}
                 <div className={`md:block ${showSortOptions ? "block" : "hidden"}`}>
-                    <div className="flex flex-col bg-white border rounded-lg space-y-2 p-2 mb-6">
+                    <div className="flex flex-col rounded-lg text-xl space-y-2 p-2 mb-6">
                         <label className="flex items-center space-x-2">
                             <input 
                                 type="checkbox"
@@ -122,7 +122,7 @@ const RideSortBySidebar = ({ setSortBy, setPickUpFilter}) => {
             <div>
                 <div className="flex justify-center md:justify-start">
                     <h2 
-                        className="font-bold text-lg md:mb-4"
+                        className="font-bold text-2xl md:mb-4"
                         onClick={() => setShowPickUpTimeOptions((prev) => !prev)}
                     >
                         Pick-up time
@@ -139,10 +139,10 @@ const RideSortBySidebar = ({ setSortBy, setPickUpFilter}) => {
                     </button>
                 </div>
                 
-
+                {/* Pick up by options */}
                 <div className={`md:block ${showPickUpTimeOptions ? "block" : "hidden"}`}>
 
-                    <div className="flex flex-col bg-white border rounded-lg space-y-4 p-2">
+                    <div className="flex flex-col rounded-lg text-xl space-y-4 p-2">
                         <label className="flex items-center space-x-2">
                             <input 
                                 type="checkbox"

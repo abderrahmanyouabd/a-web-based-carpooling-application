@@ -85,7 +85,7 @@ const Rides = () => {
        
 
     return (
-        <div className="mb-4 relative">
+        <div className="mb-4 relative bg-gray-100">
             <div className="absolute inset-0 bg-[url('https://miro.medium.com/v2/resize:fit:1400/1*n-6mh-5LUdlePB0H1u776Q.jpeg')] opacity-5"></div> {/* Subtle background pattern */}
 
             <div className="mx-auto px-6 py-8 relative">
@@ -96,7 +96,8 @@ const Rides = () => {
                 <RideSortBySidebar setSortBy={setSortBy} setPickUpFilter={setPickUpFilter} />
 
                 <div className="w-full md:w-auto">
-                    
+
+                    {/*Search parameters */}
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 md:ml-4 mb-6">
                         <div>
                             <h2 className="text-lg font-semibold">{date}</h2>
@@ -106,6 +107,7 @@ const Rides = () => {
                         
                     </div>
 
+                    {/* Ride Cards*/}
                     <div className="overflow-y-auto max-h-[800px] w-full md:w-[50rem]">
                         {sortedRides.map((ride) => (
                             <div
