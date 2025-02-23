@@ -31,7 +31,7 @@ const RideSortBySidebar = ({ filters, setFilters }) => {
         { value: "price", label: "Lowest Price", icon: <FaCoins /> },
         { value: "distance", label: "Shortest Distance", icon: <FaRoute /> },
         { value: "availableSeats", label: "Available Seats", icon: <FaUsers /> },
-        { value: "duration", label: "Shortest Ride", icon: <FaHourglass /> },
+        { value: "duration", label: "Fastest Ride", icon: <FaHourglass /> },
     ];
 
     const pickUpTimeOptions = [

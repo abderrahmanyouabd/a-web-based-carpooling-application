@@ -76,7 +76,7 @@ const YourRides = () => {
                         }`}
                         onClick={() => setSelectedTab("joined")}
                     >   
-                        Selected Ride
+                        Joined Ride
                     </button>
                 </div>
             </div>
