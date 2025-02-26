@@ -1,9 +1,11 @@
 import React, { useEffect, useState, Fragment } from "react";
 import { useLocation, useNavigate} from "react-router-dom";
-import { FaCar, FaCheckCircle, FaBan, FaUserFriends, FaClock, FaShieldAlt } from "react-icons/fa";
+import { FaCar, FaCheckCircle, FaClock, FaShieldAlt,FaInfoCircle } from "react-icons/fa";
 import { IconButton, Button, Snackbar} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import {jwtDecode} from "jwt-decode";
+import RenderStars from "./RenderStars";
+import axios from "axios";
 
 
 const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
@@ -16,6 +18,7 @@ const RideDetail = () => {
     const [snackbar, setSnackbar] = useState({ open: false, message: "" });
     const ride = location.state?.ride;
     const isDriver = profileData?.id === ride.driver.id;
+    const [reviewSummary, setReviewSummary] = useState(null);
     const token = localStorage.getItem("jwtToken");
 
 
@@ -37,6 +40,27 @@ const RideDetail = () => {
             (passenger) => passenger.email === userEmail
         );
     }
+
+    useEffect(() => {
+        const fetchReviewSummary = async () => {
+            try {
+                const response = await axios.get(`${BACKEND_API_BASE_URL}/api/reviews/users/${ride.driver.id}/summary`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                console.log("Review summary: ", response.data);
+                setReviewSummary(response.data);
+            } catch (error) {
+                console.error("Error fetching reviews:", error);
+            }
+        };
+
+        if (ride.driver?.id){
+            fetchReviewSummary();
+        }
+
+    }, [ride.driver?.id, token])
 
 
     useEffect(() => {
@@ -169,7 +193,7 @@ const RideDetail = () => {
             showSnackbar("Please sign in to view reviews");
             return;
         } else {
-            navigate(`/view-reviews/${ride.id}`, {state: { driverName: ride.driver.fullName} });
+            navigate(`/view-reviews/${ride.id}`, {state: { driverInfo: ride.driver } });
         }
     }
 
@@ -241,8 +265,12 @@ const RideDetail = () => {
                             <button 
                                 onClick={handleViewReviews}
                                 className="mt-2 px-4 py-2 text-sm md:text-base bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200"
-                            >
-                                View Reviews
+                            >   
+                                <div className="flex items-center">
+                                    {reviewSummary ? RenderStars(reviewSummary.averageRating) : "No Ratings"} 
+                                    <span className="pl-2 text-sm">{reviewSummary ? `(${reviewSummary.totalReviews})` : ""}</span>
+                                </div>
+                                
                             </button>
                         </div>
                         
@@ -264,17 +292,15 @@ const RideDetail = () => {
                     <div className="flex items-center mb-2 md:mb-4">
                         <FaClock className="text-gray-500 mr-2"/>
                         <div className="text-lg text-gray-500">Your booking will be confirmed instantly</div>
+
                     </div>
 
-                    <div className="flex items-center mb-2 md:mb-4">
-                        <FaUserFriends className="text-gray-500 mr-2" />
-                        <span className="text-lg text-gray-500">Max. 2 in the back</span>
-                    </div>
-
-                    <div className="flex items-center mb-2 md:mb-4">
-                        <FaBan className="text-gray-500 mr-2" />
-                        <span className="text-lg text-gray-500">No smoking, please</span>
-                    </div>
+                    {ride.preferences.map((preference, index) => (
+                        <div key={index} className="flex items-center text-gray-500 mb-2 md:mb-4">
+                            <FaInfoCircle className="text-gray-500 mr-2" />
+                            <span className="text-lg text-gray-500">{preference}</span>
+                        </div>
+                    ))}
                     
                     <div className="flex items-center mb-2 md:mb-4">
                         <FaCar className="text-gray-500 text-2xl mr-2"/>
