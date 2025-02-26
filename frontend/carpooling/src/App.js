@@ -25,16 +25,17 @@ import { WebSocketProvider } from "./components/communication/WebSocketProvider"
 import NotificationListener from "./components/communication/NotificationListener";
 import ChatBubble from "./components/communication/ChatBubble";
 import ChatbotComponent from "./components/communication/ChatbotComponent";
-import Footer from "./components/Footer";
 
-const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PK_API_KEY);
+const stripePromise = loadStripe(
+    "pk_test_51QIWPCEaMiQXGjyX1GMqULAWqRw5tdO5wxBQIuJ3sJyn6IJWlHx7W3qAIeBQrWepCH2hyMsP9mpJBSY617w7htKU003fDfYVGj"
+);
 
 const App = () => {
     const [user, setUser] = useState(null);
     const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
     return (
-        <div className="flex flex-col min-h-screen font-[Inter]">
+        <div>
             <Elements stripe={stripePromise}>
                 <BrowserRouter>
                     
@@ -44,33 +45,28 @@ const App = () => {
 
                         <MenuBar setUser={setUser} user={user} />
 
-                        <div className="flex-grow">
-                            <Routes>
-                                <Route path="/" element={<Home />} />
-                                <Route path="/create-ride" element={<CreateRide/>} />
-                                <Route path="/rides" element={<Rides />} />
-                                <Route path="/ride-detail/:rideId" element={<RideDetail/>} />
-                                <Route path="/signin" element={<SignIn setUser={setUser} />} />
-                                <Route path="/signin/forgot-password" element={<ForgotPassword />} />
-                                <Route path="/account/reset-password" element={<ResetPassword />} />
-                                <Route path="/signup" element={<SignUp setUser={setUser} />} />
-                                <Route path="/profile" element={<Profile setUser={setUser} />} />
-                                <Route path="/track-driver-location/:rideId" element={<DriverLocationTracker />} />
-                                <Route path="/view-driver-location/:rideId" element={<ViewDriverLocation />} />
-                                <Route path="/payment" element={<PaymentForm />} />
-                                <Route
-                                    path="/confirmation/ride/:rideId"
-                                    element={<TripConfirmation user={user} />}
-                                />
-                                <Route path="/your-rides" element={<YourRides />} />
-                                <Route path="/chat/:rideId" element={<ChatPage />} />
-                                <Route path="/view-reviews/:rideId" element={<ViewReviews user={user} />} />
-                                <Route path="/register-vehicle" element={<RegisterVehicle />} />
-                            </Routes>
-                        </div>
-
-                        <Footer />
-                        
+                        <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/create-ride" element={<CreateRide/>} />
+                            <Route path="/rides" element={<Rides />} />
+                            <Route path="/ride-detail/:rideId" element={<RideDetail/>} />
+                            <Route path="/signin" element={<SignIn setUser={setUser} />} />
+                            <Route path="/signin/forgot-password" element={<ForgotPassword />} />
+                            <Route path="/account/reset-password" element={<ResetPassword />} />
+                            <Route path="/signup" element={<SignUp setUser={setUser} />} />
+                            <Route path="/profile" element={<Profile setUser={setUser} />} />
+                            <Route path="/track-driver-location/:rideId" element={<DriverLocationTracker />} />
+                            <Route path="/view-driver-location/:rideId" element={<ViewDriverLocation />} />
+                            <Route path="/payment" element={<PaymentForm />} />
+                            <Route
+                                path="/confirmation/ride/:rideId"
+                                element={<TripConfirmation user={user} />}
+                            />
+                            <Route path="/your-rides" element={<YourRides />} />
+                            <Route path="/chat/:rideId" element={<ChatPage />} />
+                            <Route path="/view-reviews/:rideId" element={<ViewReviews user={user} />} />
+                            <Route path="/register-vehicle" element={<RegisterVehicle />} />
+                        </Routes>
 
                         <ChatBubble onClick={() => setIsChatbotOpen(true)} />
                         {isChatbotOpen && (
@@ -81,7 +77,6 @@ const App = () => {
                     
                 </BrowserRouter>
             </Elements>
-
         </div>
     );
 };

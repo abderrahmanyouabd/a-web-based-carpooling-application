@@ -7,7 +7,6 @@ import EditFullName from "./EditFullName";
 import EditDateOfBirth from "./EditDateOfBirth";
 import EditEmailAddress from "./EditEmailAddress";
 import EditPhoneNumber from "./EditPhoneNumber";
-import EditTravelPreferences from "./EditTravelPreferences";
 
 
 const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
@@ -21,7 +20,6 @@ const Profile = ({ setUser }) => {
     const [isEmailClicked, setIsEmailClicked] = useState(false);
     const [isDateOfBirthClicked, setIsDateOfBirthClicked] = useState(false);
     const [isPhoneNumberClicked, setIsPhoneNumberClicked] = useState(false);
-    const [isEditTravelPreferencesClicked, setIsEditTravelPreferencesClicked] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -88,10 +86,6 @@ const Profile = ({ setUser }) => {
     const togglePhoneNumberPopup = () => {
         setIsPhoneNumberClicked(!isPhoneNumberClicked);
     }
-    
-    const toggleEditTravelPreferencesPopup = () => {
-        setIsEditTravelPreferencesClicked(!isEditTravelPreferencesClicked);
-    };
 
     const handleFileChange = async (event) => {
         const file = event.target.files[0];
@@ -170,7 +164,7 @@ const Profile = ({ setUser }) => {
 
     return (
         
-        <div className="flex justify-center items-center mt-10 mb-10">
+        <div className="flex justify-center items-center mt-10">
             {profileData ? (
                 <div className="bg-white max-w-5xl w-full p-12 rounded-lg shadow-lg">
 
@@ -267,7 +261,7 @@ const Profile = ({ setUser }) => {
 
                         <div className="flex items-center pl-4 hover:bg-gray-200 rounded-lg">
                             <AddCircleOutlineIcon className="text-blue-500" />
-                            <p onClick={toggleEditTravelPreferencesPopup} className="text-blue-500 cursor-pointer p-4">Edit travel preferences</p>
+                            <p className="text-blue-500 cursor-pointer p-4">Edit travel preferences</p>
                         </div>
                         
                     </div>
@@ -321,12 +315,6 @@ const Profile = ({ setUser }) => {
                         <EditPhoneNumber 
                             togglePhoneNumberPopup={togglePhoneNumberPopup}
                             handleSave={handleSave}
-                        />
-                    )}
-
-                    {isEditTravelPreferencesClicked && (
-                        <EditTravelPreferences 
-                            toggleEditTravelPreferencesPopup={toggleEditTravelPreferencesPopup}
                         />
                     )}
 

@@ -1,49 +1,25 @@
 import React, { useEffect, useState, Fragment } from "react";
-import { useLocation, useNavigate} from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { FaCar, FaCheckCircle, FaBan, FaUserFriends, FaClock, FaShieldAlt } from "react-icons/fa";
 import { IconButton, Button, Snackbar} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
-import {jwtDecode} from "jwt-decode";
-
-
-const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
 
 const RideDetail = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [profileData, setProfileData] = useState(null);
+    const [clientSecret, setClientSecret] = useState(null);
     const [paymentInitiated, setPaymentInitiated] = useState(false);
     const [snackbar, setSnackbar] = useState({ open: false, message: "" });
     const ride = location.state?.ride;
     const isDriver = profileData?.id === ride.driver.id;
     const token = localStorage.getItem("jwtToken");
-
-
-    const isPassenger = () => {
-        if (!token) {
-            return false;
-        }
-
-        const decodedToken = jwtDecode(token);
-        const userEmail = decodedToken?.email;
-
-        console.log("User email: " + userEmail);
-
-        if (!userEmail) {
-            return false;
-        }
-
-        return ride.passengers.some(
-            (passenger) => passenger.email === userEmail
-        );
-    }
-
-
+    
     useEffect(() => {
         const fetchProfileData = async () => {
             try {
 
-                const response = await fetch(`${BACKEND_API_BASE_URL}/api/users/profile`, {
+                const response = await fetch(`http://localhost:8080/api/users/profile`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -62,7 +38,7 @@ const RideDetail = () => {
         };
 
         fetchProfileData();
-    }, [token]);
+    }, []);
 
     const fetchClientSecret = async () => {
         try {
@@ -72,7 +48,7 @@ const RideDetail = () => {
                 return;
             }
 
-            const response = await fetch(`${BACKEND_API_BASE_URL}/api/trips/${ride.id}/pay`, {
+            const response = await fetch(`http://localhost:8080/api/trips/${ride.id}/pay`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -85,6 +61,7 @@ const RideDetail = () => {
 
             if (response.ok) {
                 const clientSecret = await response.text();
+                setClientSecret(clientSecret);
 
                 navigate("/payment", {state: { clientSecret, rideId: ride.id, token } });
             } else if (response.status === 409) {
@@ -163,16 +140,6 @@ const RideDetail = () => {
         }
     };
 
-    const handleViewReviews = () => {
-        if (!token) {
-            console.log("No token found, ask user to sign in");
-            showSnackbar("Please sign in to view reviews");
-            return;
-        } else {
-            navigate(`/view-reviews/${ride.id}`, {state: { driverName: ride.driver.fullName} });
-        }
-    }
-
     const formattedDate = (date) => date.replace("T", " "); 
 
     const formatDateToDayOfTheWeek = (dateWithTSeparator) => {
@@ -189,15 +156,20 @@ const RideDetail = () => {
         return formatter.format(date);
     };
 
+    const getTimePart = (datetime) =>{
+        if(!datetime) return "";
+        const timePart = datetime.split("T")[1];
+        return timePart;
+    }
 
     return (
-        <div className="p-6 pt-2 md:pt-6 bg-gray-100 flex flex-col min-h-screen justify-center md:flex-row md:space-x-16">
+        <div className="p-6 bg-gray-100 flex min-h-screen justify-center space-x-16">
 
-            <div className="w-full md:max-w-3xl space-y-4">
-                <h1 className="text-2xl font-semibold text-gray-800 mb-4 md:mb-6"> {formatDateToDayOfTheWeek(ride.leavingFrom.departureTime)}</h1>
+            <div className="w-full max-w-3xl space-y-4">
+                <h1 className="text-2xl font-semibold text-gray-800 mb-6"> {formatDateToDayOfTheWeek(ride.leavingFrom.departureTime)}</h1>
 
-                <div className="bg-white rounded-lg shadow-lg p-4 md:p-6">
-                    <div className="flex flex-col space-y-4 md:space-y-8">
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                    <div className="flex flex-col space-y-8">
                         <div>
                             <h2 className="text-lg font-bold">{ride.leavingFrom.name}</h2>
                             {/* <p className="text-gray-500 mt-1">{formattedDate(ride.leavingFrom.departureTime)}</p> */}
@@ -211,14 +183,14 @@ const RideDetail = () => {
                     </div>
                 </div>
             
-                <div className="bg-white rounded-lg shadow-lg p-4 md:p-6 mb-2 md:mb-4 flex flex-col items-start">
+                <div className="bg-white rounded-lg shadow-lg p-6 mb-4 flex flex-col items-start">
                     
                     <div className="flex items-center mb-4">
-                        <div className="w-16 h-16 md:w-24 md:h-24 bg-gray-300 rounded-full">
+                        <div className="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center">
                             {ride.driver?.profilePicture ? ( 
                                 <img 
                                     src={`data:image/jpeg;base64,${ride.driver.profilePicture}`} 
-                                    alt="Profile" 
+                                    alt="Profile Picture" 
                                     className="w-full h-full object-cover rounded-full" 
                                 />
                             ) : (
@@ -230,79 +202,69 @@ const RideDetail = () => {
                                                 ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
                                                 : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
                                     }
-                                    alt="Default Profile"
+                                    alt="Default Profile Picture"
                                     className="w-full h-full object-cover rounded-full"
                                 />
                             )}
                         </div>
-
-                        <div className="flex flex-col pl-2">
-                            <h3 className="text-md md:text-lg font-semibold pl-2">{ride.driver.fullName}</h3>
-                            <button 
-                                onClick={handleViewReviews}
-                                className="mt-2 px-4 py-2 text-sm md:text-base bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200"
-                            >
-                                View Reviews
-                            </button>
-                        </div>
-                        
+                        <h3 className="text-lg font-semibold pl-2">{ride.driver.fullName}</h3>
                     </div>
                     
-                    <div className="flex items-center mb-2 md:mb-4">
+                    <div className="flex items-center mb-4">
                         <FaCheckCircle className="text-blue-500 mr-2" />
                         <p className="text-lg text-gray-500">Verified Profile</p>
                     </div>
                     
-                    <div className="flex items-center mb-2 md:mb-4">
+                    <div className="flex items-center mb-4">
                         <FaShieldAlt className="text-gray-500 mr-2" />
                         <p className="text-lg text-gray-500">Rarely cancels rides</p>
                     </div>
                     
                     
-                    <div className="border-b-2 w-full mb-2 md:mb-4"></div>
+                    <div className="border-b-2 w-full mb-4"></div>
                     
-                    <div className="flex items-center mb-2 md:mb-4">
+                    <div className="flex items-center mb-4">
                         <FaClock className="text-gray-500 mr-2"/>
                         <div className="text-lg text-gray-500">Your booking will be confirmed instantly</div>
                     </div>
 
-                    <div className="flex items-center mb-2 md:mb-4">
+                    <div className="flex items-center mb-4">
                         <FaUserFriends className="text-gray-500 mr-2" />
                         <span className="text-lg text-gray-500">Max. 2 in the back</span>
                     </div>
 
-                    <div className="flex items-center mb-2 md:mb-4">
+                    <div className="flex items-center mb-4">
                         <FaBan className="text-gray-500 mr-2" />
                         <span className="text-lg text-gray-500">No smoking, please</span>
                     </div>
                     
-                    <div className="flex items-center mb-2 md:mb-4">
+                    <div className="flex items-center mb-4">
                         <FaCar className="text-gray-500 text-2xl mr-2"/>
                         <p className="text-lg text-gray-500">{ride.driver.vehicle.model} - {ride.driver.vehicle.color} - {ride.driver.vehicle.licensePlateNumber}</p>
                     </div>
                     
-                    {isPassenger() && (
-                        <div className="mt-4 w-full flex flex-col text-center space-y-4 md:flex-row md:space-y-0 md:space-x-4">
-                            <button onClick={handleContactDriver} className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-50">
-                                Contact {ride.driver.fullName}
+
+                    <div className="mt-4 text-center space-x-4">
+                        <button onClick={handleContactDriver} className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-50">
+                            Contact {ride.driver.fullName}
+                        </button>
+                        {isDriver ? (
+                            <button
+                                onClick={() => navigate(`/track-driver-location/${ride.id}`)}
+                                className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-50"
+                            >
+                                Share My Driver Location
                             </button>
-                            {isDriver ? (
-                                <button
-                                    onClick={() => navigate(`/track-driver-location/${ride.id}`)}
-                                    className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-50"
-                                >
-                                    Share My Driver Location
-                                </button>
-                            ): (
-                                <button
-                                    onClick={handleViewDriverLocation}
-                                    className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-50"
-                                >
-                                    View Driver Location
-                                </button>
-                            )}
-                        </div>
-                    )}
+                        ): (
+                            <button
+                                onClick={handleViewDriverLocation}
+                                className="border border-blue-500 text-blue-500 px-4 py-2 rounded-lg hover:bg-blue-50"
+                            >
+                                View Driver Location
+                            </button>
+                        )}
+
+                    </div>
                     
                 </div>
                 
@@ -317,7 +279,7 @@ const RideDetail = () => {
                                         {passenger.profilePicture ? ( 
                                             <img 
                                                 src={`data:image/jpeg;base64,${passenger.profilePicture}`} 
-                                                alt="Profile" 
+                                                alt="Profile Picture" 
                                                 className="w-full h-full object-cover rounded-full" 
                                             />
                                         ) : (
@@ -329,7 +291,7 @@ const RideDetail = () => {
                                                             ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
                                                             : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
                                                 }
-                                                alt="Default Profile"
+                                                alt="Default Profile Picture"
                                                 className="w-full h-full object-cover rounded-full"
                                             />
                                         )}
@@ -351,7 +313,7 @@ const RideDetail = () => {
             </div>
 
             <div>
-                <div className="hidden md:block bg-white rounded-lg shadow-lg p-4 md:p-6 mt-4 md:mt-14">
+                <div className="bg-white rounded-lg shadow-lg p-6 mt-14">
                     <h1 className="text-lg font-semibold text-gray-800 mb-6"> {formatDateToDayOfTheWeek(ride.leavingFrom.departureTime)}</h1>
                     
                     <div className="flex flex-col space-y-8">
@@ -369,13 +331,13 @@ const RideDetail = () => {
 
                     <div className="border-b-2 m-5"></div>
                     
-                    <div className="mb-2 md:mb-4 flex items-center">
+                    <div className="mb-4 flex items-center">
                         
                         <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
                             {ride.driver?.profilePicture ? ( 
                                 <img 
                                     src={`data:image/jpeg;base64,${ride.driver.profilePicture}`} 
-                                    alt="Profile" 
+                                    alt="Profile Picture" 
                                     className="w-full h-full object-cover rounded-full" 
                                 />
                             ) : (
@@ -387,7 +349,7 @@ const RideDetail = () => {
                                                 ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
                                                 : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
                                     }
-                                    alt="Default Profile"
+                                    alt="Default Profile Picture"
                                     className="w-full h-full object-cover rounded-full"
                                 />
 
@@ -403,14 +365,14 @@ const RideDetail = () => {
                         
                 </div>
 
-                <div className="bg-white rounded-lg shadow-lg p-5 mt-4">
+                <div className="bg-white rounded-lg shadow-lg p-5 mt-8">
                     <div className="flex justify-between">
-                        <p className="text-xl font-semibold mr-2"> €{ride.farePerSeat}</p>
+                        <p className="text-xl font-semibold mr-2"> ${ride.farePerSeat}</p>
                         <p className="text-xl font-bold">1 seat</p>
                     </div>
                 </div>
 
-                <button onClick={handlePaymentClick} className="w-full bg-blue-500 text-white px-16 md:px-24 py-3 mt-4 rounded-lg font-semibold hover:bg-blue-600">
+                <button onClick={handlePaymentClick} className="bg-blue-500 text-white px-24 py-3 mt-4 rounded-lg font-semibold hover:bg-blue-600">
                     Proceed to payment
                 </button>
 

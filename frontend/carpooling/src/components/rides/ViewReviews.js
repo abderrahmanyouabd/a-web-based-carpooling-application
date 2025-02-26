@@ -1,87 +1,96 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import RenderStars from "./RenderStars";
 import { useLocation } from "react-router-dom";
 import { FaRegSadCry } from "react-icons/fa";
-import { Snackbar, Alert } from "@mui/material";
 import RatingStars from "./RatingStars";
-import axios from "axios";
 
-
-const BACKEND_API_BASE_URL = process.env.REACT_APP_BACKEND_API_BASE_URL;
+// Dummy review data
+const dummyReviews = [
+    {
+        id: 1,
+        name: "John Doe",
+        rating: 4.5,
+        comment: "Great driver! Very friendly and punctual.",
+        date: "January 20, 2025"
+    },
+    {
+        id: 2,
+        name: "Jane Smith",
+        rating: 5,
+        comment: "The ride was smooth, and the driver was very professional!",
+        date: "January 15, 2025"
+    },
+    {
+        id: 3,
+        name: "Michael Johnson",
+        rating: 4,
+        comment: "Good experience overall, but could improve communication.",
+        date: "January 10, 2025"
+    },
+    {
+        id: 4,
+        name: "Michael Johnson",
+        rating: 4,
+        comment: "Good experience overall, but could improve communication.",
+        date: "January 10, 2025"
+    },
+    {
+        id: 5,
+        name: "Michael Johnson",
+        rating: 4,
+        comment: "Good experience overall, but could improve communication.",
+        date: "January 10, 2025"
+    },
+    {
+        id: 6,
+        name: "Michael Johnson",
+        rating: 4,
+        comment: "Good experience overall, but could improve communication.",
+        date: "January 10, 2025"
+    },
+    {
+        id: 7,
+        name: "Michael Johnson",
+        rating: 4,
+        comment: "Good experience overall, but could improve communication.",
+        date: "January 10, 2025"
+    }
+];
 
 const ViewReviews = ({ user }) => {
     const location = useLocation();
-    const { driverInfo } = location.state;
+    const { driverName } = location.state;
     const [showReviewForm, setShowReviewForm] = useState(false);
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState("");
-    const [reviews, setReviews] = useState([]);
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState("");
-    const jwtToken = localStorage.getItem("jwtToken");
+    const [reviews, setReviews] = useState(dummyReviews);
 
-    useEffect(() => {
-        const fetchReviews = async () => {
-            try {
-                const response = await axios.get(`${BACKEND_API_BASE_URL}/api/reviews/users/${driverInfo.id}`, {
-                    headers: {
-                        Authorization: `Bearer ${jwtToken}`
-                    }
-                });
-                setReviews(response.data);
-            } catch (error) {
-                console.error("Error fetching reviews:", error);
-            }
-        };
-
-        if (driverInfo?.id){
-            fetchReviews();
-        }
-
-    }, [driverInfo?.id, jwtToken])
-
-    const handleSubmitReview = async () => {
+    const handleSubmitReview = () => {
         if (rating < 1 || rating > 5 || comment.trim() === ""){
             alert("Please enter a valid rating(1-5) and a comment");
             return;
         }
 
         const newReview = {
+            id: reviews.length + 1,
             name: user.fullName,
             rating: rating,
             comment: comment,
-        };
-
-        try {
-            const response = await axios.post(`${BACKEND_API_BASE_URL}/api/reviews/users/${driverInfo.id}`, 
-                newReview,
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${jwtToken}`
-                    }
-                }
-            );
-
-            setReviews([...reviews, { ...newReview, id: response.data.id, date: response.data.date } ]);
-            setShowReviewForm(false);
-            setRating(0);
-            setComment("");
-
-        } catch (error) {
-            console.error("Error submitting review:", error);
-            const errorMessage = error.response?.data?.message || "Failed to submit review. Please try again.";
-            setSnackbarMessage(errorMessage);
-            setSnackbarOpen(true);
+            date: new Date().toLocaleDateString()
         }
-    };
+
+        setReviews([...reviews, newReview]);
+        setShowReviewForm(false);
+        setRating(0);
+        setComment("");
+    }
 
     
 
     return (
         <div className="p-6 flex flex-col justify-center items-center">
             <h1 className="text-3xl font-bold text-gray-800 mb-6">
-                Reviews for {driverInfo.fullName || "this driver"}
+                Reviews for {driverName || "this driver"}
             </h1>
             <div className="mb-4">
                 <button
@@ -132,7 +141,7 @@ const ViewReviews = ({ user }) => {
                 <div className="flex flex-col items-center mt-3 text-gray-500">
                     <FaRegSadCry className="w-32 h-32 mb-3" />
                     <h2 className="mt-4 text-lg font-semibold text-gray-700 text-center px-4 break-words">
-                        Unfortunately, there is no review <br/> for {driverInfo.fullName} yet
+                        Unfortunately, there is no review <br/> for {driverName} yet
                     </h2>
                     <p className="mt-2 text-gray-500">Be the first to leave a review!</p>
                 </div>
@@ -152,20 +161,8 @@ const ViewReviews = ({ user }) => {
                             <p className="mt-3text-gray-700">{review.comment}</p>
                         </div>
                     ))}
-
                 </div>
             )}
-
-            <Snackbar 
-                open={snackbarOpen}
-                autoHideDuration={4000}
-                onClose={() => setSnackbarOpen(false)}
-                anchorOrigin={{ vertical: "top", horizontal: "center" }}
-            > 
-                <Alert elevation={6} variant="filled" onClose={() => setSnackbarOpen(false)} severity="error">
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar>
 
             
         </div>

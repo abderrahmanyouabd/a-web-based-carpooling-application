@@ -178,7 +178,7 @@ const CreateRide = () => {
             availableSeats: params.numberOfAvailableSeat,
             comment: "",
             stations: [],
-            preferences
+            //preferences
         };
 
         console.log("TripData: ", tripData);
@@ -333,7 +333,7 @@ const CreateRide = () => {
 
 
     return (
-        <div className="flex flex-col items-center mt-10 mb-10">
+        <div className="flex flex-col items-center mt-10">
             
             {step === 0 && (
                 <Step0 />

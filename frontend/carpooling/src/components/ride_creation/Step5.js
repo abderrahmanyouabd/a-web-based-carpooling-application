@@ -40,7 +40,7 @@ const Step5 = ({ preferences, handlePreferenceChange, handlePrevious, handleCont
                             }
 
                             label={
-                                <span className="text-lg md:text-xl text-gray-800 font-[Inter]">
+                                <span className="text-lg md:text-xl text-gray-800 font-sans">
                                     {option}
                                 </span>
                                 

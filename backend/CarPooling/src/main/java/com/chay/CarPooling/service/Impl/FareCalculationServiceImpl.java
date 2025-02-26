@@ -57,25 +57,25 @@ public class FareCalculationServiceImpl implements FareCalculationService {
 
 //    @Override
     private Double getGasPrice(String latitude, String longitude, String gasolineOrDiesel) {
-//        String apiUrl = String.format("https://api.collectapi.com/gasPrice/fromCoordinates?lng=%s&lat=%s", longitude, latitude);
-//        String response = webClient.post()
-//                .uri(apiUrl)
-//                .header("authorization", gasPriceApiKey)
-//                .header("Content-Type", "application/json; charset=utf-8")
-//                .retrieve()
-//                .bodyToMono(String.class)
-//                .block();
+        String apiUrl = String.format("https://api.collectapi.com/gasPrice/fromCoordinates?lng=%s&lat=%s", longitude, latitude);
+        String response = webClient.post()
+                .uri(apiUrl)
+                .header("authorization", gasPriceApiKey)
+                .header("Content-Type", "application/json; charset=utf-8")
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
 
         // Parse the response using Jackson
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-//            JsonNode jsonResponse = objectMapper.readTree(response);
-//            JsonNode result = jsonResponse.get("result");
+            JsonNode jsonResponse = objectMapper.readTree(response);
+            JsonNode result = jsonResponse.get("result");
 
             if ("gasoline".equalsIgnoreCase(gasolineOrDiesel)) {
-                return 42.4;
+                return result.get("gasoline").asDouble();
             } else if ("diesel".equalsIgnoreCase(gasolineOrDiesel)) {
-                return 53.1;
+                return result.get("diesel").asDouble();
             } else {
                 throw new IllegalArgumentException("Invalid fuel type. Please provide either 'gasoline' or 'diesel'.");
             }
@@ -88,8 +88,7 @@ public class FareCalculationServiceImpl implements FareCalculationService {
     @Override
     public BigDecimal calculateFareOnxx(Trip trip) {
         double fuelEfficiency = 8.0;
-        double fuelPrice = 42.0;
-                // getGasPrice(trip.getLeavingFrom().getLatitude(), trip.getLeavingFrom().getLongitude(), trip.getVehicle().getGasType().name());
+        double fuelPrice = getGasPrice(trip.getLeavingFrom().getLatitude(), trip.getLeavingFrom().getLongitude(), trip.getVehicle().getGasType().name());
         double distance = trip.getDistance();
 
         try {

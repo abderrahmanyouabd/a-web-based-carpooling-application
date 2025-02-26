@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { FaWalking } from 'react-icons/fa';
 import { AiOutlineArrowRight } from 'react-icons/ai';
+import { MdAttachMoney } from 'react-icons/md';
 import { FaCar } from "react-icons/fa";
-import TripSearch from "../TripSearch";
+import TripSearch from "./TripSearch";
 import Sidebar from "./Sidebar";
 import { useNavigate } from "react-router-dom";
 
@@ -76,7 +77,7 @@ const Rides = () => {
     }
 
     const formatDuration = (duration) => {
-        const [hours, minutes, ] = duration.split(':').map(Number);
+        const [hours, minutes, seconds] = duration.split(':').map(Number);
         const formattedHours = hours > 0 ? `${hours} hour${hours > 1 ? 's': ''} `: '';
         const formattedMinutes = minutes > 0 ? `${minutes} minute${minutes > 1 ? 's': ''} `: '';
 
@@ -90,12 +91,12 @@ const Rides = () => {
                 <TripSearch initialParams={{ leavingFrom, goingTo, date, numberOfAvailableSeat }}/>
             </div>
             
-            <div className="flex flex-col md:flex-row justify-center md:space-x-8">
+            <div className="flex justify-center space-x-8">
                 <Sidebar setSoryBy={setSoryBy} setPickUpFilter={setPickUpFilter} />
 
-                <div className="w-full md:w-auto">
+                <div className="w-auto">
                     
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-4 md:ml-4 mb-6">
+                    <div className="flex justify-between items-center p-4 ml-4 mb-6">
                         <div>
                             <h2 className="text-lg font-semibold">{date}</h2>
                             <p className="text-gray-600">{leavingFrom} → {goingTo}</p>
@@ -103,8 +104,10 @@ const Rides = () => {
                         </div>
                         
                     </div>
+                       
 
-                    <div className="overflow-auto h-auto w-full md:w-[50rem]">
+
+                    <div className="overflow-auto h-auto w-[50rem]">
                         {sortedRides.map((ride) => (
                             <div
                                 key={ride.id}
@@ -118,9 +121,9 @@ const Rides = () => {
                                             FULL
                                         </div>
                                 )}
-                                <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                                <div className="flex justify-between items-center">
                                     
-                                    <div className="flex items-center justify-between w-full md:w-auto">  
+                                    <div className="flex items-center">  
                                         <div>
                                             <p className="text-lg font-semibold">{getTimePart(ride.leavingFrom.departureTime)}</p>
                                         </div>
@@ -156,7 +159,7 @@ const Rides = () => {
                                     </div>
 
 
-                                    <div className="flex flex-col items-center md:text-right md:block">
+                                    <div className="text-right">
                                         <p className="text-lg font-semibold">{ride.leavingFrom.name}</p>
                                         <p className="text-lg font-semibold">{ride.goingTo.name}</p>
                                     </div>
@@ -170,7 +173,8 @@ const Rides = () => {
                                     </div>
 
                                     <div className="flex items-center">
-                                        <p className="text-2xl font-bold">€{ride.farePerSeat}</p>
+                                        <MdAttachMoney className="text-xl text-green-500" />
+                                        <p className="text-2xl font-bold">{ride.farePerSeat}</p>
                                     </div>
                                 </div>
 
@@ -182,7 +186,7 @@ const Rides = () => {
                                             {ride.driver?.profilePicture ? ( 
                                                 <img 
                                                     src={`data:image/jpeg;base64,${ride.driver.profilePicture}`} 
-                                                    alt="Profile" 
+                                                    alt="Profile Picture" 
                                                     className="w-full h-full object-cover rounded-full" 
                                                 />
                                             ) : (
@@ -194,7 +198,7 @@ const Rides = () => {
                                                                 ? "https://www.pngitem.com/pimgs/m/35-350426_profile-icon-png-default-profile-picture-png-transparent.png"
                                                                 : "https://www.pngitem.com/pimgs/m/150-1503945_transparent-user-png-default-user-image-png-png.png"
                                                     }
-                                                    alt="Default Profile"
+                                                    alt="Default Profile Picture"
                                                     className="w-full h-full object-cover rounded-full"
                                                 />
                                             )}
