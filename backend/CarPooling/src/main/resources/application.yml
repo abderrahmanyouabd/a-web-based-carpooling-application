@@ -1,0 +1,91 @@
+spring:
+  mvc:
+    async:
+      request-timeout: 5000
+  ai:
+    openai:
+      api-key: <YOUR_GROQ_API_KEY>
+      base-url: https://api.groq.com/openai
+      chat:
+        options:
+          model: llama3-70b-8192
+          temperature: 0.4
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+      enabled: true
+  jvm:
+    arguments: --add-opens java.base/java.net=ALL-UNNAMED
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: <YOUR_EMAIL_ADDRESS>
+    password: <YOUR_EMAIL_PASSWORD>
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  application:
+    name: CarPooling
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:carpoolingdb}
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: <YOUR_DB_PASSWORD>
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+    properties:
+      hibernate:
+        format_sql: true
+  main:
+    allow-bean-definition-overriding: true
+  data:
+      mongodb:
+        host: localhost
+        port: 27017
+        database: carpooling_chat
+        username: <YOUR_MONGODB_USERNAME>
+        password: <YOUR_MONGODB_PASSWORD>
+        authentication-database: admin
+#logging:
+#  level:
+#    org:
+#      hibernate:
+#        SQL: DEBUG
+#        type:
+#          descriptor:
+#            sql:
+#              BasicBinder: TRACE
+
+server:
+  port: 8080
+
+
+openrouteservice:
+    api:
+      key: <YOUR_OPENROUTESERVICE_API_KEY>
+
+openweathermap:
+  api:
+    key: <YOUR_OPENWEATHERMAP_API_KEY>
+
+gasprice:
+  api:
+    key: <YOUR_GASPRICE_API_KEY>
+
+stripe:
+  api:
+    key: <YOUR_STRIPE_API_KEY>
+
+onnx:
+  model:
+    path: backend/CarPooling/src/main/java/com/chay/CarPooling/utils/optimized_driving_cost_model_quantized.onnx
